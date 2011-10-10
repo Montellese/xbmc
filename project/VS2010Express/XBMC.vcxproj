@@ -759,6 +759,7 @@
     <ClInclude Include="..\..\xbmc\cores\paplayer\PCMCodec.h" />
     <ClInclude Include="..\..\xbmc\filesystem\FileUPnP.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\pythreadstate.h" />
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.h" />
     <ClInclude Include="..\..\xbmc\threads\platform\win\Implementation.cpp" />
     <ClCompile Include="..\..\xbmc\threads\SystemClock.cpp" />
     <ClCompile Include="..\..\xbmc\threads\Thread.cpp" />

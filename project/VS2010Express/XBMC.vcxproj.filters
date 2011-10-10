@@ -250,6 +250,9 @@
     <Filter Include="peripherals\dialogs">
       <UniqueIdentifier>{9571e2bc-891d-4496-bcba-2ec3eed45704}</UniqueIdentifier>
     </Filter>
+    <Filter Include="network\httprequesthandler">
+      <UniqueIdentifier>{9029e610-aa5a-4414-9e96-1d69f03b3bd8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\xbmc\win32\pch.cpp">
@@ -5159,6 +5162,9 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\cores\paplayer\PCMCodec.h">
       <Filter>cores\paplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.h">
+      <Filter>network\httprequesthandler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
