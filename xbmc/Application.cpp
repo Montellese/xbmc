@@ -42,6 +42,7 @@
 #endif
 #ifdef HAS_WEB_INTERFACE
 #include "network/httprequesthandler/HTTPWebinterfaceHandler.h"
+#include "network/httprequesthandler/HTTPWebinterfaceAddonsHandler.h"
 #endif
 #endif
 #ifdef HAS_LCD
@@ -351,6 +352,7 @@ CApplication::CApplication(void)
 #endif
 #ifdef HAS_WEB_INTERFACE
   , m_httpWebinterfaceHandler(*new CHTTPWebinterfaceHandler)
+  , m_httpWebinterfaceAddonsHandler(*new CHTTPWebinterfaceAddonsHandler)
 #endif
 #endif
   , m_itemCurrentFile(new CFileItem)
@@ -407,6 +409,7 @@ CApplication::~CApplication(void)
 #endif
 #ifdef HAS_WEB_INTERFACE
   delete &m_httpWebinterfaceHandler;
+  delete &m_httpWebinterfaceAddonsHandler;
 #endif
 #endif
   delete &m_progressTrackingVideoResumeBookmark;
@@ -1098,6 +1101,7 @@ bool CApplication::Initialize()
   CWebServer::RegisterRequestHandler(&m_httpApiHandler);
 #endif
 #ifdef HAS_WEB_INTERFACE
+  CWebServer::RegisterRequestHandler(&m_httpWebinterfaceAddonsHandler);
   // Must always be registered as the last HTTP handler as it is the default handler
   CWebServer::RegisterRequestHandler(&m_httpWebinterfaceHandler);
 #endif
@@ -3378,6 +3382,7 @@ void CApplication::Stop(int exitCode)
   CWebServer::UnregisterRequestHandler(&m_httpApiHandler);
 #endif
 #ifdef HAS_WEB_INTERFACE
+  CWebServer::UnregisterRequestHandler(&m_httpWebinterfaceAddonsHandler);
   CWebServer::UnregisterRequestHandler(&m_httpWebinterfaceHandler);
 #endif
 #endif
