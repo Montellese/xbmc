@@ -77,6 +77,7 @@ class CHTTPApiHandler;
 #endif
 #ifdef HAS_WEB_INTERFACE
 class CHTTPWebinterfaceHandler;
+class CHTTPWebinterfaceAddonsHandler;
 #endif
 #endif
 
@@ -240,6 +241,7 @@ public:
 #endif
 #ifdef HAS_WEB_INTERFACE
   CHTTPWebinterfaceHandler& m_httpWebinterfaceHandler;
+  CHTTPWebinterfaceAddonsHandler& m_httpWebinterfaceAddonsHandler;
 #endif
 #endif
 
