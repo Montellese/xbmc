@@ -25,7 +25,6 @@
 
 #include "JSONRPCUtils.h"
 #include "SortFileItem.h"
-#include "utils/StdString.h"
 #include "interfaces/IAnnouncer.h"
 #include "utils/JSONVariantWriter.h"
 #include "utils/JSONVariantParser.h"

@@ -467,8 +467,18 @@ int CBuiltins::Execute(const CStdString& execString)
           if (plugin->Provides(CPluginSource::IMAGE))
             cmd.Format("ActivateWindow(Pictures,plugin://%s,return)",params[0]);
         }
-        if (addon->Type() == ADDON_SCRIPT)
-          cmd.Format("RunScript(%s)",params[0]);
+        if (addon->Type() == ADDON_SCRIPT || addon->Type() == ADDON_SCRIPT_LIBRARY)
+        {
+          if (params.size() == 1)
+            cmd.Format("RunScript(%s)", params[0]);
+          else
+          {
+            CStdStringArray scriptParams(params.begin() + 1, params.end());
+            CStdString strParam;
+            StringUtils::JoinString(scriptParams, ",", strParam);
+            cmd.Format("RunScript(%s,%s)", params[0], strParam);
+          }
+        }
 
         return Execute(cmd);
       }
