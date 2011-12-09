@@ -36,7 +36,6 @@ namespace JSONRPC
 
     static bool FillFileItemList(const CVariant &parameterObject, CFileItemList &list);
   private:
-    static bool ParseSortMethods(const CStdString &method, const bool &ignorethe, const CStdString &order, SORT_METHOD &sortmethod, SORT_ORDER &sortorder);
     static void Sort(CFileItemList &items, const CVariant& parameterObject);
   };
 }
