@@ -43,12 +43,6 @@
 		DF52775A151BAF8200B5B63B /* WebSocketV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF527754151BAF8200B5B63B /* WebSocketV8.cpp */; };
 		DF527760151BAFA000B5B63B /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF52775C151BAFA000B5B63B /* Base64.cpp */; };
 		DF527761151BAFA000B5B63B /* HttpResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF52775E151BAFA000B5B63B /* HttpResponse.cpp */; };
-		DF5275B0151BAD2300B5B63B /* HTTPApiHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275A3151BAD2300B5B63B /* HTTPApiHandler.cpp */; };
-		DF5275B1151BAD2300B5B63B /* HTTPJsonRpcHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275A5151BAD2300B5B63B /* HTTPJsonRpcHandler.cpp */; };
-		DF5275B2151BAD2300B5B63B /* HTTPVfsHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275A7151BAD2300B5B63B /* HTTPVfsHandler.cpp */; };
-		DF5275B3151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275A9151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.cpp */; };
-		DF5275B4151BAD2300B5B63B /* HTTPWebinterfaceHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275AB151BAD2300B5B63B /* HTTPWebinterfaceHandler.cpp */; };
-		DF5275B5151BAD2300B5B63B /* IHTTPRequestHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF5275AD151BAD2300B5B63B /* IHTTPRequestHandler.cpp */; };
 		DF6739E21443765F00A5A509 /* FileUPnP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF6739E01443765F00A5A509 /* FileUPnP.cpp */; };
 		DF98D9991434F49500A6EBE1 /* SkinVariable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF98D9971434F49500A6EBE1 /* SkinVariable.cpp */; };
 		DFA6BE4313FECA010048CC11 /* AirPlayServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFA6BE4113FECA010048CC11 /* AirPlayServer.cpp */; };
@@ -59,6 +53,12 @@
 		DFD4D1E213D725ED00A47C47 /* Implementation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD4D1D813D725ED00A47C47 /* Implementation.cpp */; };
 		DFD4D1E713D7263000A47C47 /* README.platform in Resources */ = {isa = PBXBuildFile; fileRef = DFD4D1E613D7263000A47C47 /* README.platform */; };
 		DFD4D1FE13D7283500A47C47 /* SystemClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD4D1FC13D7283500A47C47 /* SystemClock.cpp */; };
+		DFF9EE9D151F6A9400C16BFD /* HTTPApiHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE90151F6A9400C16BFD /* HTTPApiHandler.cpp */; };
+		DFF9EE9E151F6A9400C16BFD /* HTTPJsonRpcHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE92151F6A9400C16BFD /* HTTPJsonRpcHandler.cpp */; };
+		DFF9EE9F151F6A9400C16BFD /* HTTPVfsHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE94151F6A9400C16BFD /* HTTPVfsHandler.cpp */; };
+		DFF9EEA0151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE96151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.cpp */; };
+		DFF9EEA1151F6A9400C16BFD /* HTTPWebinterfaceHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE98151F6A9400C16BFD /* HTTPWebinterfaceHandler.cpp */; };
+		DFF9EEA2151F6A9400C16BFD /* IHTTPRequestHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFF9EE9A151F6A9400C16BFD /* IHTTPRequestHandler.cpp */; };
 		F56B143412CAF279009B4C96 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F56B143312CAF279009B4C96 /* CoreVideo.framework */; };
 		F56B14A512CAF523009B4C96 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F56B14A412CAF523009B4C96 /* AudioToolbox.framework */; };
 		F56B15D512CD67A9009B4C96 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F56B15D412CD67A9009B4C96 /* CoreGraphics.framework */; };
@@ -1032,18 +1032,6 @@
 		DF52775D151BAFA000B5B63B /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		DF52775E151BAFA000B5B63B /* HttpResponse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpResponse.cpp; sourceTree = "<group>"; };
 		DF52775F151BAFA000B5B63B /* HttpResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpResponse.h; sourceTree = "<group>"; };
-		DF5275A3151BAD2300B5B63B /* HTTPApiHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPApiHandler.cpp; sourceTree = "<group>"; };
-		DF5275A4151BAD2300B5B63B /* HTTPApiHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPApiHandler.h; sourceTree = "<group>"; };
-		DF5275A5151BAD2300B5B63B /* HTTPJsonRpcHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPJsonRpcHandler.cpp; sourceTree = "<group>"; };
-		DF5275A6151BAD2300B5B63B /* HTTPJsonRpcHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPJsonRpcHandler.h; sourceTree = "<group>"; };
-		DF5275A7151BAD2300B5B63B /* HTTPVfsHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPVfsHandler.cpp; sourceTree = "<group>"; };
-		DF5275A8151BAD2300B5B63B /* HTTPVfsHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPVfsHandler.h; sourceTree = "<group>"; };
-		DF5275A9151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPWebinterfaceAddonsHandler.cpp; sourceTree = "<group>"; };
-		DF5275AA151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebinterfaceAddonsHandler.h; sourceTree = "<group>"; };
-		DF5275AB151BAD2300B5B63B /* HTTPWebinterfaceHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPWebinterfaceHandler.cpp; sourceTree = "<group>"; };
-		DF5275AC151BAD2300B5B63B /* HTTPWebinterfaceHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebinterfaceHandler.h; sourceTree = "<group>"; };
-		DF5275AD151BAD2300B5B63B /* IHTTPRequestHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IHTTPRequestHandler.cpp; sourceTree = "<group>"; };
-		DF5275AE151BAD2300B5B63B /* IHTTPRequestHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IHTTPRequestHandler.h; sourceTree = "<group>"; };
 		DF6739E01443765F00A5A509 /* FileUPnP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileUPnP.cpp; sourceTree = "<group>"; };
 		DF6739E11443765F00A5A509 /* FileUPnP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUPnP.h; sourceTree = "<group>"; };
 		DF98D9971434F49500A6EBE1 /* SkinVariable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkinVariable.cpp; sourceTree = "<group>"; };
@@ -1068,6 +1056,18 @@
 		DFD4D1E613D7263000A47C47 /* README.platform */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.platform; sourceTree = "<group>"; };
 		DFD4D1FC13D7283500A47C47 /* SystemClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SystemClock.cpp; sourceTree = "<group>"; };
 		DFD4D1FD13D7283500A47C47 /* SystemClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemClock.h; sourceTree = "<group>"; };
+		DFF9EE90151F6A9400C16BFD /* HTTPApiHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPApiHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE91151F6A9400C16BFD /* HTTPApiHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPApiHandler.h; sourceTree = "<group>"; };
+		DFF9EE92151F6A9400C16BFD /* HTTPJsonRpcHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPJsonRpcHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE93151F6A9400C16BFD /* HTTPJsonRpcHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPJsonRpcHandler.h; sourceTree = "<group>"; };
+		DFF9EE94151F6A9400C16BFD /* HTTPVfsHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPVfsHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE95151F6A9400C16BFD /* HTTPVfsHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPVfsHandler.h; sourceTree = "<group>"; };
+		DFF9EE96151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPWebinterfaceAddonsHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE97151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebinterfaceAddonsHandler.h; sourceTree = "<group>"; };
+		DFF9EE98151F6A9400C16BFD /* HTTPWebinterfaceHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPWebinterfaceHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE99151F6A9400C16BFD /* HTTPWebinterfaceHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPWebinterfaceHandler.h; sourceTree = "<group>"; };
+		DFF9EE9A151F6A9400C16BFD /* IHTTPRequestHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IHTTPRequestHandler.cpp; sourceTree = "<group>"; };
+		DFF9EE9B151F6A9400C16BFD /* IHTTPRequestHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IHTTPRequestHandler.h; sourceTree = "<group>"; };
 		F558F60613AFDC1700631E12 /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
 		F558F61013AFDC3000631E12 /* ThreadLocal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadLocal.h; sourceTree = "<group>"; };
 		F56B143312CAF279009B4C96 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -3066,23 +3066,6 @@
 				DF527755151BAF8200B5B63B /* WebSocketV8.h */,
 			);
 			path = websocket;
-		DF5275A2151BAD2300B5B63B /* httprequesthandler */ = {
-			isa = PBXGroup;
-			children = (
-				DF5275A3151BAD2300B5B63B /* HTTPApiHandler.cpp */,
-				DF5275A4151BAD2300B5B63B /* HTTPApiHandler.h */,
-				DF5275A5151BAD2300B5B63B /* HTTPJsonRpcHandler.cpp */,
-				DF5275A6151BAD2300B5B63B /* HTTPJsonRpcHandler.h */,
-				DF5275A7151BAD2300B5B63B /* HTTPVfsHandler.cpp */,
-				DF5275A8151BAD2300B5B63B /* HTTPVfsHandler.h */,
-				DF5275A9151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.cpp */,
-				DF5275AA151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.h */,
-				DF5275AB151BAD2300B5B63B /* HTTPWebinterfaceHandler.cpp */,
-				DF5275AC151BAD2300B5B63B /* HTTPWebinterfaceHandler.h */,
-				DF5275AD151BAD2300B5B63B /* IHTTPRequestHandler.cpp */,
-				DF5275AE151BAD2300B5B63B /* IHTTPRequestHandler.h */,
-			);
-			path = httprequesthandler;
 			sourceTree = "<group>";
 		};
 		DFD4D1D013D725ED00A47C47 /* platform */ = {
@@ -3106,6 +3089,25 @@
 				DFD4D1D913D725ED00A47C47 /* ThreadLocal.h */,
 			);
 			path = pthreads;
+			sourceTree = "<group>";
+		};
+		DFF9EE8F151F6A9400C16BFD /* httprequesthandler */ = {
+			isa = PBXGroup;
+			children = (
+				DFF9EE90151F6A9400C16BFD /* HTTPApiHandler.cpp */,
+				DFF9EE91151F6A9400C16BFD /* HTTPApiHandler.h */,
+				DFF9EE92151F6A9400C16BFD /* HTTPJsonRpcHandler.cpp */,
+				DFF9EE93151F6A9400C16BFD /* HTTPJsonRpcHandler.h */,
+				DFF9EE94151F6A9400C16BFD /* HTTPVfsHandler.cpp */,
+				DFF9EE95151F6A9400C16BFD /* HTTPVfsHandler.h */,
+				DFF9EE96151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.cpp */,
+				DFF9EE97151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.h */,
+				DFF9EE98151F6A9400C16BFD /* HTTPWebinterfaceHandler.cpp */,
+				DFF9EE99151F6A9400C16BFD /* HTTPWebinterfaceHandler.h */,
+				DFF9EE9A151F6A9400C16BFD /* IHTTPRequestHandler.cpp */,
+				DFF9EE9B151F6A9400C16BFD /* IHTTPRequestHandler.h */,
+			);
+			path = httprequesthandler;
 			sourceTree = "<group>";
 		};
 		F56C8034131F42E5000AD0F6 /* Source */ = {
@@ -5271,7 +5273,7 @@
 		F56C862A131F42EA000AD0F6 /* network */ = {
 			isa = PBXGroup;
 			children = (
-				DF5275A2151BAD2300B5B63B /* httprequesthandler */,
+				DFF9EE8F151F6A9400C16BFD /* httprequesthandler */,
 				F56C862B131F42EA000AD0F6 /* libscrobbler */,
 				F56C8633131F42EA000AD0F6 /* linux */,
 				F56C8636131F42EA000AD0F6 /* osx */,
@@ -7035,12 +7037,12 @@
 				DF52775A151BAF8200B5B63B /* WebSocketV8.cpp in Sources */,
 				DF527760151BAFA000B5B63B /* Base64.cpp in Sources */,
 				DF527761151BAFA000B5B63B /* HttpResponse.cpp in Sources */,
-				DF5275B0151BAD2300B5B63B /* HTTPApiHandler.cpp in Sources */,
-				DF5275B1151BAD2300B5B63B /* HTTPJsonRpcHandler.cpp in Sources */,
-				DF5275B2151BAD2300B5B63B /* HTTPVfsHandler.cpp in Sources */,
-				DF5275B3151BAD2300B5B63B /* HTTPWebinterfaceAddonsHandler.cpp in Sources */,
-				DF5275B4151BAD2300B5B63B /* HTTPWebinterfaceHandler.cpp in Sources */,
-				DF5275B5151BAD2300B5B63B /* IHTTPRequestHandler.cpp in Sources */,
+				DFF9EE9D151F6A9400C16BFD /* HTTPApiHandler.cpp in Sources */,
+				DFF9EE9E151F6A9400C16BFD /* HTTPJsonRpcHandler.cpp in Sources */,
+				DFF9EE9F151F6A9400C16BFD /* HTTPVfsHandler.cpp in Sources */,
+				DFF9EEA0151F6A9400C16BFD /* HTTPWebinterfaceAddonsHandler.cpp in Sources */,
+				DFF9EEA1151F6A9400C16BFD /* HTTPWebinterfaceHandler.cpp in Sources */,
+				DFF9EEA2151F6A9400C16BFD /* IHTTPRequestHandler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
