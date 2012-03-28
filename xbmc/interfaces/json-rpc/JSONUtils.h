@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "JSONRPCUtils.h"
+#include "SortFileItem.h"
 #include "interfaces/IAnnouncer.h"
 #include "utils/JSONVariantWriter.h"
 #include "utils/JSONVariantParser.h"
@@ -70,6 +71,100 @@ namespace JSONRPC
     }
 
   protected:
+    static void HandleLimits(const CVariant &parameterObject, CVariant &result, int size, int &start, int &end)
+    {
+      if (size < 0)
+        size = 0;
+    
+      start = (int)parameterObject["limits"]["start"].asInteger();
+      end   = (int)parameterObject["limits"]["end"].asInteger();
+      end = (end <= 0 || end > size) ? size : end;
+      start = start > end ? end : start;
+
+      result["limits"]["start"] = start;
+      result["limits"]["end"]   = end;
+      result["limits"]["total"] = size;
+    }
+
+    static bool ParseSortMethods(const std::string &method, const bool &ignorethe, const std::string &order, SORT_METHOD &sortmethod, SORT_ORDER &sortorder)
+    {
+      if (order.compare("ascending") == 0)
+        sortorder = SORT_ORDER_ASC;
+      else if (order.compare("descending") == 0)
+        sortorder = SORT_ORDER_DESC;
+      else
+        return false;
+
+      if (method.compare("none") == 0)
+        sortmethod = SORT_METHOD_NONE;
+      else if (method.compare("label") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_LABEL_IGNORE_THE : SORT_METHOD_LABEL;
+      else if (method.compare("date") == 0)
+        sortmethod = SORT_METHOD_DATE;
+      else if (method.compare("size") == 0)
+        sortmethod = SORT_METHOD_SIZE;
+      else if (method.compare("file") == 0)
+        sortmethod = SORT_METHOD_FILE;
+      else if (method.compare("drivetype") == 0)
+        sortmethod = SORT_METHOD_DRIVE_TYPE;
+      else if (method.compare("track") == 0)
+        sortmethod = SORT_METHOD_TRACKNUM;
+      else if (method.compare("duration") == 0)
+        sortmethod = SORT_METHOD_DURATION;
+      else if (method.compare("title") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_TITLE_IGNORE_THE : SORT_METHOD_TITLE;
+      else if (method.compare("artist") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_ARTIST_IGNORE_THE : SORT_METHOD_ARTIST;
+      else if (method.compare("album") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_ALBUM_IGNORE_THE : SORT_METHOD_ALBUM;
+      else if (method.compare("genre") == 0)
+        sortmethod = SORT_METHOD_GENRE;
+      else if (method.compare("country") == 0)
+        sortmethod = SORT_METHOD_COUNTRY;
+      else if (method.compare("year") == 0)
+        sortmethod = SORT_METHOD_YEAR;
+      else if (method.compare("videorating") == 0)
+        sortmethod = SORT_METHOD_VIDEO_RATING;
+      else if (method.compare("dateadded") == 0)
+        sortmethod = SORT_METHOD_DATEADDED;
+      else if (method.compare("programcount") == 0)
+        sortmethod = SORT_METHOD_PROGRAM_COUNT;
+      else if (method.compare("playlist") == 0)
+        sortmethod = SORT_METHOD_PLAYLIST_ORDER;
+      else if (method.compare("episode") == 0)
+        sortmethod = SORT_METHOD_EPISODE;
+      else if (method.compare("videotitle") == 0)
+        sortmethod = SORT_METHOD_VIDEO_TITLE;
+      else if (method.compare("sorttitle") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE : SORT_METHOD_VIDEO_SORT_TITLE;
+      else if (method.compare("productioncode") == 0)
+        sortmethod = SORT_METHOD_PRODUCTIONCODE;
+      else if (method.compare("songrating") == 0)
+        sortmethod = SORT_METHOD_SONG_RATING;
+      else if (method.compare("mpaarating") == 0)
+        sortmethod = SORT_METHOD_MPAA_RATING;
+      else if (method.compare("videoruntime") == 0)
+        sortmethod = SORT_METHOD_VIDEO_RUNTIME;
+      else if (method.compare("studio") == 0)
+        sortmethod = ignorethe ? SORT_METHOD_STUDIO_IGNORE_THE : SORT_METHOD_STUDIO;
+      else if (method.compare("fullpath") == 0)
+        sortmethod = SORT_METHOD_FULLPATH;
+      else if (method.compare("lastplayed") == 0)
+        sortmethod = SORT_METHOD_LASTPLAYED;
+      else if (method.compare("playcount") == 0)
+        sortmethod = SORT_METHOD_PLAYCOUNT;
+      else if (method.compare("listeners") == 0)
+        sortmethod = SORT_METHOD_LISTENERS;
+      else if (method.compare("unsorted") == 0)
+        sortmethod = SORT_METHOD_UNSORTED;
+      else if (method.compare("bitrate") == 0)
+        sortmethod = SORT_METHOD_BITRATE;
+      else
+        return false;
+
+      return true;
+    }
+  
     /*!
      \brief Checks if the given object contains a parameter
      \param parameterObject Object to check for a parameter
