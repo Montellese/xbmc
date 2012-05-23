@@ -162,6 +162,7 @@ JsonRpcMethodMap CJSONServiceDescription::m_methodMaps[] = {
   { "System.Reboot",                                CSystemOperations::Reboot },
 
 // Input operations
+  { "Input.SendKey",                                CInputOperations::SendKey },
   { "Input.Left",                                   CInputOperations::Left },
   { "Input.Right",                                  CInputOperations::Right },
   { "Input.Down",                                   CInputOperations::Down },

@@ -22,19 +22,21 @@
 #include "InputOperations.h"
 #include "Application.h"
 #include "guilib/GUIAudioManager.h"
+#include "input/XBMC_keyboard.h"
 #include "input/XBMC_vkeys.h"
 #include "threads/SingleLock.h"
+#include "utils/CharsetConverter.h"
 
 using namespace JSONRPC;
 
 CCriticalSection CInputOperations::m_critSection;
-uint32_t CInputOperations::m_key = KEY_INVALID;
+CKey CInputOperations::m_key(KEY_INVALID);
 
-uint32_t CInputOperations::GetKey()
+CKey CInputOperations::GetKey()
 {
   CSingleLock lock(m_critSection);
-  uint32_t currentKey = m_key;
-  m_key = KEY_INVALID;
+  CKey currentKey = m_key;
+  m_key = CKey(KEY_INVALID);
   return currentKey;
 }
 
@@ -55,13 +57,16 @@ bool CInputOperations::handleScreenSaver()
   return screenSaverBroken;
 }
 
-JSONRPC_STATUS CInputOperations::SendKey(uint32_t keyCode)
+JSONRPC_STATUS CInputOperations::SendKey(uint32_t keyCode, bool unicode /* = false */)
 {
   if (keyCode == KEY_INVALID)
     return InternalError;
 
   CSingleLock lock(m_critSection);
-  m_key = keyCode | KEY_VKEY;
+  if (unicode)
+    m_key = CKey(0, (wchar_t)keyCode, 0, 0, 0);
+  else
+    m_key = CKey(keyCode | KEY_VKEY);
   return ACK;
 }
 
@@ -82,6 +87,21 @@ JSONRPC_STATUS CInputOperations::activateWindow(int windowID)
     g_application.getApplicationMessenger().ActivateWindow(windowID, std::vector<CStdString>(), false);
 
   return ACK;
+}
+
+JSONRPC_STATUS CInputOperations::SendKey(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
+{
+  if (parameterObject["key"].isInteger())
+    return SendKey((uint32_t)parameterObject["key"].asInteger(), true);
+
+  CStdString key = parameterObject["key"].asString();
+  CStdStringW unicodeKey;
+  g_charsetConverter.utf8ToW(key, unicodeKey);
+
+  if (unicodeKey.empty())
+    return InvalidParams;
+
+  return SendKey((uint32_t)unicodeKey.at(0), true);
 }
 
 JSONRPC_STATUS CInputOperations::Left(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)

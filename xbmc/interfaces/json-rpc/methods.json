@@ -1454,6 +1454,20 @@
     "params": [],
     "returns": "string"
   },
+  "Input.SendKey": {
+    "type": "method",
+    "description": "Send a generic (unicode) key",
+    "transport": "Response",
+    "permission": "Navigate",
+    "params": [
+      { "name": "key", "type": [
+          { "type": "integer", "minimum": 0, "required": true },
+          { "type": "string", "minLength": 1, "required": true, "description": "Single unicode character" }
+        ], "required": true
+      }
+    ],
+    "returns": "string"
+  },
   "Input.Left": {
     "type": "method",
     "description": "Navigate left in GUI",
