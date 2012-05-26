@@ -22,6 +22,7 @@
 #include "InputOperations.h"
 #include "Application.h"
 #include "guilib/GUIAudioManager.h"
+#include "input/ButtonTranslator.h"
 #include "input/XBMC_keyboard.h"
 #include "input/XBMC_vkeys.h"
 #include "threads/SingleLock.h"
@@ -102,6 +103,15 @@ JSONRPC_STATUS CInputOperations::SendKey(const CStdString &method, ITransportLay
     return InvalidParams;
 
   return SendKey((uint32_t)unicodeKey.at(0), true);
+}
+
+JSONRPC_STATUS CInputOperations::ExecuteAction(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
+{
+  int action;
+  if (!CButtonTranslator::TranslateActionString(parameterObject["action"].asString().c_str(), action))
+    return InvalidParams;
+
+  return SendAction(action);
 }
 
 JSONRPC_STATUS CInputOperations::Left(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
