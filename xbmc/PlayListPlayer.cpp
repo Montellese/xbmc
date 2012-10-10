@@ -33,6 +33,7 @@
 #include "music/tags/MusicInfoTag.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "guilib/LocalizeStrings.h"
+#include "interfaces/AnnouncementManager.h"
 
 using namespace PLAYLIST;
 
@@ -466,6 +467,15 @@ void CPlayListPlayer::SetShuffle(int iPlaylist, bool bYesNo, bool bNotify /* = f
       // so dont do anything
     }
   }
+
+  if (iPlaylist == PLAYLIST_VIDEO && g_application.IsPlayingVideo() ||
+      iPlaylist == PLAYLIST_MUSIC && g_application.IsPlayingAudio())
+  {
+    CVariant data;
+    data["player"]["playerid"] = iPlaylist;
+    data["property"]["shuffled"] = IsShuffled(iPlaylist);
+    ANNOUNCEMENT::CAnnouncementManager::Announce(ANNOUNCEMENT::Player, "xbmc", "OnPropertyChanged", data);
+  }
 }
 
 bool CPlayListPlayer::IsShuffled(int iPlaylist) const
@@ -503,6 +513,26 @@ void CPlayListPlayer::SetRepeat(int iPlaylist, REPEAT_STATE state, bool bNotify 
   }
 
   m_repeatState[iPlaylist] = state;
+
+  if (iPlaylist == PLAYLIST_VIDEO && g_application.IsPlayingVideo() ||
+      iPlaylist == PLAYLIST_MUSIC && g_application.IsPlayingAudio())
+  {
+    CVariant data;
+    data["player"]["playerid"] = iPlaylist;
+    switch (state)
+    {
+    case REPEAT_ONE:
+      data["property"]["repeat"] = "one";
+      break;
+    case REPEAT_ALL:
+      data["property"]["repeat"] = "all";
+      break;
+    default:
+      data["property"]["repeat"] = "off";
+      break;
+    }
+    ANNOUNCEMENT::CAnnouncementManager::Announce(ANNOUNCEMENT::Player, "xbmc", "OnPropertyChanged", data);
+  }
 }
 
 REPEAT_STATE CPlayListPlayer::GetRepeat(int iPlaylist) const
