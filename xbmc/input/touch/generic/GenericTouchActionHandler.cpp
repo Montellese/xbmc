@@ -56,7 +56,7 @@ bool CGenericTouchActionHandler::OnSingleTouchEnd(float x, float y)
 
 bool CGenericTouchActionHandler::OnMultiTouchStart(float x, float y, int32_t pointers /* = 2 */)
 {
-  gesture(ACTION_GESTURE_BEGIN, x, y, 0.0f, 0.0f);
+  sendEvent(ACTION_GESTURE_BEGIN, x, y, 0.0f, 0.0f);
 
   return true;
 }
@@ -83,28 +83,28 @@ bool CGenericTouchActionHandler::OnMultiTouchUp(float x, float y, int32_t pointe
 
 bool CGenericTouchActionHandler::OnMultiTouchEnd(float x, float y, int32_t pointers /* = 2 */)
 {
-  gesture(ACTION_GESTURE_END, 0.0f, 0.0f, 0.0f, 0.0f);
+  sendEvent(ACTION_GESTURE_END, 0.0f, 0.0f, 0.0f, 0.0f);
 
   return true;
 }
 
 bool CGenericTouchActionHandler::OnTouchGesturePanStart(float x, float y)
 {
-  gesture(ACTION_GESTURE_BEGIN, x, y, 0.0f, 0.0f);
+  sendEvent(ACTION_GESTURE_BEGIN, x, y, 0.0f, 0.0f);
 
   return true;
 }
 
 bool CGenericTouchActionHandler::OnTouchGesturePan(float x, float y, float offsetX, float offsetY, float velocityX, float velocityY)
 {
-  gesture(ACTION_GESTURE_PAN, x, y, offsetX, offsetY);
+  sendEvent(ACTION_GESTURE_PAN, x, y, offsetX, offsetY);
 
   return true;
 }
 
 bool CGenericTouchActionHandler::OnTouchGesturePanEnd(float x, float y, float offsetX, float offsetY, float velocityX, float velocityY)
 {
-  gesture(ACTION_GESTURE_END, velocityX, velocityY, x, y);
+  sendEvent(ACTION_GESTURE_END, velocityX, velocityY, x, y);
 
   // unfocus the focused GUI item
   g_windowManager.SendMessage(GUI_MSG_UNFOCUS_ALL, 0, 0, 0, 0);
@@ -152,12 +152,12 @@ void CGenericTouchActionHandler::OnSwipe(TouchMoveDirection direction, float xDo
 
 void CGenericTouchActionHandler::OnZoomPinch(float centerX, float centerY, float zoomFactor)
 {
-  gesture(ACTION_GESTURE_ZOOM, centerX, centerY, zoomFactor, 0);
+  sendEvent(ACTION_GESTURE_ZOOM, centerX, centerY, zoomFactor, 0.0f);
 }
 
 void CGenericTouchActionHandler::OnRotate(float centerX, float centerY, float angle)
 {
-  gesture(ACTION_GESTURE_ROTATE, centerX, centerY, angle, 0);
+  sendEvent(ACTION_GESTURE_ROTATE, centerX, centerY, angle, 0.0f);
 }
 
 int CGenericTouchActionHandler::QuerySupportedGestures(float x, float y)
@@ -181,18 +181,6 @@ void CGenericTouchActionHandler::touch(uint8_t type, uint8_t button, uint16_t x,
   newEvent.button.y = y;
   
   CWinEvents::MessagePush(&newEvent);
-}
-
-void CGenericTouchActionHandler::gesture(int32_t action, float posX, float posY, float offsetX, float offsetY)
-{
-  if (action == ACTION_GESTURE_BEGIN)
-    CApplicationMessenger::Get().SendAction(CAction(action, 0, posX, posY, 0.0f, 0.0f), WINDOW_INVALID, false);
-  else if (action == ACTION_GESTURE_PAN)
-    sendEvent(action, posX, posY, offsetX, offsetY);
-  else if (action == ACTION_GESTURE_END)
-    CApplicationMessenger::Get().SendAction(CAction(action, 0, posX, posY, offsetX, offsetY), WINDOW_INVALID, false);
-  else if (action == ACTION_GESTURE_ZOOM || action == ACTION_GESTURE_ROTATE)
-    sendEvent(action, posX, posY, offsetX, 0.0f);
 }
 
 void CGenericTouchActionHandler::sendEvent(int actionId, float x, float y, float x2 /* = 0.0f */, float y2 /* = 0.0f */, int pointers /* = 1 */)
