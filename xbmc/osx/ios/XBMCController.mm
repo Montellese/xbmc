@@ -29,7 +29,8 @@
 #include "settings/Settings.h"
 #include "FileItem.h"
 #include "ApplicationMessenger.h"
-#include "input/MouseStat.h"
+#include "input/touch/generic/GenericTouchActionHandler.h"
+
 #include "windowing/WindowingFactory.h"
 #include "video/VideoReferenceClock.h"
 #include "utils/log.h"
@@ -75,7 +76,6 @@ extern NSString* kBRScreenSaverDismissed;
 @synthesize animating;
 @synthesize lastGesturePoint;
 @synthesize screenScale;
-@synthesize lastEvent;
 @synthesize touchBeginSignaled;
 @synthesize m_screenIdx;
 @synthesize screensize;
@@ -237,20 +237,15 @@ extern NSString* kBRScreenSaverDismissed;
     CGPoint point = [sender locationOfTouch:0 inView:m_glView];  
     point.x *= screenScale;
     point.y *= screenScale;
-  
+
     switch(sender.state)
     {
       case UIGestureRecognizerStateBegan:  
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_BEGIN, 0, (float)point.x, (float)point.y,
-                                                        0, 0), WINDOW_INVALID,false);
         break;
       case UIGestureRecognizerStateChanged:
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_ZOOM, 0, (float)point.x, (float)point.y, 
-                                                                   [sender scale], 0), WINDOW_INVALID,false);
+        CGenericTouchActionHandler::Get().OnZoomPinch(point.x, point.y, [sender scale]);
         break;
       case UIGestureRecognizerStateEnded:
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_END, 0, 0, 0,
-                                                        0, 0), WINDOW_INVALID,false);
         break;
       default:
         break;
@@ -269,12 +264,9 @@ extern NSString* kBRScreenSaverDismissed;
     switch(sender.state)
     {
       case UIGestureRecognizerStateBegan:
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_BEGIN, 0, (float)point.x, (float)point.y,
-                                                        0, 0), WINDOW_INVALID,false);
         break;
       case UIGestureRecognizerStateChanged:
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_ROTATE, 0, (float)point.x, (float)point.y,
-                                                        RADIANS_TO_DEGREES([sender rotation]), 0), WINDOW_INVALID,false);
+        CGenericTouchActionHandler::Get().OnRotate(point.x, point.y, RADIANS_TO_DEGREES([sender rotation]));
         break;
       case UIGestureRecognizerStateEnded:
         break;
@@ -288,6 +280,8 @@ extern NSString* kBRScreenSaverDismissed;
 {
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
   { 
+    CGPoint velocity = [sender velocityInView:m_glView];
+
     if( [sender state] == UIGestureRecognizerStateBegan )
     {
       CGPoint point = [sender locationOfTouch:0 inView:m_glView];  
@@ -296,7 +290,7 @@ extern NSString* kBRScreenSaverDismissed;
       touchBeginSignaled = false;
       lastGesturePoint = point;
     }
-    
+
     if( [sender state] == UIGestureRecognizerStateChanged )
     {
       CGPoint point = [sender locationOfTouch:0 inView:m_glView];    
@@ -320,22 +314,24 @@ extern NSString* kBRScreenSaverDismissed;
       {
         if( !touchBeginSignaled )
         {
-          CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_BEGIN, 0, (float)point.x, (float)point.y, 
-                                                            0, 0), WINDOW_INVALID,false);
+          CGenericTouchActionHandler::Get().OnTouchGesturePanStart((float)point.x, (float)point.y);
           touchBeginSignaled = true;
-        }    
-        
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_PAN, 0, (float)point.x, (float)point.y,
-                                                          xMovement, yMovement), WINDOW_INVALID,false);
+        }
+
+        CGenericTouchActionHandler::Get().OnTouchGesturePan((float)point.x, (float)point.y,
+                                                            (float)xMovement, (float)yMovement, 
+                                                            (float)velocity.x, (float)velocity.y);
         lastGesturePoint = point;
       }
     }
     
     if( touchBeginSignaled && [sender state] == UIGestureRecognizerStateEnded )
     {
-      CGPoint velocity = [sender velocityInView:m_glView];
       //signal end of pan - this will start inertial scrolling with deacceleration in CApplication
-      CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_END, 0, (float)velocity.x, (float)velocity.y, (int)lastGesturePoint.x, (int)lastGesturePoint.y),WINDOW_INVALID,false);
+      CGenericTouchActionHandler::Get().OnTouchGesturePanEnd((float)lastGesturePoint.x, (float)lastGesturePoint.y,
+                                                             (float)0.0, (float)0.0, 
+                                                             (float)velocity.x, (float)velocity.y);
+
       touchBeginSignaled = false;
     }
   }
@@ -345,28 +341,29 @@ extern NSString* kBRScreenSaverDismissed;
 {
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
   {
-    [self sendKey:XBMCK_BACKSPACE];
+    static CGPoint startPoint;
+    switch (sender.state)
+    {
+      case UIGestureRecognizerStateBegan:
+        startPoint = [sender locationOfTouch:0 inView:m_glView];    
+        startPoint.x *= screenScale;
+        startPoint.y *= screenScale;
+        break;
+      case UIGestureRecognizerStateChanged:
+        break;
+      case UIGestureRecognizerStateEnded:
+      {
+        CGPoint point = [sender locationOfTouch:0 inView:m_glView];    
+        point.x *= screenScale;
+        point.y *= screenScale;       
+        CGenericTouchActionHandler::Get().OnSwipe(TouchMoveDirectionLeft, 
+                                                  startPoint.x, startPoint.y, 
+                                                  point.x, point.y, 0, 0, 
+                                                  [sender numberOfTouchesRequired]);
+        break;
+      }
+    }
   }
-}
-//--------------------------------------------------------------
-- (void)postMouseMotionEvent:(CGPoint)point
-{
-  XBMC_Event newEvent;
-
-  point.x *= screenScale;
-  point.y *= screenScale;
-
-  memset(&newEvent, 0, sizeof(newEvent));
-
-  newEvent.type = XBMC_MOUSEMOTION;
-  newEvent.motion.type = XBMC_MOUSEMOTION;
-  newEvent.motion.which = 0;
-  newEvent.motion.state = 0;
-  newEvent.motion.x = point.x;
-  newEvent.motion.y = point.y;
-  newEvent.motion.xrel = 0;
-  newEvent.motion.yrel = 0;
-  CWinEventsIOS::MessagePush(&newEvent);
 }
 //--------------------------------------------------------------
 - (IBAction)handleDoubleFingerSingleTap:(UIGestureRecognizer *)sender 
@@ -377,25 +374,7 @@ extern NSString* kBRScreenSaverDismissed;
     point.x *= screenScale;
     point.y *= screenScale;
     //NSLog(@"%s toubleTap", __PRETTY_FUNCTION__);
-
-    [self postMouseMotionEvent:point];
-
-    XBMC_Event newEvent;
-    memset(&newEvent, 0, sizeof(newEvent));
-    
-    newEvent.type = XBMC_MOUSEBUTTONDOWN;
-    newEvent.button.type = XBMC_MOUSEBUTTONDOWN;
-    newEvent.button.button = XBMC_BUTTON_RIGHT;
-    newEvent.button.x = point.x;
-    newEvent.button.y = point.y;
-    
-    CWinEventsIOS::MessagePush(&newEvent);    
-    
-    newEvent.type = XBMC_MOUSEBUTTONUP;
-    newEvent.button.type = XBMC_MOUSEBUTTONUP;
-    CWinEventsIOS::MessagePush(&newEvent);    
-    
-    memset(&lastEvent, 0x0, sizeof(XBMC_Event));         
+    CGenericTouchActionHandler::Get().OnTap((float)point.x, (float)point.y, [sender numberOfTouches]);
   }
 }
 //--------------------------------------------------------------
@@ -403,15 +382,17 @@ extern NSString* kBRScreenSaverDismissed;
 {
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
   {
+    CGPoint point = [sender locationOfTouch:0 inView:m_glView];
+
     if (sender.state == UIGestureRecognizerStateBegan)
     {
-      CGPoint point = [sender locationOfTouch:0 inView:m_glView];
-      [self postMouseMotionEvent:point];//selects the current control
+      // mark the control
+      CGenericTouchActionHandler::Get().OnSingleTouchStart((float)point.x, (float)point.y);
     }
 
     if (sender.state == UIGestureRecognizerStateEnded)
-    {
-      [self handleDoubleFingerSingleTap:sender];
+    {	
+      CGenericTouchActionHandler::Get().OnLongPress((float)point.x, (float)point.y);
     }
   }
 }
@@ -425,22 +406,9 @@ extern NSString* kBRScreenSaverDismissed;
     if( [touches count] == 1 && [touch tapCount] == 1)
     {
       lastGesturePoint = [touch locationInView:m_glView];    
-      [self postMouseMotionEvent:lastGesturePoint];//selects the current control
 
       lastGesturePoint.x *= screenScale;
       lastGesturePoint.y *= screenScale;  
-      XBMC_Event newEvent;
-      memset(&newEvent, 0, sizeof(newEvent));
-      
-      newEvent.type = XBMC_MOUSEBUTTONDOWN;
-      newEvent.button.type = XBMC_MOUSEBUTTONDOWN;
-      newEvent.button.button = XBMC_BUTTON_LEFT;
-      newEvent.button.x = lastGesturePoint.x;
-      newEvent.button.y = lastGesturePoint.y;  
-      CWinEventsIOS::MessagePush(&newEvent);    
-      
-      /* Store the tap action for later */
-      lastEvent = newEvent;
     }
   }
 }
@@ -458,16 +426,7 @@ extern NSString* kBRScreenSaverDismissed;
     
     if( [touches count] == 1 && [touch tapCount] == 1 )
     {
-      XBMC_Event newEvent = lastEvent;
-      
-      newEvent.type = XBMC_MOUSEBUTTONUP;
-      newEvent.button.type = XBMC_MOUSEBUTTONUP;
-      newEvent.button.button = XBMC_BUTTON_LEFT;
-      newEvent.button.x = lastGesturePoint.x;
-      newEvent.button.y = lastGesturePoint.y;
-      CWinEventsIOS::MessagePush(&newEvent);
-      
-      memset(&lastEvent, 0x0, sizeof(XBMC_Event));     
+      CGenericTouchActionHandler::Get().OnTap((float)lastGesturePoint.x, (float)lastGesturePoint.y);
     }
   }
 }
@@ -658,7 +617,6 @@ extern NSString* kBRScreenSaverDismissed;
 - (void)pauseAnimation
 {
   XBMC_Event newEvent;
-  memcpy(&newEvent, &lastEvent, sizeof(XBMC_Event));
   
   newEvent.appcommand.type = XBMC_APPCOMMAND;
   newEvent.appcommand.action = ACTION_PLAYER_PLAYPAUSE;
@@ -675,7 +633,6 @@ extern NSString* kBRScreenSaverDismissed;
 - (void)resumeAnimation
 {  
   XBMC_Event newEvent;
-  memcpy(&newEvent, &lastEvent, sizeof(XBMC_Event));
   
   newEvent.appcommand.type = XBMC_APPCOMMAND;
   newEvent.appcommand.action = ACTION_PLAYER_PLAY;
