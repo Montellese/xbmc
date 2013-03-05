@@ -165,7 +165,7 @@ extern NSString* kBRScreenSaverDismissed;
 //--------------------------------------------------------------
 - (void)createGestureRecognizers 
 {
-  //1 finger single tab - left mouse
+  //1 finger single tab
   UITapGestureRecognizer *singleFingerSingleTap = [[UITapGestureRecognizer alloc]
                                                    initWithTarget:self action:@selector(handleSingleFingerSingleTap:)];
 
@@ -302,18 +302,15 @@ extern NSString* kBRScreenSaverDismissed;
 
     switch(sender.state)
     {
-      case UIGestureRecognizerStateBegan:  
+      case UIGestureRecognizerStateBegan:
+        CGenericTouchActionHandler::Get().OnTouchGestureStart(point.x, point.y);
         break;
       case UIGestureRecognizerStateChanged:
         CGenericTouchActionHandler::Get().OnZoomPinch(point.x, point.y, [sender scale]);
         break;
       case UIGestureRecognizerStateEnded:
-<<<<<<< HEAD
       case UIGestureRecognizerStateCancelled:
-        CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_END, 0, 0, 0,
-                                                        0, 0), WINDOW_INVALID,false);
-=======
->>>>>>> [ios] - use generic touch handler
+        CGenericTouchActionHandler::Get().OnTouchGestureEnd(point.x, point.y, 0, 0, 0, 0);
         break;
       default:
         break;
@@ -332,11 +329,13 @@ extern NSString* kBRScreenSaverDismissed;
     switch(sender.state)
     {
       case UIGestureRecognizerStateBegan:
+        CGenericTouchActionHandler::Get().OnTouchGestureStart(point.x, point.y);
         break;
       case UIGestureRecognizerStateChanged:
         CGenericTouchActionHandler::Get().OnRotate(point.x, point.y, RADIANS_TO_DEGREES([sender rotation]));
         break;
       case UIGestureRecognizerStateEnded:
+        CGenericTouchActionHandler::Get().OnTouchGestureEnd(point.x, point.y, 0, 0, 0, 0);
         break;
       default:
         break;
@@ -393,19 +392,13 @@ extern NSString* kBRScreenSaverDismissed;
       }
     }
     
-    if( touchBeginSignaled && [sender state] == UIGestureRecognizerStateEnded )
+    if( touchBeginSignaled && ([sender state] == UIGestureRecognizerStateEnded || [sender state] == UIGestureRecognizerStateCancelled))
     {
       //signal end of pan - this will start inertial scrolling with deacceleration in CApplication
       CGenericTouchActionHandler::Get().OnTouchGestureEnd((float)lastGesturePoint.x, (float)lastGesturePoint.y,
                                                              (float)0.0, (float)0.0, 
                                                              (float)velocity.x, (float)velocity.y);
 
-      touchBeginSignaled = false;
-    }
-    else if( touchBeginSignaled && [sender state] == UIGestureRecognizerStateCancelled )
-    {
-      CApplicationMessenger::Get().SendAction(CAction(ACTION_GESTURE_END, 0, 0, 0,
-                                                      0, 0), WINDOW_INVALID,false);
       touchBeginSignaled = false;
     }
   }
@@ -465,7 +458,6 @@ extern NSString* kBRScreenSaverDismissed;
   }
 }
 //--------------------------------------------------------------
-<<<<<<< HEAD
 - (void)postMouseMotionEvent:(CGPoint)point
 {
   XBMC_Event newEvent;
@@ -491,31 +483,11 @@ extern NSString* kBRScreenSaverDismissed;
     point.x *= screenScale;
     point.y *= screenScale;
     //NSLog(@"%s singleTap", __PRETTY_FUNCTION__);
-
-    [self postMouseMotionEvent:point];
-
-    XBMC_Event newEvent;
-    memset(&newEvent, 0, sizeof(newEvent));
-
-    newEvent.type = XBMC_MOUSEBUTTONDOWN;
-    newEvent.button.type = XBMC_MOUSEBUTTONDOWN;
-    newEvent.button.button = XBMC_BUTTON_LEFT;
-    newEvent.button.x = point.x;
-    newEvent.button.y = point.y;
-
-    CWinEventsIOS::MessagePush(&newEvent);
-
-    newEvent.type = XBMC_MOUSEBUTTONUP;
-    newEvent.button.type = XBMC_MOUSEBUTTONUP;
-    CWinEventsIOS::MessagePush(&newEvent);
-
-    memset(&lastEvent, 0x0, sizeof(XBMC_Event));
+    CGenericTouchActionHandler::Get().OnTap((float)point.x, (float)point.y, [sender numberOfTouches]);
   }
 }
 //--------------------------------------------------------------
-=======
->>>>>>> [ios] - use generic touch handler
-- (IBAction)handleDoubleFingerSingleTap:(UIGestureRecognizer *)sender 
+- (IBAction)handleDoubleFingerSingleTap:(UIGestureRecognizer *)sender
 {
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
   {
@@ -532,71 +504,24 @@ extern NSString* kBRScreenSaverDismissed;
   if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
   {
     CGPoint point = [sender locationOfTouch:0 inView:m_glView];
-<<<<<<< HEAD
     point.x *= screenScale;
     point.y *= screenScale;
-    if (sender.state == UIGestureRecognizerStateBegan)
-    {
-      [self postMouseMotionEvent:point];//selects the current control
-      XBMC_Event newEvent;
-      memset(&newEvent, 0, sizeof(newEvent));
-
-      newEvent.type = XBMC_MOUSEBUTTONDOWN;
-      newEvent.button.type = XBMC_MOUSEBUTTONDOWN;
-      newEvent.button.button = XBMC_BUTTON_RIGHT;
-      newEvent.button.x = point.x;
-      newEvent.button.y = point.y;
-
-      CWinEventsIOS::MessagePush(&newEvent);
-=======
 
     if (sender.state == UIGestureRecognizerStateBegan)
     {
+      lastGesturePoint = point;
       // mark the control
       CGenericTouchActionHandler::Get().OnSingleTouchStart((float)point.x, (float)point.y);
     }
 
     if (sender.state == UIGestureRecognizerStateEnded)
+    {
+      CGenericTouchActionHandler::Get().OnSingleTouchMove((float)point.x, (float)point.y, point.x - lastGesturePoint.x, point.y - lastGesturePoint.y, 0, 0);
+    }
+    
+    if (sender.state == UIGestureRecognizerStateEnded)
     {	
       CGenericTouchActionHandler::Get().OnLongPress((float)point.x, (float)point.y);
-    }
-  }
-}
-//--------------------------------------------------------------
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-  if( [m_glView isXBMCAlive] )//NO GESTURES BEFORE WE ARE UP AND RUNNING
-  {
-    UITouch *touch = [touches anyObject];
-    
-    if( [touches count] == 1 && [touch tapCount] == 1)
-    {
-      lastGesturePoint = [touch locationInView:m_glView];    
-
-      lastGesturePoint.x *= screenScale;
-      lastGesturePoint.y *= screenScale;  
->>>>>>> [ios] - use generic touch handler
-    }
-    else if (sender.state == UIGestureRecognizerStateChanged)
-    {
-<<<<<<< HEAD
-      [self postMouseMotionEvent:point];
-    }
-    else if (sender.state == UIGestureRecognizerStateEnded)
-    {
-      XBMC_Event newEvent;
-      memset(&newEvent, 0, sizeof(newEvent));
-
-      newEvent.type = XBMC_MOUSEBUTTONUP;
-      newEvent.button.type = XBMC_MOUSEBUTTONUP;
-      newEvent.button.button = XBMC_BUTTON_RIGHT;
-      newEvent.button.x = point.x;
-      newEvent.button.y = point.y;
-
-      CWinEventsIOS::MessagePush(&newEvent);
-=======
-      CGenericTouchActionHandler::Get().OnTap((float)lastGesturePoint.x, (float)lastGesturePoint.y);
->>>>>>> [ios] - use generic touch handler
     }
   }
 }
