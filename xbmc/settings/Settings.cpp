@@ -52,6 +52,7 @@
 #include "network/upnp/UPnPSettings.h"
 #if defined(TARGET_DARWIN_OSX)
 #include "osx/XBMCHelper.h"
+#include "cores/AudioEngine/Engines/CoreAudio/CoreAudioHardware.h"
 #endif // defined(TARGET_DARWIN_OSX)
 #include "peripherals/Peripherals.h"
 #include "powermanagement/PowerManager.h"

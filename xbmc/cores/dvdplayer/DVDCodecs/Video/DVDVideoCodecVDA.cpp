@@ -33,6 +33,7 @@
 #include "utils/BitstreamConverter.h"
 #include "utils/log.h"
 #include "utils/TimeUtils.h"
+#include "settings/Settings.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 

@@ -442,12 +442,13 @@ bool CNetworkServices::StartWebserver()
     return false;
 
 #ifdef HAS_ZEROCONF
+  std::vector<std::pair<std::string, std::string> > txt;
   // publish web frontend and API services
 #ifdef HAS_WEB_INTERFACE
-  CZeroconf::GetInstance()->PublishService("servers.webserver", "_http._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), webPort);
+  CZeroconf::GetInstance()->PublishService("servers.webserver", "_http._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), webPort, txt);
 #endif // HAS_WEB_INTERFACE
 #ifdef HAS_JSONRPC
-  CZeroconf::GetInstance()->PublishService("servers.jsonrpc-http", "_xbmc-jsonrpc-h._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), webPort);
+  CZeroconf::GetInstance()->PublishService("servers.jsonrpc-http", "_xbmc-jsonrpc-h._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), webPort, txt);
 #endif // HAS_JSONRPC
 #endif // HAS_ZEROCONF
 
@@ -603,7 +604,8 @@ bool CNetworkServices::StartJSONRPCServer()
     return false;
 
 #ifdef HAS_ZEROCONF
-  CZeroconf::GetInstance()->PublishService("servers.jsonrpc-tpc", "_xbmc-jsonrpc._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), g_advancedSettings.m_jsonTcpPort);
+  std::vector<std::pair<std::string, std::string> > txt;
+  CZeroconf::GetInstance()->PublishService("servers.jsonrpc-tpc", "_xbmc-jsonrpc._tcp", g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME), g_advancedSettings.m_jsonTcpPort, txt);
 #endif // HAS_ZEROCONF
 
   return true;

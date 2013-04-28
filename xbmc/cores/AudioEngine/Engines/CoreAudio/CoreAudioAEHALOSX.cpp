@@ -35,6 +35,7 @@
 
 #include "cores/AudioEngine/Utils/AEUtil.h"
 #include "utils/log.h"
+#include "settings/Settings.h"
 
 CCoreAudioAEHALOSX::CCoreAudioAEHALOSX() :
   m_audioGraph        (NULL   ),

@@ -25,6 +25,11 @@
 #include "../../DVDStreamInfo.h"
 #include "utils/log.h"
 
+#if defined(TARGET_DARWIN)
+#include "settings/Settings.h"
+#include "cores/AudioEngine/Utils/AEUtil.h"
+#endif
+
 CDVDAudioCodecFFmpeg::CDVDAudioCodecFFmpeg() : CDVDAudioCodec()
 {
   m_iBufferSize1 = 0;

@@ -50,7 +50,7 @@ public:
                       const std::string& fcr_type,
                       const std::string& fcr_name,
                       unsigned int f_port,
-                      std::vector<std::pair<std::string, std::string> > txt = std::vector<std::pair<std::string, std::string> >());
+                      std::vector<std::pair<std::string, std::string> > txt /*= std::vector<std::pair<std::string, std::string> >()*/);
 
   ///removes the specified service
   ///returns false if fcr_identifier does not exist

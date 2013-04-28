@@ -24,6 +24,7 @@
 
 #if defined(TARGET_DARWIN)
   #include "Engines/CoreAudio/CoreAudioAE.h"
+  #include "settings/SettingsManager.h"
 #else
   #include "Engines/SoftAE/SoftAE.h"
 #endif

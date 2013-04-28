@@ -188,10 +188,12 @@ void CEventServer::Run()
   }
 
   // publish service
+  std::vector<std::pair<std::string, std::string> > txt;
   CZeroconf::GetInstance()->PublishService("servers.eventserver",
                                "_xbmc-events._udp",
                                g_infoManager.GetLabel(SYSTEM_FRIENDLY_NAME),
-                               m_iPort);
+                               m_iPort,
+                               txt);
 
   // add our socket to the 'select' listener
   listener.AddSocket(m_pSocket);

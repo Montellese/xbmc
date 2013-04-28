@@ -28,8 +28,8 @@
 #include "PlatformDefs.h"
 #include "Util.h"
 
-#include "guilib/GUIDialogOK.h"
-#include "guilib/GUIDialogYesNo.h"
+#include "dialogs/GUIDialogOK.h"
+#include "dialogs/GUIDialogYesNo.h"
 #include "utils/log.h"
 #include "system.h"
 #include "settings/Settings.h"
@@ -96,7 +96,7 @@ bool XBMCHelper::OnSettingChanging(const CSetting *setting)
     return false;
 
   const std::string &settingId = setting->GetId();
-  if (strSetting.Equals("input.appleremotemode"))
+  if (settingId == "input.appleremotemode")
   {
     int remoteMode = ((CSettingInt*)setting)->GetValue();
 
