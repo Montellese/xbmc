@@ -34,6 +34,8 @@ public:
     {
     }
 
+    bool operator==(const SUrlEntry& rhs) const;
+
     std::string m_spoof;
     std::string m_url;
     std::string m_cache;
@@ -48,6 +50,9 @@ public:
   explicit CScraperUrl(const std::string& strUrl);
   explicit CScraperUrl(const TiXmlElement* element);
   ~CScraperUrl();
+
+  bool operator==(const CScraperUrl& rhs) const;
+  bool operator!=(const CScraperUrl& rhs) const { return !(*this == rhs); }
 
   void Clear();
 
