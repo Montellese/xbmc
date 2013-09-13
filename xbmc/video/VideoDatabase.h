@@ -427,8 +427,8 @@ public:
   virtual bool Open();
   virtual bool CommitTransaction();
 
-  int AddMovie(const std::string& strFilenameAndPath);
-  int AddEpisode(int idShow, const std::string& strFilenameAndPath);
+  int AddMovie(const std::string& strFilenameAndPath, const CDateTime& dateAdded = CDateTime());
+  int AddEpisode(int idShow, const std::string& strFilenameAndPath, const CDateTime& dateAdded = CDateTime());
 
   // editing functions
   /*! \brief Set the playcount of an item
@@ -769,7 +769,7 @@ public:
    \param strFileNameAndPath path to the file
    \param dateAdded datetime when the file was added to the filesystem/database
    */
-  void UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPathh, const CDateTime& dateAdded = CDateTime());
+  void UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPath, const CDateTime& dateAdded = CDateTime());
 
   void ExportToXML(const std::string &path, bool singleFile = true, bool images=false, bool actorThumbs=false, bool overwrite=false);
   void ExportActorThumbs(const std::string &path, const CVideoInfoTag& tag, bool singleFiles, bool overwrite=false);
