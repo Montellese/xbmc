@@ -185,6 +185,7 @@ public:
   CDateTime m_dateAdded;
   MediaType m_type;
   int m_duration; ///< duration in seconds
+  bool m_hasDetails;
 
 private:
   /* \brief Parse our native XML format for video info.
