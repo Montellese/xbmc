@@ -1343,7 +1343,8 @@ int CVideoDatabase::GetMusicVideoId(const std::string& strFilenameAndPath)
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath)
+int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
+                             const CDateTime& dateAdded /* = CDateTime() */)
 {
   try
   {
@@ -1358,7 +1359,7 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath)
       int idFile = AddFile(strFilenameAndPath);
       if (idFile < 0)
         return -1;
-      UpdateFileDateAdded(idFile, strFilenameAndPath);
+      UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
       std::string strSQL=PrepareSQL("insert into movie (idMovie, idFile) values (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMovie = (int)m_pDS->lastinsertid();
@@ -1420,7 +1421,9 @@ int CVideoDatabase::AddTvShow()
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath)
+int CVideoDatabase::AddEpisode(int idShow,
+                               const std::string& strFilenameAndPath,
+                               const CDateTime& dateAdded /* = CDatetime() */)
 {
   try
   {
@@ -1432,7 +1435,7 @@ int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath
     int idFile = AddFile(strFilenameAndPath);
     if (idFile < 0)
       return -1;
-    UpdateFileDateAdded(idFile, strFilenameAndPath);
+    UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
 
     std::string strSQL=PrepareSQL("insert into episode (idEpisode, idFile, idShow) values (NULL, %i, %i)", idFile, idShow);
     m_pDS->exec(strSQL);
@@ -1445,7 +1448,8 @@ int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath
   return -1;
 }
 
-int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath)
+int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
+    const CDateTime& dateAdded /* = CDateTime() */)
 {
   try
   {
@@ -1460,7 +1464,7 @@ int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath)
       int idFile = AddFile(strFilenameAndPath);
       if (idFile < 0)
         return -1;
-      UpdateFileDateAdded(idFile, strFilenameAndPath);
+      UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
       std::string strSQL=PrepareSQL("insert into musicvideo (idMVideo, idFile) values (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMVideo = (int)m_pDS->lastinsertid();
@@ -2420,21 +2424,12 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
       // only add a new movie if we don't already have a valid idMovie
       // (DeleteMovie is called with bKeepId == true so the movie won't
       // be removed from the movie table)
-      idMovie = AddMovie(strFilenameAndPath);
+      idMovie = AddMovie(strFilenameAndPath, details.m_dateAdded);
       if (idMovie < 0)
       {
         RollbackTransaction();
         return idMovie;
       }
-    }
-
-    // update dateadded if it's set
-    if (details.m_dateAdded.IsValid())
-    {
-      if (details.m_iFileId <= 0)
-        details.m_iFileId = GetFileId(strFilenameAndPath);
-
-      UpdateFileDateAdded(details.m_iFileId, strFilenameAndPath, details.m_dateAdded);
     }
 
     AddCast(idMovie, "movie", details.m_cast);
@@ -2840,21 +2835,12 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
       // only add a new episode if we don't already have a valid idEpisode
       // (DeleteEpisode is called with bKeepId == true so the episode won't
       // be removed from the episode table)
-      idEpisode = AddEpisode(idShow,strFilenameAndPath);
+      idEpisode = AddEpisode(idShow, strFilenameAndPath, details.m_dateAdded);
       if (idEpisode < 0)
       {
         RollbackTransaction();
         return -1;
       }
-    }
-
-    // update dateadded if it's set
-    if (details.m_dateAdded.IsValid())
-    {
-      if (details.m_iFileId <= 0)
-        details.m_iFileId = GetFileId(strFilenameAndPath);
-
-      UpdateFileDateAdded(details.m_iFileId, strFilenameAndPath, details.m_dateAdded);
     }
 
     AddCast(idEpisode, "episode", details.m_cast);
@@ -2964,22 +2950,12 @@ int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPat
       // only add a new musicvideo if we don't already have a valid idMVideo
       // (DeleteMusicVideo is called with bKeepId == true so the musicvideo won't
       // be removed from the musicvideo table)
-      idMVideo = AddMusicVideo(strFilenameAndPath);
+      idMVideo = AddMusicVideo(strFilenameAndPath, details.m_dateAdded);
       if (idMVideo < 0)
       {
         RollbackTransaction();
         return -1;
       }
-    }
-
-    // update dateadded if it's set
-    if (details.m_dateAdded.IsValid())
-    {
-      int idFile = details.m_iFileId;
-      if (idFile <= 0)
-        idFile = GetFileId(strFilenameAndPath);
-
-      UpdateFileDateAdded(idFile, strFilenameAndPath, details.m_dateAdded);
     }
 
     AddCast(idMVideo, MediaTypeMusicVideo, details.m_cast);
