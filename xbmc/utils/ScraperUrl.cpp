@@ -43,6 +43,44 @@ CScraperUrl::CScraperUrl(const TiXmlElement* element) : CScraperUrl()
 
 CScraperUrl::~CScraperUrl() = default;
 
+bool CScraperUrl::operator==(const CScraperUrl& rhs) const
+{
+  if (m_data != rhs.m_data)
+    return false;
+  if (m_title != rhs.m_title)
+    return false;
+  if (m_id != rhs.m_id)
+    return false;
+  if (m_relevance != rhs.m_relevance)
+    return false;
+  if (m_urls != rhs.m_urls)
+    return false;
+
+  return true;
+}
+
+bool CScraperUrl::SUrlEntry::operator==(const SUrlEntry& rhs) const
+{
+  if (m_spoof != rhs.m_spoof)
+    return false;
+  if (m_url != rhs.m_url)
+    return false;
+  if (m_cache != rhs.m_cache)
+    return false;
+  if (m_aspect != rhs.m_aspect)
+    return false;
+  if (m_type != rhs.m_type)
+    return false;
+  if (m_post != rhs.m_post)
+    return false;
+  if (m_isgz != rhs.m_isgz)
+    return false;
+  if (m_season != rhs.m_season)
+    return false;
+
+  return true;
+}
+
 void CScraperUrl::Clear()
 {
   m_urls.clear();
