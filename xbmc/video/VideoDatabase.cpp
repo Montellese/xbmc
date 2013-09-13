@@ -865,32 +865,35 @@ int CVideoDatabase::AddFile(const CFileItem& item)
   return AddFile(item.GetPath());
 }
 
-void CVideoDatabase::UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPath)
+void CVideoDatabase::UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPath, const CDateTime& dateAdded /* = CDateTime() */)
 {
   if (idFile < 0 || strFileNameAndPath.empty())
     return;
 
-  CDateTime dateAdded;
+  CDateTime finalDateAdded = dateAdded;
   try
   {
     if (NULL == m_pDB.get()) return;
     if (NULL == m_pDS.get()) return;
-     
-    // 1 prefering to use the files mtime(if it's valid) and only using the file's ctime if the mtime isn't valid
-    if (g_advancedSettings.m_iVideoLibraryDateAdded == 1)
-      dateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, false);
-    //2 using the newer datetime of the file's mtime and ctime
-    else if (g_advancedSettings.m_iVideoLibraryDateAdded == 2)
-      dateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, true);
-    //0 using the current datetime if non of the above matches or one returns an invalid datetime
-    if (!dateAdded.IsValid())
-      dateAdded = CDateTime::GetCurrentDateTime();
 
-    m_pDS->exec(PrepareSQL("UPDATE files SET dateAdded='%s' WHERE idFile=%d", dateAdded.GetAsDBDateTime().c_str(), idFile));
+    if (!finalDateAdded.IsValid())
+    {
+      // 1 prefering to use the files mtime(if it's valid) and only using the file's ctime if the mtime isn't valid
+      if (g_advancedSettings.m_iVideoLibraryDateAdded == 1)
+        finalDateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, false);
+      //2 using the newer datetime of the file's mtime and ctime
+      else if (g_advancedSettings.m_iVideoLibraryDateAdded == 2)
+        finalDateAdded = CFileUtils::GetModificationDate(strFileNameAndPath, true);
+      //0 using the current datetime if non of the above matches or one returns an invalid datetime
+      if (!finalDateAdded.IsValid())
+        finalDateAdded = CDateTime::GetCurrentDateTime();
+    }
+
+    m_pDS->exec(PrepareSQL("UPDATE files SET dateAdded='%s' WHERE idFile=%d", finalDateAdded.GetAsDBDateTime().c_str(), idFile));
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s, %s) failed", __FUNCTION__, CURL::GetRedacted(strFileNameAndPath).c_str(), dateAdded.GetAsDBDateTime().c_str());
+    CLog::Log(LOGERROR, "%s (%s, %s) failed", __FUNCTION__, CURL::GetRedacted(strFileNameAndPath).c_str(), finalDateAdded.GetAsDBDateTime().c_str());
   }
 }
 
@@ -1223,7 +1226,7 @@ int CVideoDatabase::GetMusicVideoId(const std::string& strFilenameAndPath)
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath)
+int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath, const CDateTime& dateAdded /* = CDateTime() */)
 {
   try
   {
@@ -1236,7 +1239,7 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath)
       int idFile = AddFile(strFilenameAndPath);
       if (idFile < 0)
         return -1;
-      UpdateFileDateAdded(idFile, strFilenameAndPath);
+      UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
       std::string strSQL=PrepareSQL("insert into movie (idMovie, idFile) values (NULL, %i)", idFile);
       m_pDS->exec(strSQL.c_str());
       idMovie = (int)m_pDS->lastinsertid();
@@ -1251,17 +1254,15 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath)
   return -1;
 }
 
-bool CVideoDatabase::AddPathToTvShow(int idShow, const std::string &path, const std::string &parentPath)
+bool CVideoDatabase::AddPathToTvShow(int idShow, const std::string &path, const std::string &parentPath, const CDateTime& dateAdded /* = CDateTime() */)
 {
   // Check if this path is already added
   int idPath = GetPathId(path);
   if (idPath < 0)
   {
-    // Get the creation datetime of the tvshow directory
-    CDateTime dateAdded;
-
+    CDateTime finalDateAdded = dateAdded;
     // Skip looking at the files ctime/mtime if defined by the user through as.xml
-    if (g_advancedSettings.m_iVideoLibraryDateAdded > 0)
+    if (!finalDateAdded.IsValid() && g_advancedSettings.m_iVideoLibraryDateAdded > 0)
     {
       struct __stat64 buffer;
       if (XFILE::CFile::Stat(path, &buffer) == 0)
@@ -1278,15 +1279,15 @@ bool CVideoDatabase::AddPathToTvShow(int idShow, const std::string &path, const 
           time = localtime((const time_t*)&buffer.st_ctime);
 #endif
           if (time)
-            dateAdded = *time;
+            finalDateAdded = *time;
         }
       }
     }
 
-    if (!dateAdded.IsValid())
-      dateAdded = CDateTime::GetCurrentDateTime();
+    if (!finalDateAdded.IsValid())
+      finalDateAdded = CDateTime::GetCurrentDateTime();
 
-    idPath = AddPath(path, parentPath, dateAdded.GetAsDBDateTime());
+    idPath = AddPath(path, parentPath, finalDateAdded.GetAsDBDateTime());
   }
 
   return ExecuteQuery(PrepareSQL("REPLACE INTO tvshowlinkpath(idShow, idPath) VALUES (%i,%i)", idShow, idPath));
@@ -1300,7 +1301,7 @@ int CVideoDatabase::AddTvShow()
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath)
+int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath, const CDateTime& dateAdded /* = CDatetime() */)
 {
   try
   {
@@ -1310,7 +1311,7 @@ int CVideoDatabase::AddEpisode(int idShow, const std::string& strFilenameAndPath
     int idFile = AddFile(strFilenameAndPath);
     if (idFile < 0)
       return -1;
-    UpdateFileDateAdded(idFile, strFilenameAndPath);
+    UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
 
     std::string strSQL=PrepareSQL("insert into episode (idEpisode, idFile, idShow) values (NULL, %i, %i)", idFile, idShow);
     m_pDS->exec(strSQL.c_str());
@@ -2046,7 +2047,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, co
       // only add a new movie if we don't already have a valid idMovie
       // (DeleteMovie is called with bKeepId == true so the movie won't
       // be removed from the movie table)
-      idMovie = AddMovie(strFilenameAndPath);
+      idMovie = AddMovie(strFilenameAndPath, details.m_dateAdded);
       if (idMovie < 0)
       {
         RollbackTransaction();
@@ -2392,7 +2393,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
       // only add a new episode if we don't already have a valid idEpisode
       // (DeleteEpisode is called with bKeepId == true so the episode won't
       // be removed from the episode table)
-      idEpisode = AddEpisode(idShow,strFilenameAndPath);
+      idEpisode = AddEpisode(idShow,strFilenameAndPath,details.m_dateAdded);
       if (idEpisode < 0)
       {
         RollbackTransaction();
