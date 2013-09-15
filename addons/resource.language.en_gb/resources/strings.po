@@ -22574,7 +22574,11 @@ msgctxt "#39564"
 msgid "Removing {mediaitem}..."
 msgstr ""
 
-#empty string id 39565
+#: xbmc/media/import/handler/EpisodeImportHandler.cpp
+#: xbmc/media/import/handler/SeasonImportHandler.cpp
+msgctxt "#39565"
+msgid "{tvshow}: {mediaitem}"
+msgstr ""
 
 #: xbmc/media/import/task/MediaImportRemovalTask.cpp
 msgctxt "#39566"
