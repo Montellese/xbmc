@@ -49,6 +49,13 @@
 #include "utils/URIUtils.h"
 #include "utils/Variant.h"
 
+// TODO
+#include "media/import/handler/EpisodeImportHandler.h"
+#include "media/import/handler/MovieImportHandler.h"
+#include "media/import/handler/MusicVideoImportHandler.h"
+#include "media/import/handler/SeasonImportHandler.h"
+#include "media/import/handler/TvShowImportHandler.h"
+
 std::string MediaTypesToLabel(const GroupedMediaTypes& mediaTypes)
 {
   std::string label;
@@ -83,7 +90,14 @@ std::vector<std::string> MediaTypesToLabels(const MediaTypes& mediaTypes)
 }
 
 CMediaImportManager::CMediaImportManager()
-{ }
+{
+  // TODO
+  RegisterMediaImportHandler(MediaImportHandlerPtr(new CMovieImportHandler(this)));
+  RegisterMediaImportHandler(MediaImportHandlerPtr(new CTvShowImportHandler(this)));
+  RegisterMediaImportHandler(MediaImportHandlerPtr(new CSeasonImportHandler(this)));
+  RegisterMediaImportHandler(MediaImportHandlerPtr(new CEpisodeImportHandler(this)));
+  RegisterMediaImportHandler(MediaImportHandlerPtr(new CMusicVideoImportHandler(this)));
+}
 
 CMediaImportManager::~CMediaImportManager()
 {
