@@ -49,6 +49,12 @@
 #include "utils/URIUtils.h"
 #include "utils/Variant.h"
 
+#include "media/import/handler/EpisodeImportHandler.h"
+#include "media/import/handler/MovieImportHandler.h"
+#include "media/import/handler/MusicVideoImportHandler.h"
+#include "media/import/handler/SeasonImportHandler.h"
+#include "media/import/handler/TvShowImportHandler.h"
+
 CMediaImportManager::~CMediaImportManager()
 {
   Uninitialize();
@@ -67,6 +73,11 @@ void CMediaImportManager::Initialize()
     return;
 
   // register media handlers
+  RegisterMediaImportHandler(std::make_shared<CMovieImportHandler>(this));
+  RegisterMediaImportHandler(std::make_shared<CTvShowImportHandler>(this));
+  RegisterMediaImportHandler(std::make_shared<CSeasonImportHandler>(this));
+  RegisterMediaImportHandler(std::make_shared<CEpisodeImportHandler>(this));
+  RegisterMediaImportHandler(std::make_shared<CMusicVideoImportHandler>(this));
 
   // register importers
 

@@ -19442,8 +19442,63 @@ msgstr ""
 #: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
 msgctxt "#38032"
 msgid "Angle"
+msgstr ""
 
-# empty strings from id 38033 to 38999
+#: xbmc/dialogs/GUIDialogSmartPlaylistRule.cpp
+#: xbmc/playlists/SmartPlaylist.cpp
+msgctxt "#38033"
+msgid "Role"
+msgstr ""
+
+#. Orchestra playing on the recording (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38034"
+msgid "Orchestra"
+msgstr ""
+
+#. Lyricist that wrote the lyrics of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38035"
+msgid "Lyricist"
+msgstr ""
+
+#. Remixer of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38036"
+msgid "Remixer"
+msgstr "" 
+
+#. Arranger of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38037"
+msgid "Arranger"
+msgstr "" 
+
+#. Engineer of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38038"
+msgid "Engineer"
+msgstr "" 
+
+#. Producer of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38039"
+msgid "Producer"
+msgstr "" 
+
+#. DJMixer of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38040"
+msgid "DJMixer"
+msgstr "" 
+
+#. Mixer of the song (if present)
+#: addons/skin.confluence/720p/DialogSongInfo.xml
+msgctxt "#38041"
+msgid "Mixer"
+msgstr "" 
+
+# empty strings from id 38042 to 38999
 
 #: xbmc/media/import/MediaImportManager.cpp
 msgctxt "#39000"
@@ -19725,4 +19780,11 @@ msgstr ""
 #: view/GUIViewState.cpp
 msgctxt "#39010"
 msgid "Select sort method"
+msgstr ""
+
+#. (container title): (media item title)
+#: xbmc/media/import/handler/EpisodeImportHandler.cpp
+#: xbmc/media/import/handler/SeasonImportHandler.cpp
+msgctxt "#39015"
+msgid "%s: %s"
 msgstr ""

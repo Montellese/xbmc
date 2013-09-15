@@ -1,2 +1,3 @@
 xbmc/media/import               media/import
+xbmc/media/import/handler       media/import/handler
 xbmc/media/import/task          media/import/task
