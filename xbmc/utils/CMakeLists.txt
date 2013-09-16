@@ -139,6 +139,7 @@ set(HEADERS ActorProtocol.h
             Screenshot.h
             SeekHandler.h
             SortUtils.h
+            SpecialSort.h
             Speed.h
             Splash.h
             Stopwatch.h
