@@ -350,6 +350,7 @@ const CFileItem& CFileItem::operator=(const CFileItem& item)
     return *this;
 
   CGUIListItem::operator=(item);
+  m_enabled = item.m_enabled;
   m_bLabelPreformated=item.m_bLabelPreformated;
   FreeMemory();
   m_strPath = item.GetPath();
@@ -432,6 +433,7 @@ void CFileItem::Initialize()
   m_videoInfoTag = NULL;
   m_pictureInfoTag = NULL;
   m_bLabelPreformated = false;
+  m_enabled = true;
   m_bIsAlbum = false;
   m_dwSize = 0;
   m_bIsParentFolder = false;
@@ -543,6 +545,8 @@ void CFileItem::Archive(CArchive& ar)
     }
     else
       ar << 0;
+
+    ar << m_enabled;
   }
   else
   {
@@ -586,6 +590,8 @@ void CFileItem::Archive(CArchive& ar)
     ar >> iType;
     if (iType == 1)
       ar >> *GetPictureInfoTag();
+
+    ar >> m_enabled;
 
     SetInvalid();
   }
