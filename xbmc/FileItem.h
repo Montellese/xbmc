@@ -139,6 +139,9 @@ public:
   void ToSortable(SortItem &sortable, const Fields &fields) const;
   virtual bool IsFileItem() const { return true; };
 
+  bool IsEnabled() const { return m_enabled; }
+  void SetEnabled(bool enabled) { m_enabled = enabled; }
+
   bool Exists(bool bUseCache = true) const;
   
   /*!
@@ -507,6 +510,7 @@ private:
   void Initialize();
 
   std::string m_strPath;            ///< complete path to item
+  bool m_enabled;
 
   SortSpecial m_specialSort;
   bool m_bIsParentFolder;
