@@ -6631,6 +6631,14 @@ const infomap container_str[]  = {{ "property",         CONTAINER_PROPERTY },
 ///     <p><hr>
 ///     @skinning_v19 **[New Infolabel]** \link ListItem_AlbumStatus `ListItem.AlbumStatus`\endlink
 ///   }
+///   \table_row3{   <b>`ListItem.IsEnabled`</b>,
+///                  \anchor ListItem_IsEnabled
+///                  _boolean_,
+///     @return **True** if the item is enabled.
+///     <p><hr>
+///     @skinning_v19 **[New Infolabel]** \link ListItem_IsEnabled `ListItem.IsEnabled`\endlink
+///     <p>
+///   }
 /// \table_end
 ///
 /// -----------------------------------------------------------------------------
@@ -6842,6 +6850,7 @@ const infomap listitem_labels[]= {{ "thumb",            LISTITEM_THUMB },
                                   { "tvshowdbid",       LISTITEM_TVSHOWDBID },
                                   { "albumstatus",      LISTITEM_ALBUMSTATUS },
                                   { "isautoupdateable", LISTITEM_ISAUTOUPDATEABLE },
+                                  { "isenabled",        LISTITEM_ISENABLED },
 };
 
 /// \page modules__infolabels_boolean_conditions
@@ -10920,6 +10929,15 @@ bool CGUIInfoManager::GetItemBool(const CGUIListItem *item, int contextWindow, i
         {
           const CFileItem *pItem = static_cast<const CFileItem *>(item);
           return pItem->IsParentFolder();
+        }
+        break;
+      }
+      case LISTITEM_ISENABLED:
+      {
+        if (item->IsFileItem())
+        {
+          const CFileItem* pItem = static_cast<const CFileItem*>(item);
+          return pItem->IsEnabled();
         }
         break;
       }
