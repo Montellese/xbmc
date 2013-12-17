@@ -19783,6 +19783,7 @@ msgid "Select sort method"
 msgstr ""
 
 #. (container title): (media item title)
+#: xbmc/filesystem/MediaImportDirectory.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
 msgctxt "#39015"
