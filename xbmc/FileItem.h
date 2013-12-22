@@ -666,6 +666,7 @@ public:
 
   CFileItemList();
   explicit CFileItemList(const std::string& strPath);
+  CFileItemList(const CFileItemList& other);
   ~CFileItemList() override;
   void Archive(CArchive& ar) override;
   CFileItemPtr operator[] (int iItem);
