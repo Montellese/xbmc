@@ -74,6 +74,7 @@ typedef enum {
   FieldAlbumArtist,
   FieldTitle,
   FieldSortTitle,
+  FieldOriginalTitle,
   FieldYear,
   FieldTime,
   FieldTrackNumber,
