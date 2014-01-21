@@ -8637,7 +8637,10 @@ msgctxt "#16000"
 msgid "General"
 msgstr ""
 
-#empty string with id 16001
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#16001"
+msgid "Media Import"
+msgstr ""
 
 msgctxt "#16002"
 msgid "Internet lookup"
@@ -22488,3 +22491,44 @@ msgstr ""
 msgctxt "#39153"
 msgid "Windowing system:"
 msgstr ""
+
+# empty strings from id 39154 to 39499
+
+# empty strings from id 39500 to 39529 are reserved for media import
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39530"
+msgid "Synchronisation"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39531"
+msgid "Update imported media items"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39532"
+msgid "Update playback-related metadata"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39533"
+msgid "Update playback-related metadata on the media provider"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39534"
+msgid "Start synchronisation"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39535"
+msgid "Automatically"
+msgstr ""
+
+#: xbmc/media/import/MediaImport.cpp
+msgctxt "#39536"
+msgid "Manually"
+msgstr ""
+
+# empty strings from id 39537 to 39549 are reserved for media import settings
