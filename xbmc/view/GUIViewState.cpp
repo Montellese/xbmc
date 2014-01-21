@@ -22,6 +22,7 @@
 #include "events/windows/GUIViewStateEventLog.h"
 #include "pvr/windows/GUIViewStatePVR.h"
 #include "addons/GUIViewStateAddonBrowser.h"
+#include "media/import/windows/GUIViewStateMediaSourceBrowser.h"
 #include "music/GUIViewStateMusic.h"
 #include "video/GUIViewStateVideo.h"
 #include "pictures/GUIViewStatePictures.h"
@@ -112,6 +113,9 @@ CGUIViewState* CGUIViewState::GetViewState(int windowId, const CFileItemList& it
   if (url.IsProtocol("activities"))
     return new CGUIViewStateEventLog(items);
 
+  if (url.GetProtocol() == "import")
+    return new CGUIViewStateMediaSourceBrowser(items);
+
   if (windowId == WINDOW_MUSIC_NAV)
     return new CGUIViewStateWindowMusicNav(items);
 
@@ -174,6 +178,9 @@ CGUIViewState* CGUIViewState::GetViewState(int windowId, const CFileItemList& it
 
   if (windowId == WINDOW_EVENT_LOG)
     return new CGUIViewStateEventLog(items);
+
+  if (windowId == WINDOW_MEDIASOURCE_BROWSER)
+    return new CGUIViewStateMediaSourceBrowser(items);
 
   //  Use as fallback/default
   return new CGUIViewStateGeneral(items);
