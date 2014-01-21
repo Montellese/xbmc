@@ -404,7 +404,9 @@ static const ActionMapping windows[] =
     { "addon"                    , WINDOW_ADDON_START },
     { "eventlog"                 , WINDOW_EVENT_LOG},
     { "tvtimerrules"             , WINDOW_TV_TIMER_RULES},
-    { "radiotimerrules"          , WINDOW_RADIO_TIMER_RULES}
+    { "radiotimerrules"          , WINDOW_RADIO_TIMER_RULES},
+    {"mediasourcebrowser"        , WINDOW_MEDIASOURCE_BROWSER},
+    {"mediaimportinformation"    , WINDOW_DIALOG_MEDIAIMPORT_INFO}
 };
 
 static const ActionMapping mousekeys[] =

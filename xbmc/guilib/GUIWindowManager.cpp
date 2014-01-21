@@ -74,6 +74,9 @@
 #include "video/windows/GUIWindowFullScreen.h"
 #include "video/dialogs/GUIDialogVideoOSD.h"
 
+#include "media/import/dialogs/GUIDialogMediaImportInfo.h"
+#include "media/import/windows/GUIWindowMediaSourceBrowser.h"
+
 // Dialog includes
 #include "music/dialogs/GUIDialogMusicOSD.h"
 #include "music/dialogs/GUIDialogVisualisationPresetList.h"
@@ -301,6 +304,9 @@ void CGUIWindowManager::CreateWindows()
   Add(new CGUIWindowEventLog);
 
   Add(new GAME::CGUIControllerWindow);
+
+  Add(new CGUIWindowMediaSourceBrowser);
+  Add(new CGUIDialogMediaImportInfo);
 }
 
 bool CGUIWindowManager::DestroyWindows()
