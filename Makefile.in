@@ -69,6 +69,7 @@ DIRECTORY_ARCHIVES=$(VideoPlayer_ARCHIVES) \
                    xbmc/listproviders/listproviders.a \
                    xbmc/platform/platform.a \
                    xbmc/media/media.a \
+                   xbmc/media/import/media-import.a \
                    xbmc/messaging/messaging.a \
                    xbmc/messaging/helpers/messagingHelpers.a \
                    xbmc/music/dialogs/musicdialogs.a \
