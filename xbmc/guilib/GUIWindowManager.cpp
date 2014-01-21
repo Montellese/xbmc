@@ -20,6 +20,8 @@
 #include "events/windows/GUIWindowEventLog.h"
 #include "favourites/GUIDialogFavourites.h"
 #include "input/Key.h"
+#include "media/import/dialogs/GUIDialogMediaImportInfo.h"
+#include "media/import/windows/GUIWindowMediaSourceBrowser.h"
 #include "messaging/ApplicationMessenger.h"
 #include "messaging/helpers/DialogHelper.h"
 #include "music/dialogs/GUIDialogInfoProviderSettings.h"
@@ -299,6 +301,9 @@ void CGUIWindowManager::CreateWindows()
   Add(new GAME::CDialogGameAdvancedSettings);
   Add(new GAME::CDialogGameVideoRotation);
   Add(new RETRO::CGameWindowFullScreen);
+
+  Add(new CGUIWindowMediaSourceBrowser);
+  Add(new CGUIDialogMediaImportInfo);
 }
 
 bool CGUIWindowManager::DestroyWindows()
