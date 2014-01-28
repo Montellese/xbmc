@@ -8367,7 +8367,10 @@ msgctxt "#16000"
 msgid "General"
 msgstr ""
 
-#empty string with id 16001
+#: system/settings/settings.xml
+msgctxt "#16001"
+msgid "Media Import"
+msgstr ""
 
 msgctxt "#16002"
 msgid "Internet lookup"
@@ -19008,7 +19011,27 @@ msgctxt "#36620"
 msgid "Enable high quality downscaling of pictures (uses more memory and has moderate performance impact)."
 msgstr ""
 
-#empty strings from id 36621 to 36899
+#: system/settings/settings.xml
+msgctxt "#36621"
+msgid "Import media items from UPnP servers"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#36622"
+msgid "Shows a popup for every new UPnP server available and asks whether to import media items available into the local library. It is possible to choose which media items to import and which not. The imported items appear in the library like any other media item except that it can only be played if the UPnP server they were imported from is available."
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#36623"
+msgid "Ignore incompatible UPnP servers"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#36624"
+msgid "For the UPnP import to be able to import specific media items the UPnP server must support the UPnP Search functionality (ContentDirectory:Search). Otherwise all available items are imported for every media item to import. Therefore this option should only be enabled if only items of a single media item are imported from a UPnP server which doesn't support the UPnP Search functionality."
+msgstr ""
+
+#empty strings from id 36625 to 36899
 
 #: xbmc/media/MediaType.cpp
 msgctxt "#36900"
@@ -19805,4 +19828,10 @@ msgstr ""
 #: xbmc/media/import/repositories/GenericMediaImportRepository.cpp
 msgctxt "#39017"
 msgid "Removing %s..."
+msgstr ""
+
+#. Retrieving (media type plural)...
+#: xbmc/network/upnp/UPnPMediaImporter.cpp
+msgctxt "#39018"
+msgid "Retrieving %s..."
 msgstr ""

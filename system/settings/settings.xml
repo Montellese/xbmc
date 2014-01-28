@@ -1896,6 +1896,21 @@
           <control type="toggle" />
         </setting>
       </group>
+      <group id="2" label="16001">
+        <setting id="services.upnpimport" type="boolean" label="36621" help="36622">
+          <level>1</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="services.upnpimportcompatibleonly" type="boolean" parent="services.upnpimport" label="36623" help="36624">
+          <level>1</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="enable" setting="services.upnpimport">true</dependency>
+          </dependencies>
+          <control type="toggle" />
+        </setting>
+      </group>
     </category>
     <category id="airplay" label="1273" help="36602">
       <requirement>HAS_AIRPLAY</requirement>
