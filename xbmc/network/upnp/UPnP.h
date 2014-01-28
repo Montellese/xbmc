@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include "media/import/IMediaImporter.h"
+
 #include <string>
 
 class NPT_LogHandler;
@@ -97,6 +99,7 @@ private:
     CRendererReferenceHolder*   m_RendererHolder;
     CCtrlPointReferenceHolder*  m_CtrlPointHolder;
 
+    MediaImporterFactoryPtr m_mediaImporterFactory;
 
     static CUPnP* upnp;
 };
