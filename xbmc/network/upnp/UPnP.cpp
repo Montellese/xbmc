@@ -16,6 +16,7 @@
 #include "GUIUserMessages.h"
 #include "ServiceBroker.h"
 #include "UPnPInternal.h"
+#include "UPnPMediaImporter.h"
 #include "UPnPRenderer.h"
 #include "UPnPServer.h"
 #include "UPnPSettings.h"
@@ -24,11 +25,13 @@
 #include "cores/playercorefactory/PlayerCoreFactory.h"
 #include "guilib/GUIComponent.h"
 #include "guilib/GUIWindowManager.h"
+#include "media/import/MediaImportManager.h"
 #include "messaging/ApplicationMessenger.h"
 #include "network/Network.h"
 #include "profiles/ProfileManager.h"
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
+#include "utils/StringUtils.h"
 #include "utils/SystemInfo.h"
 #include "utils/TimeUtils.h"
 #include "utils/URIUtils.h"
@@ -176,6 +179,16 @@ public:
         message.SetStringParam("upnp://");
         CServiceBroker::GetGUI()->GetWindowManager().SendThreadMessage(message);
 
+        if (CServiceBroker::GetSettingsComponent()->GetSettings()->GetBool("services.upnpimport"))
+        {
+          std::string sourceID = getSourceID(device);
+          CServiceBroker::GetMediaImportManager().AddAndActivateSource(
+              CUPnPMediaImporterBase::IDENTIFICATION, sourceID,
+              device->GetFriendlyName().GetChars(), device->GetIconUrl("image/png").GetChars(),
+              {MediaTypeMovie, MediaTypeMusicVideo, MediaTypeTvShow, MediaTypeSeason,
+               MediaTypeEpisode});
+        }
+
         return PLT_SyncMediaBrowser::OnMSAdded(device);
     }
     void OnMSRemoved(PLT_DeviceDataReference& device) override
@@ -185,6 +198,8 @@ public:
         CGUIMessage message(GUI_MSG_NOTIFY_ALL, 0, 0, GUI_MSG_UPDATE_PATH);
         message.SetStringParam("upnp://");
         CServiceBroker::GetGUI()->GetWindowManager().SendThreadMessage(message);
+
+        CServiceBroker::GetMediaImportManager().DeactivateSource(getSourceID(device));
 
         PLT_SyncMediaBrowser::OnMSRemoved(device);
     }
@@ -358,6 +373,11 @@ public:
     }
 
   private:
+    std::string getSourceID(const PLT_DeviceDataReference& device)
+    {
+      return StringUtils::Format("upnp://%s", device->GetUUID().GetChars());
+    }
+
     Logger m_logger;
 };
 
@@ -656,6 +676,11 @@ CUPnP::StartClient()
 
     // start browser
     m_MediaBrowser = new CMediaBrowser(m_CtrlPointHolder->m_CtrlPoint);
+
+    // register the upnp media importer
+    if (m_mediaImporterFactory == NULL)
+      m_mediaImporterFactory = std::make_shared<CUPnPMediaImporterFactory>();
+    CServiceBroker::GetMediaImportManager().RegisterImporter(m_mediaImporterFactory);
 }
 
 /*----------------------------------------------------------------------
@@ -666,6 +691,11 @@ CUPnP::StopClient()
 {
     if (m_MediaBrowser == NULL)
         return;
+
+    // unregister the upnp media importer
+    if (m_mediaImporterFactory != NULL)
+      CServiceBroker::GetMediaImportManager().UnregisterImporter(
+          m_mediaImporterFactory->GetIdentification());
 
     delete m_MediaBrowser;
     m_MediaBrowser = NULL;
