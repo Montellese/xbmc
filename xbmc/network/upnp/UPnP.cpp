@@ -28,6 +28,7 @@
 #include "threads/SystemClock.h"
 #include "UPnP.h"
 #include "UPnPInternal.h"
+#include "UPnPMediaImporter.h"
 #include "UPnPRenderer.h"
 #include "UPnPServer.h"
 #include "UPnPSettings.h"
@@ -43,11 +44,13 @@
 #include "GUIUserMessages.h"
 #include "FileItem.h"
 #include "guilib/GUIWindowManager.h"
+#include "utils/StringUtils.h"
 #include "utils/TimeUtils.h"
 #include "video/VideoInfoTag.h"
 #include "input/Key.h"
 #include "Util.h"
 #include "utils/SystemInfo.h"
+#include "media/import/MediaImportManager.h"
 
 using namespace UPNP;
 using namespace KODI::MESSAGING;
@@ -188,6 +191,15 @@ public:
         message.SetStringParam("upnp://");
         g_windowManager.SendThreadMessage(message);
 
+        if (CSettings::GetInstance().GetBool("services.upnpimport"))
+        {
+          std::string sourceID = getSourceID(device);
+          MediaTypes mediaTypes;
+          mediaTypes.insert(MediaTypeMovie); mediaTypes.insert(MediaTypeMusicVideo);
+          mediaTypes.insert(MediaTypeTvShow); mediaTypes.insert(MediaTypeSeason); mediaTypes.insert(MediaTypeEpisode);
+          CMediaImportManager::GetInstance().RegisterSource(sourceID, device->GetFriendlyName().GetChars(), device->GetIconUrl("image/png").GetChars(), mediaTypes);
+        }
+
         return PLT_SyncMediaBrowser::OnMSAdded(device);
     }
     virtual void OnMSRemoved(PLT_DeviceDataReference& device)
@@ -197,6 +209,8 @@ public:
         CGUIMessage message(GUI_MSG_NOTIFY_ALL, 0, 0, GUI_MSG_UPDATE_PATH);
         message.SetStringParam("upnp://");
         g_windowManager.SendThreadMessage(message);
+
+        CMediaImportManager::GetInstance().UnregisterSource(getSourceID(device));
 
         PLT_SyncMediaBrowser::OnMSRemoved(device);
     }
@@ -350,6 +364,12 @@ public:
     failed:
         CLog::Log(LOGINFO, "UPNP: invoking UpdateObject failed");
         return false;
+    }
+
+private:
+    std::string getSourceID(const PLT_DeviceDataReference& device)
+    {
+      return StringUtils::Format("upnp://%s", device->GetUUID().GetChars());
     }
 };
 
@@ -644,6 +664,11 @@ CUPnP::StartClient()
 
     // start browser
     m_MediaBrowser = new CMediaBrowser(m_CtrlPointHolder->m_CtrlPoint);
+
+    // register the upnp media importer
+    if (m_mediaImporter == NULL)
+        m_mediaImporter = MediaImporterPtr(new CUPnPMediaImporter());
+    CMediaImportManager::GetInstance().RegisterImporter(m_mediaImporter);
 }
 
 /*----------------------------------------------------------------------
@@ -654,6 +679,10 @@ CUPnP::StopClient()
 {
     if (m_MediaBrowser == NULL)
         return;
+
+    // unregister the upnp media importer
+    if (m_mediaImporter != NULL)
+        CMediaImportManager::GetInstance().UnregisterImporter(m_mediaImporter);
 
     delete m_MediaBrowser;
     m_MediaBrowser = NULL;
