@@ -8642,6 +8642,7 @@ msgctxt "#16000"
 msgid "General"
 msgstr ""
 
+#: system/settings/settings.xml
 #: xbmc/media/import/MediaImport.cpp
 msgctxt "#16001"
 msgid "Media Import"
@@ -21077,11 +21078,21 @@ msgstr ""
 
 #. Text in confirm dialog when installing addon from zip
 #: xbmc/addons/GUIWindowAddonBrowser.cpp
-msgctxt "#36637"
+msgctxt "#36638"
 msgid "Note that add-ons installed from zip (excluding served repositories) will not auto-update and must be manually updated. Would you like to proceed?"
 msgstr ""
 
-#empty strings from id 36638 to 36898
+#: system/settings/settings.xml
+msgctxt "#36639"
+msgid "Import media items from UPnP servers"
+msgstr ""
+
+#: system/settings/settings.xml
+msgctxt "#36640"
+msgid "Adds newly detected UPnP servers to the list of available media providers with the possibility to import media items into the local library. It is possible to choose which media items to import and which not. The imported items appear in the library like any other media item except that it can only be played if the UPnP server they were imported from is available."
+msgstr ""
+
+#empty strings from id 36641 to 36898
 
 #. Description of setting with label #729 "Enable SSL"
 #: system/settings/settings.xml
@@ -22617,7 +22628,10 @@ msgctxt "#39567"
 msgid "New import added"
 msgstr ""
 
-# empty string id 39568
+#: xbmc/network/upnp/UPnPMediaImporter.cpp
+msgctxt "#39568"
+msgid "Retrieving {mediatype}..."
+msgstr ""
 
 #: xbmc/media/import/task/MediaImportCleanupTask.cpp
 msgctxt "#39569"
