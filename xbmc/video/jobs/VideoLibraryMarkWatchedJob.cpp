@@ -27,6 +27,7 @@
 #ifdef HAS_UPNP
 #include "network/upnp/UPnP.h"
 #endif
+#include "media/import/MediaImportManager.h"
 #include "profiles/ProfilesManager.h"
 #include "utils/URIUtils.h"
 #include "video/VideoDatabase.h"
@@ -91,11 +92,25 @@ bool CVideoLibraryMarkWatchedJob::Work(CVideoDatabase &db)
       if (item->HasVideoInfoTag())
         path = item->GetVideoInfoTag()->GetPath();
 
+      // update the item's details in the database
       db.ClearBookMarksOfFile(path, CBookmark::RESUME);
       db.IncrementPlayCount(*item);
+
+      // update the item itself
+      item->GetVideoInfoTag()->m_resumePoint.Reset();
+      item->GetVideoInfoTag()->m_playCount += 1;
     }
     else
+    {
+      // update the item's details in the database
       db.SetPlayCount(*item, 0);
+
+      // update the item itself
+      item->GetVideoInfoTag()->m_playCount = 0;
+    }
+
+    if (item->IsImported())
+      CMediaImportManager::GetInstance().UpdateImportedItem(*item);
   }
 
   db.CommitTransaction();
