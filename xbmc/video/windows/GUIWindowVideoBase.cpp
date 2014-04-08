@@ -774,9 +774,9 @@ bool CGUIWindowVideoBase::OnItemInfo(int iItem)
     scraper = m_database.GetScraperForPath(strDir, settings, foundDirectly);
 
     if (!scraper &&
-        !(m_database.HasMovieInfo(item->GetPath()) ||
-          m_database.HasTvShowInfo(strDir)           ||
-          m_database.HasEpisodeInfo(item->GetPath())))
+        !(m_database.HasMovieInfo(item->GetPath()) || m_database.HasTvShowInfo(strDir) ||
+          m_database.HasEpisodeInfo(item->GetPath())) &&
+        !item->IsImported())
     {
       return false;
     }
