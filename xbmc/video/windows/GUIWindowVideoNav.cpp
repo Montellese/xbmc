@@ -53,6 +53,7 @@
 #include "LibraryQueue.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
 #include "pvr/recordings/PVRRecording.h"
+#include "media/import/MediaImportManager.h"
 
 #include <utility>
 
@@ -1063,7 +1064,17 @@ bool CGUIWindowVideoNav::OnAddMediaSource()
 bool CGUIWindowVideoNav::OnClick(int iItem, const std::string &player)
 {
   CFileItemPtr item = m_vecItems->Get(iItem);
-  if (!item->m_bIsFolder && item->IsVideoDb() && !item->Exists())
+  if (!item->m_bIsFolder && item->IsImported() && !CMediaImportManager::GetInstance().IsSourceActive(item->GetSource()))
+  {
+    CMediaImportSource source(item->GetSource());
+    if (CMediaImportManager::GetInstance().GetSource(source.GetIdentifier(), source))
+      CGUIDialogOK::ShowAndGetInput("Media provider unavailable", "The media provider " + source.GetFriendlyName() + " is currently not available.");
+    else
+      CGUIDialogOK::ShowAndGetInput("Media provider unavailable", "The media provider is currently not available.");
+
+    return true;
+  }
+  else if (!item->m_bIsFolder && item->IsVideoDb() && !item->Exists())
   {
     CLog::Log(LOGDEBUG, "%s called on '%s' but file doesn't exist", __FUNCTION__, item->GetPath().c_str());
     if (CProfilesManager::GetInstance().GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser)
