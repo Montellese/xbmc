@@ -22591,3 +22591,21 @@ msgstr ""
 msgctxt "#39569"
 msgid "Cleaning up {:s} from {:s}..."
 msgstr ""
+
+#. Title of the dialog shown if the media provider of a library item is currently not available
+#: xbmc/video/windows/GUIWindowVideoNav.cpp
+msgctxt "#39570"
+msgid "Media provider unavailable"
+msgstr ""
+
+#. Generic description of the dialog shown if the media provider of a library item is currently not available
+#: xbmc/video/windows/GUIWindowVideoNav.cpp
+msgctxt "#39571"
+msgid "The media provider is currently not available."
+msgstr ""
+
+#. Specific description of the dialog shown if the media provider of a library item is currently not available
+#: xbmc/video/windows/GUIWindowVideoNav.cpp
+msgctxt "#39572"
+msgid "The media provider {:s} is currently not available."
+msgstr ""

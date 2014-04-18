@@ -16,6 +16,7 @@
 #include "ServiceBroker.h"
 #include "Util.h"
 #include "dialogs/GUIDialogMediaSource.h"
+#include "dialogs/GUIDialogOK.h"
 #include "dialogs/GUIDialogYesNo.h"
 #include "filesystem/Directory.h"
 #include "filesystem/MultiPathDirectory.h"
@@ -26,6 +27,7 @@
 #include "guilib/GUIWindowManager.h"
 #include "guilib/LocalizeStrings.h"
 #include "input/Key.h"
+#include "media/import/MediaImportManager.h"
 #include "messaging/ApplicationMessenger.h"
 #include "messaging/helpers/DialogOKHelper.h"
 #include "music/MusicDatabase.h"
@@ -1092,7 +1094,21 @@ bool CGUIWindowVideoNav::OnAddMediaSource()
 bool CGUIWindowVideoNav::OnClick(int iItem, const std::string &player)
 {
   CFileItemPtr item = m_vecItems->Get(iItem);
-  if (!item->m_bIsFolder && item->IsVideoDb() && !item->Exists())
+  if (!item->m_bIsFolder && item->IsImported() &&
+      !CServiceBroker::GetMediaImportManager().IsSourceActive(item->GetSource()))
+  {
+    CMediaImportSource source(item->GetSource());
+    if (CServiceBroker::GetMediaImportManager().GetSource(source.GetIdentifier(), source))
+    {
+      KODI::MESSAGING::HELPERS::ShowOKDialogText(
+          39570, StringUtils::Format(g_localizeStrings.Get(29572), source.GetFriendlyName()));
+    }
+    else
+      KODI::MESSAGING::HELPERS::ShowOKDialogText(39570, 39571);
+
+    return true;
+  }
+  else if (!item->m_bIsFolder && item->IsVideoDb() && !item->Exists())
   {
     CLog::Log(LOGDEBUG, "%s called on '%s' but file doesn't exist", __FUNCTION__, item->GetPath().c_str());
 
