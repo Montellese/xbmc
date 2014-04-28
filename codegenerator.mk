@@ -18,6 +18,14 @@ else
 DOXY_XML_PATH=$(GENDIR)/doxygenxml
 endif
 
+JSON_BUILDER = tools/jsd_builder/src/JsonSchemaBuilder
+GENERATED_JSON = $(INTERFACES_DIR)/json-rpc/ServiceDescription.h
+JSON_SRC =  $(INTERFACES_DIR)/json-rpc/schema/version.txt
+JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/license.txt
+JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/methods.json
+JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/types.json
+JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/notifications.json
+
 GENDIR = $(INTERFACES_DIR)/python/generated
 GROOVY_DIR = $(TOPDIR)/lib/groovy
 
@@ -43,7 +51,7 @@ $(GENDIR)/%.xml: %.i $(SWIG) $(JAVA) $(GENERATE_DEPS)
 	mkdir -p $(GENDIR)
 	$(SWIG) -w401 -c++ -o $@ -xml -I$(TOPDIR)/xbmc -xmllang python $<
 
-codegenerated: $(DOXYGEN) $(SWIG) $(JAVA) $(GENERATED)
+codegenerated: $(DOXYGEN) $(SWIG) $(JAVA) $(GENERATED) $(GENERATED_JSON)
 
 $(DOXY_XML_PATH): $(SWIG) $(JAVA)
 	cd $(INTERFACES_DIR)/python; ($(DOXYGEN) Doxyfile > /dev/null) 2>&1 | grep -v " warning: "
@@ -63,3 +71,9 @@ $(SWIG):
 	@echo This is not necessarily an error.
 	@false
 
+$(GENERATED_JSON): $(JSON_BUILDER)
+	@echo Generating JSON header
+	$(JSON_BUILDER) $(JSON_SRC) && mv ServiceDescription.h $@
+
+$(JSON_BUILDER):
+	make -C tools/jsd_builder/src
