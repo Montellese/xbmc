@@ -18,13 +18,7 @@ else
 DOXY_XML_PATH=$(GENDIR)/doxygenxml
 endif
 
-JSON_BUILDER = tools/JsonSchemaBuilder/src/JsonSchemaBuilder
 GENERATED_JSON = $(INTERFACES_DIR)/json-rpc/ServiceDescription.h
-JSON_SRC =  $(INTERFACES_DIR)/json-rpc/schema/version.txt
-JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/license.txt
-JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/methods.json
-JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/types.json
-JSON_SRC += $(INTERFACES_DIR)/json-rpc/schema/notifications.json
 
 GENDIR = $(INTERFACES_DIR)/python/generated
 GROOVY_DIR = $(TOPDIR)/lib/groovy
@@ -71,9 +65,5 @@ $(SWIG):
 	@echo This is not necessarily an error.
 	@false
 
-$(GENERATED_JSON): $(JSON_BUILDER)
-	@echo Generating JSON header
-	$(JSON_BUILDER) $(JSON_SRC) && mv ServiceDescription.h $@
-
-$(JSON_BUILDER):
-	make -C tools/JsonSchemaBuilder/src
+$(GENERATED_JSON):
+	make -C $(INTERFACES_DIR)/json-rpc $(notdir $@)
