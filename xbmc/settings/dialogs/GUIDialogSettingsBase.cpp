@@ -60,6 +60,8 @@ using namespace std;
 CGUIDialogSettingsBase::CGUIDialogSettingsBase(int windowId, const std::string &xmlFile)
     : CGUIDialog(windowId, xmlFile),
       m_iSetting(0), m_iCategory(0),
+      m_resetSetting(NULL),
+      m_dummyCategory(NULL),
       m_pOriginalSpin(NULL),
       m_pOriginalSlider(NULL),
       m_pOriginalRadioButton(NULL),
@@ -67,8 +69,6 @@ CGUIDialogSettingsBase::CGUIDialogSettingsBase(int windowId, const std::string &
       m_pOriginalButton(NULL),
       m_pOriginalEdit(NULL),
       m_pOriginalImage(NULL),
-      m_resetSetting(NULL),
-      m_dummyCategory(NULL),
       m_newOriginalEdit(false),
       m_delayedTimer(this),
       m_confirmed(false)
