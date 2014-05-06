@@ -518,7 +518,7 @@ std::set<std::string> CGUIDialogSettingsBase::CreateSettings()
     {
       CSetting *pSetting = *settingIt;
       settingMap.insert(pSetting->GetId());
-      CGUIControl* pControl = AddSetting(pSetting, group->GetWidth(), iControlID);
+      AddSetting(pSetting, group->GetWidth(), iControlID);
     }
   }
 
