@@ -1,5 +1,6 @@
 TOPDIR ?= .
 INTERFACES_DIR ?= xbmc/interfaces
+ADDON_JSON_DIR ?= addons/xbmc.json
 
 JAVA ?= $(shell which java)
 ifeq ($(JAVA),)
@@ -19,6 +20,7 @@ DOXY_XML_PATH=$(GENDIR)/doxygenxml
 endif
 
 GENERATED_JSON = $(INTERFACES_DIR)/json-rpc/ServiceDescription.h
+GENERATED_ADDON_JSON = $(ADDON_JSON_DIR)/addon.xml
 ifeq ($(wildcard $(JSON_BUILDER)),)
   JSON_BUILDER = $(shell which JsonSchemaBuilder)
 ifeq ($(JSON_BUILDER),)
@@ -51,7 +53,7 @@ $(GENDIR)/%.xml: %.i $(SWIG) $(JAVA) $(GENERATE_DEPS)
 	mkdir -p $(GENDIR)
 	$(SWIG) -w401 -c++ -o $@ -xml -I$(TOPDIR)/xbmc -xmllang python $<
 
-codegenerated: $(DOXYGEN) $(SWIG) $(JAVA) $(GENERATED) $(GENERATED_JSON)
+codegenerated: $(DOXYGEN) $(SWIG) $(JAVA) $(GENERATED) $(GENERATED_JSON) $(GENERATED_ADDON_JSON)
 
 $(DOXY_XML_PATH): $(SWIG) $(JAVA)
 	cd $(INTERFACES_DIR)/python; ($(DOXYGEN) Doxyfile > /dev/null) 2>&1 | grep -v " warning: "
@@ -74,6 +76,9 @@ $(SWIG):
 $(GENERATED_JSON): $(JSON_BUILDER)
 	@echo Jsonbuilder: $(JSON_BUILDER)
 	make -C $(INTERFACES_DIR)/json-rpc $(notdir $@)
+
+$(GENERATED_ADDON_JSON):
+	make -C $(INTERFACES_DIR)/json-rpc ../../../addons/xbmc.json/$(notdir $@)
 
 ifneq ($(CROSS_COMPILING), yes)
 $(JSON_BUILDER):
