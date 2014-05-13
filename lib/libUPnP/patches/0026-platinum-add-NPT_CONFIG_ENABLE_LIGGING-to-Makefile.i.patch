@@ -1,0 +1,25 @@
+From a47a1160b036d58a3c7224449e04af4abcc5ee29 Mon Sep 17 00:00:00 2001
+From: montellese <montellese@xbmc.org>
+Date: Tue, 13 May 2014 21:31:41 +0200
+Subject: [PATCH] platinum: add NPT_CONFIG_ENABLE_LOGGING to Makefile.in
+
+---
+ lib/libUPnP/Makefile.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/lib/libUPnP/Makefile.in b/lib/libUPnP/Makefile.in
+index cbe6e9a..e194a58 100644
+--- a/lib/libUPnP/Makefile.in
++++ b/lib/libUPnP/Makefile.in
+@@ -91,6 +91,8 @@ endif
+ 
+ INCLUDES=-I./Neptune/Source/Core -I./Platinum/Source/Core -I./Platinum/Source/Platinum -I./Platinum/Source/Devices/MediaConnect -I./Platinum/Source/Devices/MediaRenderer -I./Platinum/Source/Devices/MediaServer -I./Neptune/Source/System/Posix -I./Platinum/Source/Extras
+ 
++CXXFLAGS+=-DNPT_CONFIG_ENABLE_LOGGING
++
+ LIB=libupnp.a
+ 
+ include ../../Makefile.include
+-- 
+1.8.3.2
+
