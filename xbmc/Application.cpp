@@ -2824,6 +2824,8 @@ bool CApplication::Cleanup()
     g_Windowing.DestroyWindowSystem();
     g_windowManager.DestroyWindows();
 
+    CDatabaseManager::GetInstance().Deinitialize();
+
     CLog::Log(LOGNOTICE, "unload sections");
 
 #ifdef HAS_PERFORMANCE_SAMPLE
