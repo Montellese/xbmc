@@ -549,7 +549,7 @@ public:
   void DeleteMovie(int idMovie, bool bKeepId = false);
   void DeleteTvShow(int idTvShow, bool bKeepId = false, bool deleteChildren = true);
   void DeleteTvShow(const std::string& strPath, bool deleteChildren = true);
-  void DeleteSeason(int idSeason, bool bKeepId = false);
+  void DeleteSeason(int idSeason, bool bKeepId = false, bool deleteChildren = true);
   void DeleteEpisode(int idEpisode, bool bKeepId = false);
   void DeleteMusicVideo(int idMusicVideo, bool bKeepId = false);
   void DeleteDetailsForTvShow(int idTvShow);
