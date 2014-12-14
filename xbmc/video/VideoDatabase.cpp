@@ -3465,14 +3465,16 @@ void CVideoDatabase::DeleteMovie(int idMovie, bool bKeepId /* = false */)
   }
 }
 
-void CVideoDatabase::DeleteTvShow(const std::string& strPath)
+void CVideoDatabase::DeleteTvShow(const std::string& strPath, bool deleteChildren /* = true */)
 {
   int idTvShow = GetTvShowId(strPath);
   if (idTvShow >= 0)
     DeleteTvShow(idTvShow);
 }
 
-void CVideoDatabase::DeleteTvShow(int idTvShow, bool bKeepId /* = false */)
+void CVideoDatabase::DeleteTvShow(int idTvShow,
+                                  bool bKeepId /* = false */,
+                                  bool deleteChildren /* = true */)
 {
   if (idTvShow < 0)
     return;
@@ -3489,18 +3491,26 @@ void CVideoDatabase::DeleteTvShow(int idTvShow, bool bKeepId /* = false */)
     std::set<int> paths;
     GetPathsForTvShow(idTvShow, paths);
 
-    std::string strSQL=PrepareSQL("SELECT episode.idEpisode FROM episode WHERE episode.idShow=%i",idTvShow);
-    m_pDS2->query(strSQL);
-    while (!m_pDS2->eof())
+    std::string strSQL;
+    if (deleteChildren)
     {
-      DeleteEpisode(m_pDS2->fv(0).get_asInt(), bKeepId);
-      m_pDS2->next();
+      strSQL =
+          PrepareSQL("SELECT episode.idEpisode FROM episode WHERE episode.idShow=%i", idTvShow);
+      m_pDS2->query(strSQL);
+      while (!m_pDS2->eof())
+      {
+        DeleteEpisode(m_pDS2->fv(0).get_asInt(), bKeepId);
+        m_pDS2->next();
+      }
     }
 
     DeleteDetailsForTvShow(idTvShow);
 
-    strSQL=PrepareSQL("delete from seasons where idShow=%i", idTvShow);
-    m_pDS->exec(strSQL);
+    if (deleteChildren)
+    {
+      strSQL = PrepareSQL("delete from seasons where idShow=%i", idTvShow);
+      m_pDS->exec(strSQL);
+    }
 
     // keep tvshow table and movielink table so we can update data in place
     if (!bKeepId)
