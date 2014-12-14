@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "media/import/IMediaImportRepository.h"
+#include "media/import/IMediaImportRepositoryManager.h"
 #include "threads/CriticalSection.h"
 
 #include <atomic>
@@ -25,7 +27,7 @@ class DatabaseSettings;
  opened, ensures we don't continuously try it.
 
  */
-class CDatabaseManager
+class CDatabaseManager : public IMediaImportRepositoryManager
 {
 public:
   CDatabaseManager();
@@ -37,6 +39,10 @@ public:
    Checks that all databases are up to date, otherwise updates them.
    */
   void Initialize();
+
+  /*! \brief Deinitialize the database manager
+   */
+  void Deinitialize();
 
   /*! \brief Check whether we can open a database.
 
@@ -51,6 +57,9 @@ public:
 
   bool IsUpgrading() const { return m_bIsUpgrading; }
 
+  // implementation of IMediaImportRepositoryManager
+  std::vector<MediaImportRepositoryPtr> GetImportRepositories() const override;
+
 private:
   std::atomic<bool> m_bIsUpgrading;
 
@@ -62,4 +71,6 @@ private:
 
   CCriticalSection            m_section;     ///< Critical section protecting m_dbStatus.
   std::map<std::string, DB_STATUS> m_dbStatus;    ///< Our database status map.
+
+  MediaImportRepositoryPtr m_videoImportRepository;
 };
