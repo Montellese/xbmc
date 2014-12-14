@@ -11,6 +11,7 @@
 #include "ServiceBroker.h"
 #include "TextureDatabase.h"
 #include "addons/AddonDatabase.h"
+#include "media/import/repositories/VideoImportRepository.h"
 #include "music/MusicDatabase.h"
 #include "pvr/PVRDatabase.h"
 #include "pvr/epg/EpgDatabase.h"
@@ -22,8 +23,8 @@
 
 using namespace PVR;
 
-CDatabaseManager::CDatabaseManager() :
-  m_bIsUpgrading(false)
+CDatabaseManager::CDatabaseManager()
+  : m_bIsUpgrading(false)
 {
   // Initialize the addon database (must be before the addon manager is init'd)
   ADDON::CAddonDatabase db;
@@ -51,13 +52,31 @@ void CDatabaseManager::Initialize()
   { CViewDatabase db; UpdateDatabase(db); }
   { CTextureDatabase db; UpdateDatabase(db); }
   { CMusicDatabase db; UpdateDatabase(db, &advancedSettings->m_databaseMusic); }
-  { CVideoDatabase db; UpdateDatabase(db, &advancedSettings->m_databaseVideo); }
+  {
+    CVideoDatabase db;
+    UpdateDatabase(db, &advancedSettings->m_databaseVideo);
+    db.SetImportItemsEnabled(false);
+    m_videoImportRepository = std::make_shared<CVideoImportRepository>();
+  }
   { CPVRDatabase db; UpdateDatabase(db, &advancedSettings->m_databaseTV); }
   { CPVREpgDatabase db; UpdateDatabase(db, &advancedSettings->m_databaseEpg); }
 
   CLog::Log(LOGDEBUG, "%s, updating databases... DONE", __FUNCTION__);
 
   m_bIsUpgrading = false;
+}
+
+void CDatabaseManager::Deinitialize()
+{
+  {
+    CVideoDatabase videodb;
+    if (videodb.Open())
+      videodb.SetImportItemsEnabled(false);
+    m_videoImportRepository.reset();
+  }
+
+  CSingleLock lock(m_section);
+  m_dbStatus.clear();
 }
 
 bool CDatabaseManager::CanOpen(const std::string &name)
@@ -67,6 +86,15 @@ bool CDatabaseManager::CanOpen(const std::string &name)
   if (i != m_dbStatus.end())
     return i->second == DB_READY;
   return false; // db isn't even attempted to update yet
+}
+
+std::vector<MediaImportRepositoryPtr> CDatabaseManager::GetImportRepositories() const
+{
+  std::vector<MediaImportRepositoryPtr> repositories;
+  if (m_videoImportRepository != nullptr)
+    repositories.push_back(m_videoImportRepository);
+
+  return repositories;
 }
 
 void CDatabaseManager::UpdateDatabase(CDatabase &db, DatabaseSettings *settings)

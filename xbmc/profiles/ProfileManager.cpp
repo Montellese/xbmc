@@ -259,6 +259,7 @@ void CProfileManager::PrepareLoadProfile(unsigned int profileIndex)
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
   CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
+  CDatabaseManager& databaseManager = CServiceBroker::GetDatabaseManager();
   PVR::CPVRManager &pvrManager = CServiceBroker::GetPVRManager();
   CNetworkBase &networkManager = CServiceBroker::GetNetwork();
 
@@ -268,6 +269,8 @@ void CProfileManager::PrepareLoadProfile(unsigned int profileIndex)
   mediaImportManager.Uninitialize();
 
   serviceAddons.Stop();
+
+  databaseManager.Deinitialize();
 
   // stop PVR related services
   pvrManager.Stop();
@@ -325,7 +328,6 @@ bool CProfileManager::LoadProfile(unsigned int index)
 
   CreateProfileFolders();
 
-  CServiceBroker::GetDatabaseManager().Initialize();
   CServiceBroker::GetInputManager().LoadKeymaps();
 
   CServiceBroker::GetInputManager().SetMouseEnabled(settings->GetBool(CSettings::SETTING_INPUT_ENABLEMOUSE));
@@ -375,6 +377,7 @@ bool CProfileManager::LoadProfile(unsigned int index)
 
 void CProfileManager::FinalizeLoadProfile()
 {
+  CDatabaseManager& databaseManager = CServiceBroker::GetDatabaseManager();
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
   CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
@@ -392,6 +395,8 @@ void CProfileManager::FinalizeLoadProfile()
     playlistManager.ClearPlaylist(PLAYLIST_MUSIC);
     playlistManager.SetCurrentPlaylist(PLAYLIST_NONE);
   }
+
+  databaseManager.Initialize();
 
   networkManager.NetworkMessage(CNetworkBase::SERVICES_UP, 1);
 
