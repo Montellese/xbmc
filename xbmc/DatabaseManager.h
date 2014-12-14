@@ -22,6 +22,8 @@
 
 #include <map>
 #include <string>
+
+#include "media/import/IMediaImportRepository.h"
 #include "threads/CriticalSection.h"
 
 class CDatabase;
@@ -51,7 +53,7 @@ public:
 
   /*! \brief Deinitialize the database manager
    */
-  void Deinitialize();
+  void Deinitialize(bool addonsOnly = false);
 
   /*! \brief Check whether we can open a database.
 
@@ -77,4 +79,6 @@ private:
 
   CCriticalSection            m_section;     ///< Critical section protecting m_dbStatus.
   std::map<std::string, DB_STATUS> m_dbStatus;    ///< Our database status map.
+
+  MediaImportRepositoryPtr m_videoImportRepository;
 };
