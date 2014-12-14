@@ -547,8 +547,8 @@ public:
   int UpdateDetailsForMovie(int idMovie, CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, const std::set<std::string> &updatedDetails);
 
   void DeleteMovie(int idMovie, bool bKeepId = false);
-  void DeleteTvShow(int idTvShow, bool bKeepId = false);
-  void DeleteTvShow(const std::string& strPath);
+  void DeleteTvShow(int idTvShow, bool bKeepId = false, bool deleteChildren = true);
+  void DeleteTvShow(const std::string& strPath, bool deleteChildren = true);
   void DeleteSeason(int idSeason, bool bKeepId = false);
   void DeleteEpisode(int idEpisode, bool bKeepId = false);
   void DeleteMusicVideo(int idMusicVideo, bool bKeepId = false);
