@@ -451,9 +451,9 @@ void CVideoDatabase::CreateViews()
                                      "FROM seasons"
                                      "  JOIN tvshow_view ON"
                                      "    tvshow_view.idShow = seasons.idShow"
-                                     "  JOIN episode ON"
+                                     "  LEFT JOIN episode ON"
                                      "    episode.idShow = seasons.idShow AND episode.c%02d = seasons.season"
-                                     "  JOIN files ON"
+                                     "  LEFT JOIN files ON"
                                      "    files.idFile = episode.idFile "
                                      "GROUP BY seasons.idSeason",
                                      VIDEODB_ID_TV_TITLE, VIDEODB_ID_TV_PLOT, VIDEODB_ID_TV_PREMIERED,
@@ -9809,6 +9809,11 @@ bool CVideoDatabase::GetFilter(CDbUrl &videoUrl, Filter &filter, SortDescription
         filter.AppendWhere(PrepareSQL("season_view.premiered like '%%%i%%'", (int)option->second.asInteger()));
 
       AppendIdLinkFilter("actor", "actor", "tvshow", "season", "idShow", options, filter);
+
+      // don't show empty seasons if not explicitly asked for
+      option = options.find("showempty");
+      if (option == options.end() || !option->second.asBoolean())
+        filter.AppendWhere(PrepareSQL("season_view.episodes > 0"));
     }
     else if (itemType == "episodes")
     {
