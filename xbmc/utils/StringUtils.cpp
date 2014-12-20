@@ -48,6 +48,11 @@
 #include <algorithm>
 #include "utils/RegExp.h" // don't move or std functions end up in PCRE namespace
 
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #define FORMAT_BLOCK_SIZE 512 // # of bytes for initial allocation for printf
 
 using namespace std;
@@ -56,7 +61,6 @@ const char* ADDON_GUID_RE = "^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-
 
 /* empty string for use in returns by ref */
 const std::string StringUtils::Empty = "";
-std::string StringUtils::m_lastUUID = "";
 
 //	Copyright (c) Leigh Brasington 2012.  All rights reserved.
 //  This code may be used and reproduced without written permission.
@@ -1073,49 +1077,8 @@ void StringUtils::WordToDigits(std::string &word)
 
 std::string StringUtils::CreateUUID()
 {
-  /* This function generate a DCE 1.1, ISO/IEC 11578:1996 and IETF RFC-4122
-  * Version 4 conform local unique UUID based upon random number generation.
-  */
-  char UuidStrTmp[40];
-  char *pUuidStr = UuidStrTmp;
-  int i;
-
-  static bool m_uuidInitialized = false;
-  if (!m_uuidInitialized)
-  {
-    /* use current time as the seed for rand()*/
-    srand(time(NULL));
-    m_uuidInitialized = true;
-  }
-
-  /*Data1 - 8 characters.*/
-  for(i = 0; i < 8; i++, pUuidStr++)
-    ((*pUuidStr = (rand() % 16)) < 10) ? *pUuidStr += 48 : *pUuidStr += 55;
-
-  /*Data2 - 4 characters.*/
-  *pUuidStr++ = '-';
-  for(i = 0; i < 4; i++, pUuidStr++)
-    ((*pUuidStr = (rand() % 16)) < 10) ? *pUuidStr += 48 : *pUuidStr += 55;
-
-  /*Data3 - 4 characters.*/
-  *pUuidStr++ = '-';
-  for(i = 0; i < 4; i++, pUuidStr++)
-    ((*pUuidStr = (rand() % 16)) < 10) ? *pUuidStr += 48 : *pUuidStr += 55;
-
-  /*Data4 - 4 characters.*/
-  *pUuidStr++ = '-';
-  for(i = 0; i < 4; i++, pUuidStr++)
-    ((*pUuidStr = (rand() % 16)) < 10) ? *pUuidStr += 48 : *pUuidStr += 55;
-
-  /*Data5 - 12 characters.*/
-  *pUuidStr++ = '-';
-  for(i = 0; i < 12; i++, pUuidStr++)
-    ((*pUuidStr = (rand() % 16)) < 10) ? *pUuidStr += 48 : *pUuidStr += 55;
-
-  *pUuidStr = '\0';
-
-  m_lastUUID = UuidStrTmp;
-  return UuidStrTmp;
+  boost::uuids::uuid uuid = boost::uuids::random_generator()();
+  return boost::lexical_cast<std::string>(uuid);
 }
 
 bool StringUtils::ValidateUUID(const std::string &uuid)
