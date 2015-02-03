@@ -28,6 +28,7 @@
 #include "network/httprequesthandler/HTTPWebinterfaceHandler.h"
 #include "network/httprequesthandler/python/HTTPModPythonInvoker.h"
 #include "network/httprequesthandler/python/HTTPPythonInvoker.h"
+#include "network/httprequesthandler/python/HTTPPythonWsgiInvoker.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
@@ -157,6 +158,8 @@ int CHTTPPythonHandler::HandleRequest()
     CHTTPPythonInvoker* pythonInvoker = NULL;
     if (m_type == ADDON::WebinterfaceTypeModPython)
       pythonInvoker = new CHTTPModPythonInvoker(&g_pythonParser, pythonRequest);
+    else if (m_type == ADDON::WebinterfaceTypeWsgi)
+      pythonInvoker = new CHTTPPythonWsgiInvoker(&g_pythonParser, pythonRequest);
     else
     {
       CLog::Log(LOGWARNING, "WebServer: unable to run python script at %s with an unknown invoker", m_scriptPath.c_str());
