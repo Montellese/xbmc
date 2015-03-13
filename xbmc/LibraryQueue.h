@@ -143,7 +143,7 @@ public:
 
    \param[in] job Library job to be queued.
    */
-  void AddJob(CLibraryJob* job);
+  void AddJob(CLibraryJob* job, IJobCallback* callback = NULL);
 
   /*!
    \brief Cancels the given job and removes it from the queue.
@@ -164,6 +164,7 @@ public:
 
 protected:
   // implementation of IJobCallback
+  virtual void OnJobProgress(unsigned int jobID, unsigned int progress, unsigned int total, const CJob* job);
   virtual void OnJobComplete(unsigned int jobID, bool success, CJob* job);
 
   /*!
@@ -179,6 +180,8 @@ private:
   typedef std::set<CLibraryJob*> LibraryJobs;
   typedef std::map<std::string, LibraryJobs> LibraryJobMap;
   LibraryJobMap m_jobs;
+  typedef std::map<const CLibraryJob*, IJobCallback*> LibraryJobCallbacks;
+  LibraryJobCallbacks m_callbacks;
   CCriticalSection m_critical;
 
   bool m_modal;
