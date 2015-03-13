@@ -29,6 +29,7 @@
 #include "utils/Variant.h"
 #include "utils/Splash.h"
 #include "LangInfo.h"
+#include "LibraryQueue.h"
 #include "utils/Screenshot.h"
 #include "Util.h"
 #include "URL.h"
@@ -42,7 +43,6 @@
 #include "PlayListPlayer.h"
 #include "Autorun.h"
 #include "video/Bookmark.h"
-#include "video/VideoLibraryQueue.h"
 #include "guilib/GUIControlProfiler.h"
 #include "utils/LangCodeExpander.h"
 #include "GUIInfoManager.h"
@@ -2934,8 +2934,8 @@ void CApplication::Stop(int exitCode)
     if (m_musicInfoScanner->IsScanning())
       m_musicInfoScanner->Stop(true);
 
-    if (CVideoLibraryQueue::GetInstance().IsRunning())
-      CVideoLibraryQueue::GetInstance().CancelAllJobs();
+    if (CLibraryQueue::GetInstance().IsRunning())
+      CLibraryQueue::GetInstance().CancelAllJobs();
 
     CServiceBroker::GetADSP().Deactivate();
     CApplicationMessenger::GetInstance().Cleanup();
@@ -4119,7 +4119,7 @@ void CApplication::CheckShutdown()
   if (m_bInhibitIdleShutdown
       || m_pPlayer->IsPlaying() || m_pPlayer->IsPausedPlayback() // is something playing?
       || m_musicInfoScanner->IsScanning()
-      || CVideoLibraryQueue::GetInstance().IsRunning()
+      || CLibraryQueue::GetInstance().IsRunning()
       || g_windowManager.IsWindowActive(WINDOW_DIALOG_PROGRESS) // progress dialog is onscreen
       || !g_PVRManager.CanSystemPowerdown(false))
   {
@@ -5009,7 +5009,7 @@ void CApplication::UpdateLibraries()
 
 bool CApplication::IsVideoScanning() const
 {
-  return CVideoLibraryQueue::GetInstance().IsScanningLibrary();
+  return CLibraryQueue::GetInstance().IsScanningLibrary();
 }
 
 bool CApplication::IsMusicScanning() const
@@ -5019,7 +5019,7 @@ bool CApplication::IsMusicScanning() const
 
 void CApplication::StopVideoScan()
 {
-  CVideoLibraryQueue::GetInstance().StopLibraryScanning();
+  CLibraryQueue::GetInstance().StopLibraryScanning();
 }
 
 void CApplication::StopMusicScan()
@@ -5030,19 +5030,19 @@ void CApplication::StopMusicScan()
 
 void CApplication::StartVideoCleanup(bool userInitiated /* = true */)
 {
-  if (userInitiated && CVideoLibraryQueue::GetInstance().IsRunning())
+  if (userInitiated && CLibraryQueue::GetInstance().IsRunning())
     return;
 
   std::set<int> paths;
   if (userInitiated)
-    CVideoLibraryQueue::GetInstance().CleanLibraryModal(paths);
+    CLibraryQueue::GetInstance().CleanVideoLibraryModal(paths);
   else
-    CVideoLibraryQueue::GetInstance().CleanLibrary(paths, true);
+    CLibraryQueue::GetInstance().CleanVideoLibrary(paths, true);
 }
 
 void CApplication::StartVideoScan(const std::string &strDirectory, bool userInitiated /* = true */, bool scanAll /* = false */)
 {
-  CVideoLibraryQueue::GetInstance().ScanLibrary(strDirectory, scanAll, userInitiated);
+  CLibraryQueue::GetInstance().ScanVideoLibrary(strDirectory, scanAll, userInitiated);
 }
 
 void CApplication::StartMusicCleanup(bool userInitiated /* = true */)

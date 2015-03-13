@@ -19,6 +19,7 @@ SRCS=Application.cpp \
      GUIPassword.cpp \
      InfoScanner.cpp \
      LangInfo.cpp \
+     LibraryQueue.cpp \
      MediaSource.cpp \
      NfoFile.cpp \
      PasswordManager.cpp \

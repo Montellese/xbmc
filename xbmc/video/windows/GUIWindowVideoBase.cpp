@@ -20,10 +20,10 @@
 
 #include "system.h"
 #include "GUIWindowVideoBase.h"
+#include "LibraryQueue.h"
 #include "Util.h"
 #include "video/VideoInfoDownloader.h"
 #include "video/VideoInfoScanner.h"
-#include "video/VideoLibraryQueue.h"
 #include "addons/GUIDialogAddonInfo.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
 #include "dialogs/GUIDialogSmartPlaylistEditor.h"
@@ -418,7 +418,7 @@ bool CGUIWindowVideoBase::ShowIMDB(CFileItemPtr item, const ScraperPtr &info2, b
   // 3. Run a loop so that if we Refresh we re-run this block
   do
   {
-    if (!CVideoLibraryQueue::GetInstance().RefreshItemModal(item, needsRefresh, pDlgInfo->RefreshAll()))
+    if (!CLibraryQueue::GetInstance().RefreshItemModal(item, needsRefresh, pDlgInfo->RefreshAll()))
       return listNeedsUpdating;
 
     // remove directory caches and reload images

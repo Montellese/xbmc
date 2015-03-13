@@ -51,7 +51,7 @@
 #include "TextureCache.h"
 #include "music/MusicDatabase.h"
 #include "URL.h"
-#include "video/VideoLibraryQueue.h"
+#include "LibraryQueue.h"
 #include "video/VideoThumbLoader.h"
 #include "filesystem/Directory.h"
 #include "filesystem/VideoDatabaseDirectory.h"

@@ -21,7 +21,6 @@
 
 #include "ContextMenuItem.h"
 #include "guilib/GUIWindowManager.h"
-#include "VideoLibraryQueue.h"
 
 namespace CONTEXTMENU
 {

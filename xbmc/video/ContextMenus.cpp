@@ -21,6 +21,7 @@
 #include "ContextMenus.h"
 #include "Application.h"
 #include "Autorun.h"
+#include "LibraryQueue.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
 #include "video/windows/GUIWindowVideoBase.h"
 
@@ -57,7 +58,7 @@ bool CMarkWatched::IsVisible(const CFileItem& item) const
 
 bool CMarkWatched::Execute(const CFileItemPtr& item) const
 {
-  CVideoLibraryQueue::GetInstance().MarkAsWatched(item, true);
+  CLibraryQueue::GetInstance().MarkAsWatched(item, true);
   return true;
 }
 
@@ -74,7 +75,7 @@ bool CMarkUnWatched::IsVisible(const CFileItem& item) const
 
 bool CMarkUnWatched::Execute(const CFileItemPtr& item) const
 {
-  CVideoLibraryQueue::GetInstance().MarkAsWatched(item, false);
+  CLibraryQueue::GetInstance().MarkAsWatched(item, false);
   return true;
 }
 

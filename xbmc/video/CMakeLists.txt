@@ -8,7 +8,6 @@ set(SOURCES Bookmark.cpp
             VideoInfoDownloader.cpp
             VideoInfoScanner.cpp
             VideoInfoTag.cpp
-            VideoLibraryQueue.cpp
             VideoReferenceClock.cpp
             VideoThumbLoader.cpp
             ViewModeSettings.cpp)
@@ -25,7 +24,6 @@ set(HEADERS Bookmark.h
             VideoInfoDownloader.h
             VideoInfoScanner.h
             VideoInfoTag.h
-            VideoLibraryQueue.h
             VideoReferenceClock.h
             VideoThumbLoader.h)
 
