@@ -22,6 +22,7 @@
 
 #include "addons/AddonManager.h"
 #include "Application.h"
+#include "LibraryQueue.h"
 #include "messaging/ApplicationMessenger.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "guilib/LocalizeStrings.h"
@@ -33,7 +34,6 @@
 #include "profiles/ProfilesManager.h"
 #include "Util.h"
 #include "utils/StringUtils.h"
-#include "video/VideoLibraryQueue.h"
 
 using namespace KODI::MESSAGING;
 
@@ -72,8 +72,8 @@ static int LogOff(const std::vector<std::string>& params)
   if (g_application.IsMusicScanning())
     g_application.StopMusicScan();
 
-  if (CVideoLibraryQueue::GetInstance().IsRunning())
-    CVideoLibraryQueue::GetInstance().CancelAllJobs();
+  if (CLibraryQueue::GetInstance().IsRunning())
+    CLibraryQueue::GetInstance().CancelAllJobs();
 
   ADDON::CAddonMgr::GetInstance().StopServices(true);
 
