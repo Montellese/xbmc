@@ -16,32 +16,61 @@
 #include <set>
 
 class CGUIDialogProgressBarHandle;
-class CVideoLibraryJob;
 
 /*!
- \brief Queue for video library jobs.
+\brief Basic implementation/interface of a CJob which interacts with a library.
+*/
+class CLibraryJob : public CJob
+{
+public:
+  virtual ~CLibraryJob() {}
+
+  /*!
+  \brief Whether the job can be cancelled or not.
+  */
+  virtual bool CanBeCancelled() const { return false; }
+
+  /*!
+  \brief Tries to cancel the running job.
+
+  \return True if the job was cancelled, false otherwise
+  */
+  virtual bool Cancel() { return false; }
+
+  // implementation of CJob
+  virtual const char* GetType() const { return "LibraryJob"; }
+  virtual bool operator==(const CJob* job) const { return false; }
+
+protected:
+  CLibraryJob() {}
+};
+
+/*!
+ \brief Queue for library jobs.
 
  The queue can only process a single job at any time and every job will be
  executed at the lowest priority.
  */
-class CVideoLibraryQueue : protected CJobQueue
+class CLibraryQueue : protected CJobQueue
 {
 public:
-  ~CVideoLibraryQueue() override;
+  ~CLibraryQueue() override;
 
   /*!
-   \brief Gets the singleton instance of the video library queue.
+   \brief Gets the singleton instance of the library queue.
   */
-  static CVideoLibraryQueue& GetInstance();
+  static CLibraryQueue& GetInstance();
 
   /*!
-   \brief Enqueue a library scan job.
+   \brief Enqueue a video library scan job.
 
    \param[in] directory Directory to scan
    \param[in] scanAll Ignore exclude setting for items. Defaults to false
    \param[in] showProgress Whether or not to show a progress dialog. Defaults to true
    */
-  void ScanLibrary(const std::string& directory, bool scanAll = false, bool showProgress = true);
+  void ScanVideoLibrary(const std::string& directory,
+                        bool scanAll = false,
+                        bool showProgress = true);
 
   /*!
    \brief Check if a library scan is in progress.
@@ -56,20 +85,23 @@ public:
   void StopLibraryScanning();
 
   /*!
-   \brief Enqueue a library cleaning job.
+   \brief Enqueue a video library cleaning job.
 
    \param[in] paths Set with database IDs of paths to be cleaned
    \param[in] asynchronous Run the clean job asynchronously. Defaults to true
-   \param[in] progressBar Progress bar to update in GUI. Defaults to NULL (no progress bar to update)
+   \param[in] progressBar Progress bar to update in GUI. Defaults to NULL (no progress bar to
+   update)
    */
-  void CleanLibrary(const std::set<int>& paths = std::set<int>(), bool asynchronous = true, CGUIDialogProgressBarHandle* progressBar = NULL);
+  void CleanVideoLibrary(const std::set<int>& paths = std::set<int>(),
+                         bool asynchronous = true,
+                         CGUIDialogProgressBarHandle* progressBar = NULL);
 
   /*!
-  \brief Executes a library cleaning with a modal dialog.
+  \brief Executes a video library cleaning with a modal dialog.
 
   \param[in] paths Set with database IDs of paths to be cleaned
   */
-  void CleanLibraryModal(const std::set<int>& paths = std::set<int>());
+  void CleanVideoLibraryModal(const std::set<int>& paths = std::set<int>());
 
   /*!
    \brief Enqueues a job to refresh the details of the given item.
@@ -78,9 +110,14 @@ public:
    \param[in] ignoreNfo Whether or not to ignore local NFO files
    \param[in] forceRefresh Whether to force a complete refresh (including NFO or internet lookup)
    \param[in] refreshAll Whether to refresh all sub-items (in case of a tvshow)
-   \param[in] searchTitle Title to use for the search (instead of determining it from the item's filename/path)
+   \param[in] searchTitle Title to use for the search (instead of determining it from the item's
+   filename/path)
    */
-  void RefreshItem(CFileItemPtr item, bool ignoreNfo = false, bool forceRefresh = true, bool refreshAll = false, const std::string& searchTitle = "");
+  void RefreshItem(CFileItemPtr item,
+                   bool ignoreNfo = false,
+                   bool forceRefresh = true,
+                   bool refreshAll = false,
+                   const std::string& searchTitle = "");
 
   /*!
    \brief Refreshes the details of the given item with a modal dialog.
@@ -98,7 +135,7 @@ public:
    \param[in] item Item to update watched status for
    \param[in] watched New watched status
    */
-  void MarkAsWatched(const CFileItemPtr &item, bool watched);
+  void MarkAsWatched(const CFileItemPtr& item, bool watched);
 
   /*!
    \brief Queue a reset resume point job.
@@ -110,16 +147,16 @@ public:
   /*!
    \brief Adds the given job to the queue.
 
-   \param[in] job Video library job to be queued.
+   \param[in] job Library job to be queued.
    */
-  void AddJob(CVideoLibraryJob *job);
+  void AddJob(CLibraryJob* job);
 
   /*!
    \brief Cancels the given job and removes it from the queue.
 
-   \param[in] job Video library job to be canceled and removed from the queue.
+   \param[in] job Library job to be canceled and removed from the queue.
    */
-  void CancelJob(CVideoLibraryJob *job);
+  void CancelJob(CLibraryJob* job);
 
   /*!
    \brief Cancels all running and queued jobs.
@@ -133,7 +170,7 @@ public:
 
 protected:
   // implementation of IJobCallback
-  void OnJobComplete(unsigned int jobID, bool success, CJob *job) override;
+  void OnJobComplete(unsigned int jobID, bool success, CJob* job) override;
 
   /*!
    \brief Notifies all to refresh the current listings.
@@ -141,13 +178,13 @@ protected:
   void Refresh();
 
 private:
-  CVideoLibraryQueue();
-  CVideoLibraryQueue(const CVideoLibraryQueue&) = delete;
-  CVideoLibraryQueue const& operator=(CVideoLibraryQueue const&) = delete;
+  CLibraryQueue();
+  CLibraryQueue(const CLibraryQueue&) = delete;
+  CLibraryQueue const& operator=(CLibraryQueue const&) = delete;
 
-  typedef std::set<CVideoLibraryJob*> VideoLibraryJobs;
-  typedef std::map<std::string, VideoLibraryJobs> VideoLibraryJobMap;
-  VideoLibraryJobMap m_jobs;
+  typedef std::set<CLibraryJob*> LibraryJobs;
+  typedef std::map<std::string, LibraryJobs> LibraryJobMap;
+  LibraryJobMap m_jobs;
   CCriticalSection m_critical;
 
   bool m_modal = false;
