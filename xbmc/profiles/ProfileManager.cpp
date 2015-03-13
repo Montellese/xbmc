@@ -6,15 +6,13 @@
  *  See LICENSES/README.md for more information.
  */
 
-#include <algorithm>
-#include <string>
-#include <vector>
-
 #include "ProfileManager.h"
+
 #include "DatabaseManager.h"
 #include "FileItem.h"
 #include "GUIInfoManager.h"
 #include "GUIPassword.h"
+#include "LibraryQueue.h"
 #include "PasswordManager.h"
 #include "ServiceBroker.h"
 #include "Util.h"
@@ -34,6 +32,10 @@
 #include "settings/Settings.h"
 #include "settings/SettingsComponent.h"
 #include "settings/lib/SettingsManager.h"
+
+#include <algorithm>
+#include <string>
+#include <vector>
 #if !defined(TARGET_WINDOWS) && defined(HAS_DVD_DRIVE)
 #include "storage/DetectDVDType.h"
 #endif
@@ -53,7 +55,6 @@
 #include "network/Network.h" //! @todo Remove me
 #include "network/NetworkServices.h" //! @todo Remove me
 #include "pvr/PVRManager.h" //! @todo Remove me
-#include "video/VideoLibraryQueue.h"//! @todo Remove me
 #include "weather/WeatherManager.h" //! @todo Remove me
 #include "Application.h" //! @todo Remove me
 #include "ContextMenuManager.h" //! @todo Remove me
@@ -441,8 +442,8 @@ void CProfileManager::LogOff()
   if (g_application.IsMusicScanning())
     g_application.StopMusicScan();
 
-  if (CVideoLibraryQueue::GetInstance().IsRunning())
-    CVideoLibraryQueue::GetInstance().CancelAllJobs();
+  if (CLibraryQueue::GetInstance().IsRunning())
+    CLibraryQueue::GetInstance().CancelAllJobs();
 
   // Stop PVR services
   CServiceBroker::GetPVRManager().Stop();
