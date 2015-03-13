@@ -11,6 +11,7 @@
 #include "Application.h"
 #include "FileItem.h"
 #include "GUIPassword.h"
+#include "LibraryQueue.h"
 #include "PartyModeManager.h"
 #include "ServiceBroker.h"
 #include "Util.h"
@@ -41,7 +42,6 @@
 #include "utils/Variant.h"
 #include "utils/log.h"
 #include "video/VideoInfoScanner.h"
-#include "video/VideoLibraryQueue.h"
 #include "video/dialogs/GUIDialogVideoInfo.h"
 #include "view/GUIViewState.h"
 
@@ -86,7 +86,8 @@ bool CGUIWindowVideoNav::OnAction(const CAction &action)
 
     if (pItem && pItem->HasVideoInfoTag())
     {
-      CVideoLibraryQueue::GetInstance().MarkAsWatched(pItem, pItem->GetVideoInfoTag()->GetPlayCount() == 0);
+      CLibraryQueue::GetInstance().MarkAsWatched(pItem,
+                                                 pItem->GetVideoInfoTag()->GetPlayCount() == 0);
       return true;
     }
   }
