@@ -1029,7 +1029,7 @@ int CVideoDatabase::AddFile(const std::string& strFileNameAndPath, const std::st
 
 int CVideoDatabase::AddFile(const CFileItem& item)
 {
-  if (item.IsVideoDb() && item.HasVideoInfoTag())
+  if (item.HasVideoInfoTag())
   {
     if (item.GetVideoInfoTag()->m_iFileId != -1)
       return item.GetVideoInfoTag()->m_iFileId;
@@ -1207,14 +1207,19 @@ int CVideoDatabase::GetFileId(const std::string& strFilenameAndPath)
 
 int CVideoDatabase::GetFileId(const CFileItem &item)
 {
-  if (item.IsVideoDb() && item.HasVideoInfoTag())
+  int fileId = -1;
+  if (item.HasVideoInfoTag())
   {
     if (item.GetVideoInfoTag()->m_iFileId != -1)
-      return item.GetVideoInfoTag()->m_iFileId;
-    else
-      return GetFileId(item.GetVideoInfoTag()->m_strFileNameAndPath);
+      fileId = item.GetVideoInfoTag()->m_iFileId;
+    else if (!item.GetVideoInfoTag()->m_strFileNameAndPath.empty())
+      fileId = GetFileId(item.GetVideoInfoTag()->m_strFileNameAndPath);
   }
-  return GetFileId(item.GetPath());
+
+  if (fileId == -1)
+    fileId = GetFileId(item.GetPath());
+
+  return fileId;
 }
 
 int CVideoDatabase::GetSourceId(const std::string& sourceIdentifier)
