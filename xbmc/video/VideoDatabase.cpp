@@ -1086,7 +1086,7 @@ int CVideoDatabase::AddFile(const std::string& strFileNameAndPath,
 
 int CVideoDatabase::AddFile(const CFileItem& item)
 {
-  if (item.IsVideoDb() && item.HasVideoInfoTag())
+  if (item.HasVideoInfoTag())
   {
     const auto videoInfoTag = item.GetVideoInfoTag();
     if (videoInfoTag->m_iFileId != -1)
