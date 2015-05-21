@@ -38,7 +38,7 @@
  CGUIWindowMusicBase is the base class for
  all music windows.
  */
-class CGUIWindowMusicBase : public CGUIMediaWindow
+class CGUIWindowMusicBase : public CGUIMediaWindow, public IBackgroundLoaderObserver
 {
 public:
   CGUIWindowMusicBase(int id, const std::string &xmlFile);
@@ -49,6 +49,7 @@ public:
 
   void OnInfo(CFileItem *pItem, bool bShowInfo = false);
 
+  void DoScan(const std::string &strPath);
 protected:
   virtual void OnInitWindow();
   /*!
@@ -65,10 +66,13 @@ protected:
 
   virtual bool GetDirectory(const std::string &strDirectory, CFileItemList &items);
   virtual void OnRetrieveMusicInfo(CFileItemList& items);
+  virtual void OnPrepareFileItems(CFileItemList &items);
   void AddItemToPlayList(const CFileItemPtr &pItem, CFileItemList &queuedItems);
-  virtual void OnScan(int iItem) {};
   void OnRipCD();
   virtual std::string GetStartFolder(const std::string &dir);
+  virtual void OnItemLoaded(CFileItem* pItem) {}
+
+  virtual void OnScan(int iItem);
 
   virtual bool CheckFilterAdvanced(CFileItemList &items) const;
   virtual bool CanContainFilter(const std::string &strDirectory) const;
@@ -93,6 +97,7 @@ protected:
   void OnRipTrack(int iItem);
   void OnSearch();
   virtual void LoadPlayList(const std::string& strPlayList);
+  virtual void OnRemoveSource(int iItem);
 
   typedef std::vector <CFileItem*>::iterator ivecItems; ///< CFileItem* vector Iterator
   CGUIDialogProgress* m_dlgProgress; ///< Progress dialog
@@ -101,4 +106,6 @@ protected:
   bool m_hideExtensions;
   CMusicDatabase m_musicdatabase;
   MUSIC_INFO::CMusicInfoLoader m_musicInfoLoader;
+
+  CMusicThumbLoader m_thumbLoader;
 };
