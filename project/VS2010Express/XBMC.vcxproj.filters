@@ -6080,6 +6080,9 @@
     <ClInclude Include="..\..\xbmc\settings\dialogs\GUIDialogAudioDSPSettings.h">
       <Filter>settings\dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\Directorization.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\xbmc\win32\XBMC_PC.rc">
