@@ -3146,6 +3146,15 @@
     <ClCompile Include="..\..\xbmc\messaging\ApplicationMessenger.cpp">
       <Filter>messaging</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\XbtDirectory.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\XbtFile.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\filesystem\XbtManager.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\xbmc\win32\pch.h">
@@ -6081,6 +6090,15 @@
       <Filter>settings\dialogs</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\filesystem\Directorization.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\XbtDirectory.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\XbtFile.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\filesystem\XbtManager.h">
       <Filter>filesystem</Filter>
     </ClInclude>
   </ItemGroup>
