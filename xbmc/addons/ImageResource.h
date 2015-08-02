@@ -39,6 +39,7 @@ public:
   virtual AddonPtr Clone() const;
 
   virtual bool IsAllowed(const std::string &file) const;
+  virtual std::string GetFullPath(const std::string &filePath) const;
 
   //! \brief Returns type of image collection
   const std::string& GetType() const { return m_type; }

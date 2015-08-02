@@ -18,7 +18,9 @@
 *
 */
 #include "ImageResource.h"
+#include "URL.h"
 #include "addons/AddonManager.h"
+#include "filesystem/File.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 
@@ -47,6 +49,27 @@ bool CImageResource::IsAllowed(const std::string &file) const
   return file.empty() ||
          StringUtils::EqualsNoCase(ext, ".png") ||
          StringUtils::EqualsNoCase(ext, ".jpg");
+}
+
+std::string CImageResource::GetFullPath(const std::string &filePath) const
+{
+  // get the usual full path
+  std::string fullPath = CResource::GetFullPath(filePath);
+  // if it exists use it
+  if (XFILE::CFile::Exists(fullPath))
+    return fullPath;
+
+  // check if there's an XBT file which might contain the file
+  std::string resourcePath = GetResourcePath();
+  std::string xbtPath = URIUtils::AddFileToFolder(resourcePath, "Textures.xbt");
+  if (!XFILE::CFile::Exists(xbtPath))
+    return fullPath;
+
+  // translate it into a xbt:// URL
+  CURL xbtUrl = URIUtils::CreateArchivePath("xbt", CURL(xbtPath));
+
+  // append the file path to the xbt:// URL
+  return URIUtils::AddFileToFolder(xbtUrl.Get(), filePath);
 }
 
 } /* namespace ADDON */
