@@ -25,8 +25,9 @@
 #include "FileItem.h"
 #include "GUIUserMessages.h"
 #include "LibraryQueue.h"
-#include "dialogs/GUIDialogKaiToast.h"
 #include "dialogs/GUIDialogProgress.h"
+#include "events/EventLog.h"
+#include "events/MediaImportEvent.h"
 #include "guilib/GUIWindowManager.h"
 #include "interfaces/AnnouncementManager.h"
 #include "media/import/IMediaImporter.h"
@@ -1318,7 +1319,7 @@ bool CMediaImportManager::OnTaskComplete(bool success, IMediaImportTask *task)
 
     CLog::Log(LOGDEBUG, "CMediaImportManager: new source %s (%s) registered",
       source.GetFriendlyName().c_str(), source.GetIdentifier().c_str());
-    CGUIDialogKaiToast::QueueNotification(source.GetIconUrl(), g_localizeStrings.Get(39000), source.GetFriendlyName());
+    CEventLog::GetInstance().AddWithNotification(EventPtr(new CMediaImportEvent(source, 39000)));
   }
   else if (taskType == MediaImportTaskType::Synchronisation)
   {
