@@ -22538,6 +22538,33 @@ msgstr ""
 
 # empty strings from id 39537 to 39549 are reserved for media import settings
 
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39550"
+msgid "New media provider detected"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39551"
+msgid "Media provider removed"
+msgstr ""
+
+#: xbmc/events/MediaImportEvent.cpp
+msgctxt "#39552"
+msgid "Add imports"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39553"
+msgid "Synchronisation failed"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39554"
+msgid "Synchronisation successful"
+msgstr ""
+
+# empty strings from id 39555 to 39557
+
 #: xbmc/media/import/task/MediaImportImportItemsRetrievalTask.cpp
 #: xbmc/media/import/task/MediaImportLocalItemsRetrievalTask.cpp
 msgctxt "#39558"
@@ -22585,7 +22612,12 @@ msgctxt "#39566"
 msgid "Removing import of {mediatype} from {provider}..."
 msgstr ""
 
-# empty strings from id 39567 to 39568
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39567"
+msgid "New import added"
+msgstr ""
+
+# empty string id 39568
 
 #: xbmc/media/import/task/MediaImportCleanupTask.cpp
 msgctxt "#39569"
@@ -22640,7 +22672,15 @@ msgctxt "#39577"
 msgid "Inactive"
 msgstr ""
 
-# strings from id 39578 to 39579 reserved for media import
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39578"
+msgid "Removal failed"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39579"
+msgid "Removal successful"
+msgstr ""
 
 #. Label if the importer protocol is unknown
 #: xbmc/filesystem/MediaImportDirectory.cpp
@@ -22648,6 +22688,7 @@ msgctxt "#39580"
 msgid "Unknown"
 msgstr ""
 
+#: xbmc/events/MediaImportEvent.cpp
 #: xbmc/filesystem/MediaImportDirectory.cpp
 msgctxt "#39581"
 msgid "{provider}: {mediatypes}"
@@ -22658,4 +22699,12 @@ msgstr ""
 #: xbmc/filesystem/MediaImportDirectory.cpp
 msgctxt "#39600"
 msgid "Media providers"
+msgstr ""
+
+# empty string ids from 39601 to 39606
+
+#. Context button label to synchronise a media provider/import
+#: xbmc/events/MediaImportEvent.cpp
+msgctxt "#39607"
+msgid "Synchronise"
 msgstr ""
