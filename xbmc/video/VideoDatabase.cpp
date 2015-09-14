@@ -7209,6 +7209,20 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
     if (iRowsFound <= 0)
       return iRowsFound == 0;
 
+    // sanitize the video url by removing the trailing "-1/" if present
+    if (appendFullShowPath)
+    {
+      CURL baseUrl(videoUrl.ToString());
+      baseUrl.SetOptions("");
+      std::string tmpBaseDir = baseUrl.Get();
+      URIUtils::RemoveSlashAtEnd(tmpBaseDir);
+      if (StringUtils::EndsWith(tmpBaseDir, "/-1"))
+      {
+        if (!videoUrl.FromString(tmpBaseDir.substr(0, tmpBaseDir.size() - 2)))
+          return false;
+      }
+    }
+
     std::set<std::pair<int, int>> mapSeasons;
     while (!m_pDS->eof())
     {
