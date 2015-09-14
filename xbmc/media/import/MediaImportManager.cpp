@@ -25,8 +25,9 @@
 #include "FileItem.h"
 #include "GUIUserMessages.h"
 #include "LibraryQueue.h"
-#include "dialogs/GUIDialogKaiToast.h"
 #include "dialogs/GUIDialogProgress.h"
+#include "events/EventLog.h"
+#include "events/MediaImportEvent.h"
 #include "guilib/GUIWindowManager.h"
 #include "interfaces/AnnouncementManager.h"
 #include "media/import/IMediaImporter.h"
@@ -1236,7 +1237,11 @@ bool CMediaImportManager::AddImport(const CMediaImport &import)
       added = true;
   }
 
-  return added;
+  if (!added)
+    return false;
+
+  CEventLog::GetInstance().Add(EventPtr(new CMediaImportEvent(import, 39067)));
+  return true;
 }
 
 bool CMediaImportManager::FindImport(const std::string &path, const GroupedMediaTypes &mediaTypes, CMediaImport &import) const
@@ -1397,6 +1402,8 @@ void CMediaImportManager::OnJobComplete(unsigned int jobID, bool success, CJob *
 
           OnSourceRemoved(source);
           CLog::Log(LOGDEBUG, "CMediaImportManager: source %s (%s) removed", source.GetFriendlyName().c_str(), sourceID.c_str());
+
+          CEventLog::GetInstance().Add(EventPtr(new CMediaImportSourceEvent(source, 39051, true)));
         }
       }
     }
@@ -1446,6 +1453,8 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask *t
 
     CLog::Log(LOGDEBUG, "CMediaImportManager: new source %s (%s) registered",
       source.GetFriendlyName().c_str(), source.GetIdentifier().c_str());
+
+    CEventLog::GetInstance().AddWithNotification(EventPtr(new CMediaImportSourceEvent(source, 39050)));
   }
   else if (taskType == MediaImportTaskType::Synchronisation)
   {
@@ -1453,10 +1462,13 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask *t
     if (synchronisationTask == nullptr)
       return false;
 
-    if (!success)
-      return false;
-
     CMediaImport import = synchronisationTask->GetImport();
+    if (!success)
+    {
+      CEventLog::GetInstance().Add(EventPtr(new CMediaImportEvent(import, 39053, EventLevel::Error)));
+      return false;
+    }
+
     // early return here if this is not the last media type to be synchronised to avoid multiple updates
     if (synchronisationTask->GetMediaType() != import.GetMediaTypes().back())
       return true;
@@ -1471,6 +1483,8 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask *t
         break;
       }
     }
+
+    CEventLog::GetInstance().Add(EventPtr(new CMediaImportEvent(import, 39054)));
   }
   else if (taskType == MediaImportTaskType::Removal)
   {
@@ -1478,10 +1492,12 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask *t
     if (removalTask == nullptr)
       return false;
 
-    if (!success)
-      return false;
-
     const CMediaImport& import = removalTask->GetImport();
+    if (!success)
+    {
+      CEventLog::GetInstance().Add(EventPtr(new CMediaImportEvent(import, 39078, true, EventLevel::Error)));
+      return false;
+    }
 
     // remove the import from the import repositories
     CSingleLock repositoriesLock(m_importRepositoriesLock);
@@ -1491,6 +1507,8 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask *t
 
     // let everyone know that the import has been removed
     OnImportRemoved(import);
+
+    CEventLog::GetInstance().Add(EventPtr(new CMediaImportEvent(import, 39079, true)));
   }
 
   return true;

@@ -19510,7 +19510,12 @@ msgctxt "#39001"
 msgid "Unable to import items"
 msgstr ""
 
-# empty strings from id 39002 to 39004
+#: xbmc/events/MediaImportEvent.cpp
+msgctxt "#39002"
+msgid "Add imports"
+msgstr ""
+
+# empty strings from id 39003 to 39004
 
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
 msgctxt "#39005"
