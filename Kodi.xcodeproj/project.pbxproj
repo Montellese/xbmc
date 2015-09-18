@@ -1135,6 +1135,9 @@
 		DF98D98C1434F47D00A6EBE1 /* SkinVariable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF98D98A1434F47D00A6EBE1 /* SkinVariable.cpp */; };
 		DF9A71EE1639C8F6005ECB2E /* HTTPFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF9A71EC1639C8F6005ECB2E /* HTTPFile.cpp */; };
 		DFA8157E16713B1200E4E597 /* WakeOnAccess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFA8157C16713B1200E4E597 /* WakeOnAccess.cpp */; };
+		DFA8A7641BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFA8A7621BACAC0B00154CA7 /* MediaImportEvent.cpp */; };
+		DFA8A7651BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFA8A7621BACAC0B00154CA7 /* MediaImportEvent.cpp */; };
+		DFA8A7661BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFA8A7621BACAC0B00154CA7 /* MediaImportEvent.cpp */; };
 		DFAB049813F8376700B70BFB /* InertialScrollingHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFAB049613F8376700B70BFB /* InertialScrollingHandler.cpp */; };
 		DFAF6A4F16EBAE3800D6AE12 /* RssManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFAF6A4D16EBAE3800D6AE12 /* RssManager.cpp */; };
 		DFB02DEA16629DBA00F37752 /* PyContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFB02DE816629DBA00F37752 /* PyContext.cpp */; };
@@ -4904,6 +4907,8 @@
 		DFA0E8C219FD6BEE00269A92 /* VideoSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VideoSync.h; path = videosync/VideoSync.h; sourceTree = "<group>"; };
 		DFA8157C16713B1200E4E597 /* WakeOnAccess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WakeOnAccess.cpp; sourceTree = "<group>"; };
 		DFA8157D16713B1200E4E597 /* WakeOnAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WakeOnAccess.h; sourceTree = "<group>"; };
+		DFA8A7621BACAC0B00154CA7 /* MediaImportEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaImportEvent.cpp; sourceTree = "<group>"; };
+		DFA8A7631BACAC0B00154CA7 /* MediaImportEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaImportEvent.h; sourceTree = "<group>"; };
 		DFAB049613F8376700B70BFB /* InertialScrollingHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InertialScrollingHandler.cpp; sourceTree = "<group>"; };
 		DFAB049713F8376700B70BFB /* InertialScrollingHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InertialScrollingHandler.h; sourceTree = "<group>"; };
 		DFAF6A4C16EBAE3800D6AE12 /* IRssObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRssObserver.h; sourceTree = "<group>"; };
@@ -8211,6 +8216,8 @@
 				DF29BCDB1B5D911700904347 /* EventLog.cpp */,
 				DF29BCDC1B5D911700904347 /* EventLog.h */,
 				DF29BCDD1B5D911700904347 /* IEvent.h */,
+				DFA8A7621BACAC0B00154CA7 /* MediaImportEvent.cpp */,
+				DFA8A7631BACAC0B00154CA7 /* MediaImportEvent.h */,
 				DF29BCDF1B5D911700904347 /* MediaLibraryEvent.cpp */,
 				DF29BCE01B5D911700904347 /* MediaLibraryEvent.h */,
 				DF29BCE11B5D911700904347 /* NotificationEvent.h */,
@@ -11736,6 +11743,7 @@
 				7CCDA863192756250074CF51 /* NptXml.cpp in Sources */,
 				7CCDA86C192756250074CF51 /* NptZip.cpp in Sources */,
 				DF56EF1F1A798A3F00CAAEFB /* HTTPFileHandler.cpp in Sources */,
+				DFA8A7641BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */,
 				7CCDAA82192756250074CF51 /* NptPosixDynamicLibraries.cpp in Sources */,
 				7CCDAA85192756250074CF51 /* NptPosixEnvironment.cpp in Sources */,
 				7CCDAA8B192756250074CF51 /* NptPosixNetwork.cpp in Sources */,
@@ -12648,6 +12656,7 @@
 				DFF1FE23199D2FFF0008211F /* KodiAppliance.mm in Sources */,
 				DFF0F45817528350002DA3A4 /* AddonUtils.cpp in Sources */,
 				DFF0F45917528350002DA3A4 /* CallbackFunction.cpp in Sources */,
+				DFA8A7661BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */,
 				DFF0F45A17528350002DA3A4 /* CallbackHandler.cpp in Sources */,
 				DFF0F45B17528350002DA3A4 /* Control.cpp in Sources */,
 				DFF0F45C17528350002DA3A4 /* Dialog.cpp in Sources */,
@@ -13208,6 +13217,7 @@
 				E49912AE174E5D9900741B6D /* ShoutcastFile.cpp in Sources */,
 				DF0E4AD51AD5986F00A75430 /* GUIDialogPVRRadioRDSInfo.cpp in Sources */,
 				395C29C21A98A0A000EBC7AD /* Webinterface.cpp in Sources */,
+				DFA8A7651BACAC0B00154CA7 /* MediaImportEvent.cpp in Sources */,
 				E49912B2174E5D9900741B6D /* SmartPlaylistDirectory.cpp in Sources */,
 				E49912B3174E5D9900741B6D /* SMBDirectory.cpp in Sources */,
 				E49912B4174E5D9900741B6D /* SMBFile.cpp in Sources */,
