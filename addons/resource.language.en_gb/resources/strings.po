@@ -19934,7 +19934,11 @@ msgctxt "#39104"
 msgid "Remove media import"
 msgstr ""
 
-#empty string with id 39105
+#. Label of the dummy item in case there are no media providers available
+#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
+msgctxt "#39105"
+msgid "No media providers detected"
+msgstr ""
 
 #. Label of the button to add a new import
 #: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
