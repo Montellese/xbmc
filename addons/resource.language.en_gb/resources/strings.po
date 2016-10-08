@@ -3283,7 +3283,12 @@ msgctxt "#751"
 msgid "Removing source"
 msgstr ""
 
-#empty strings from id 752 to 753
+#: addons/skin.estuary/1080i/Settings.xml
+msgctxt "#752"
+msgid "Media sources"
+msgstr ""
+
+#empty string with id 753
 
 msgctxt "#754"
 msgid "Add program link"

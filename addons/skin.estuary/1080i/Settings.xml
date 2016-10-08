@@ -160,6 +160,11 @@
 					<onclick>ActivateWindow(filemanager)</onclick>
 					<icon>icons/settings/filemanager.png</icon>
 				</item>
+				<item>
+					<label>$LOCALIZE[752]</label>
+					<onclick>ActivateWindow(MediaSourceBrowser)</onclick>
+					<icon>icons/settings/mediasources.png</icon>
+				</item>
 <!-- 				<item>
 					<label>$LOCALIZE[24001]</label>
 					<onclick>ActivateWindow(addonbrowser)</onclick>
