@@ -20,9 +20,11 @@
 	</include>
 	<include name="InfoDialogMetadata">
 		<control type="button" id="$PARAM[control_id]">
-			<width>505</width>
+			<param name="width">505</param>
+			<param name="textoffsetx">40</param>
+			<width>$PARAM[width]</width>
 			<height>45</height>
-			<textoffsetx>40</textoffsetx>
+			<textoffsetx>$PARAM[textoffsetx]</textoffsetx>
 			<aligny>center</aligny>
 			<font>font10</font>
 			<texturefocus></texturefocus>

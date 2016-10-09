@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<defaultcontrol always="true">28</defaultcontrol>
+	<coordinates>
+		<left>100</left>
+		<top>140</top>
+	</coordinates>
+	<include>Animation_DialogPopupOpenClose</include>
+	<controls>
+		<include content="DialogBackgroundCommons">
+			<param name="DialogBackgroundWidth" value="1720" />
+			<param name="DialogBackgroundHeight" value="800" />
+			<param name="DialogHeaderLabel" value="" />
+			<param name="DialogHeaderId" value="2" />
+		</include>
+		<control type="group">
+			<!-- Icon -->
+			<top>126</top>
+			<left>66</left>
+			<control type="image">
+				<width>260</width>
+				<height>260</height>
+				<texture border="2" background="true">DefaultNoPreview.png</texture>
+				<aspectratio>scale</aspectratio>
+				<bordertexture colordiffuse="border_alpha">colors/black.png</bordertexture>
+				<bordersize>4</bordersize>
+			</control>
+			<control type="image">
+				<width>260</width>
+				<height>260</height>
+				<texture border="2" background="true">$INFO[ListItem.Icon]</texture>
+				<aspectratio>scale</aspectratio>
+				<bordertexture colordiffuse="border_alpha">colors/black.png</bordertexture>
+				<bordersize>4</bordersize>
+			</control>
+		</control>
+		<control type="group">
+			<!-- Title -->
+			<control type="image">
+				<left>340</left>
+				<top>106</top>
+				<width>1040</width>
+				<height>85</height>
+				<texture border="40">buttons/dialogbutton-nofo.png</texture>
+			</control>
+			<control type="label">
+				<left>380</left>
+				<top>116</top>
+				<width>1000</width>
+				<height>65</height>
+				<align>left</align>
+				<aligny>center</aligny>
+				<font>font12_title</font>
+				<textcolor>white</textcolor>
+				<label>[B]$INFO[ListItem.Property(Import.Name)][/B]</label>
+				<scroll>true</scroll>
+				<visible>!IsEmpty(ListItem.Property(Import.Path))</visible>
+			</control>
+			<control type="label">
+				<left>380</left>
+				<top>116</top>
+				<width>1000</width>
+				<height>65</height>
+				<align>left</align>
+				<aligny>center</aligny>
+				<font>font12_title</font>
+				<textcolor>white</textcolor>
+				<label>[B]$INFO[ListItem.Property(Source.Name)][/B]</label>
+				<scroll>true</scroll>
+				<visible>IsEmpty(ListItem.Property(Import.Path))</visible>
+			</control>
+			<!-- Details -->
+			<control type="image">
+				<left>340</left>
+				<top>166</top>
+				<width>1040</width>
+				<height>240</height>
+				<texture border="40">buttons/dialogbutton-nofo.png</texture>
+			</control>
+			<control type="grouplist">
+				<orientation>vertical</orientation>
+				<top>186</top>
+				<left>360</left>
+				<height>220</height>
+				<itemgap>-8</itemgap>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="147" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[39202]: [/COLOR]$INFO[ListItem.Property(Source.Name)]" />
+					<param name="visible" value="!IsEmpty(ListItem.Property(Import.Path)) + !String.IsEmpty(ListItem.Property(Source.Name))" />
+				</include>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="148" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[39203]: [/COLOR]$INFO[ListItem.Property(Import.MediaTypesLabel)]" />
+					<param name="visible" value="!IsEmpty(ListItem.Property(Import.Path)) + !String.IsEmpty(ListItem.Property(Import.MediaTypesLabel))" />
+				</include>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="150" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[39206]: [/COLOR]$INFO[ListItem.Property(Source.MediaTypesLabel)]" />
+					<param name="visible" value="IsEmpty(ListItem.Property(Import.Path)) + !String.IsEmpty(ListItem.Property(Source.MediaTypesLabel))" />
+				</include>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="149" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[573]: [/COLOR]$INFO[ListItem.Property(Import.Path)]" />
+					<param name="visible" value="!IsEmpty(ListItem.Property(Import.Path)) + !String.IsEmpty(ListItem.Property(Import.Path))" />
+				</include>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="150" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[39204]: [/COLOR]$INFO[ListItem.Property(Source.ActiveLabel)]" />
+					<param name="visible" value="!String.IsEmpty(ListItem.Property(Source.ActiveLabel))" />
+				</include>
+				<include content="InfoDialogMetadata">
+					<param name="control_id" value="151" />
+					<param name="width" value="960" />
+					<param name="textoffsetx" value="20" />
+					<param name="label" value="[COLOR button_focus]$LOCALIZE[39205]: [/COLOR]$INFO[ListItem.DateTime]" />
+					<!-- TODO: <param name="visible" value="!String.IsEmpty(ListItem.DateTime)" /> -->
+				</include>
+			</control>
+			<!-- Settings -->
+			<control type="grouplist" id="3">
+				<description>category button area</description>
+				<left>50</left>
+				<top>402</top>
+				<width>320</width>
+				<height>740</height>
+				<itemgap>-25</itemgap>
+				<align>left</align>
+				<orientation>vertical</orientation>
+				<onleft>9001</onleft>
+				<onright>5</onright>
+				<onup>3</onup>
+				<ondown>3</ondown>
+			</control>
+			<control type="button" id="10">
+				<description>Default Category Button</description>
+				<height>90</height>
+				<width>290</width>
+				<align>center</align>
+				<aligny>center</aligny>
+				<font>font12_title</font>
+			</control>
+			<!-- TODO
+			<include content="UpDownArrows">
+				<param name="container_id" value="2" />
+				<param name="posx" value="830" />
+				<param name="up_posy" value="-42" />
+				<param name="down_posy" value="814" />
+			</include>
+			-->
+			<control type="image">
+				<left>340</left>
+				<top>402</top>
+				<width>1040</width>
+				<height>360</height>
+				<texture border="40">buttons/dialogbutton-nofo.png</texture>
+			</control>
+			<control type="grouplist" id="5">
+				<description>control area</description>
+				<left>360</left>
+				<top>422</top>
+				<width>1000</width>
+				<height>360</height>
+				<onleft>3</onleft>
+				<onright>9000</onright>
+				<onup>5</onup>
+				<ondown>5</ondown>
+			</control>
+			<control type="button" id="7">
+				<description>Default Button</description>
+				<include>DefaultSettingButton</include>
+			</control>
+			<control type="radiobutton" id="8">
+				<description>Default RadioButton</description>
+				<include>DefaultSettingButton</include>
+			</control>
+			<control type="spincontrolex" id="9">
+				<description>Default SpinControlex</description>
+				<include>DefaultSettingButton</include>
+			</control>
+			<control type="image" id="11">
+				<description>separator image</description>
+				<height>3</height>
+				<texture colordiffuse="AAAAAAAA" border="3">dialogs/separator-grey.png</texture>
+			</control>
+			<control type="edit" id="12">
+				<include>DefaultSettingButton</include>
+			</control>
+			<control type="sliderex" id="13">
+				<description>Default Slider</description>
+				<include>DefaultSettingButton</include>
+			</control>
+			<control type="label" id="14">
+				<description>Default Label</description>
+				<include>DefaultSettingLabel</include>
+			</control>
+			<!-- Buttons -->
+			<control type="grouplist" id="9000">
+				<left>1380</left>
+				<top>106</top>
+				<orientation>vertical</orientation>
+				<width>300</width>
+				<height>250</height>
+				<itemgap>-10</itemgap>
+				<onleft>5</onleft>
+				<onright>5</onright>
+				<include content="DefaultDialogButton">
+					<param name="id" value="28" />
+					<param name="label" value="$LOCALIZE[186]" />
+				</include>
+				<include content="DefaultDialogButton">
+					<param name="id" value="29" />
+					<param name="label" value="$LOCALIZE[222]" />
+				</include>
+				<include content="DefaultDialogButton">
+					<param name="id" value="30" />
+					<param name="label" value="$LOCALIZE[409]" />
+				</include>
+			</control>
+		</control>
+	</controls>
+</window>

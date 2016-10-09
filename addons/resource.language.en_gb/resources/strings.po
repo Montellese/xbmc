@@ -20000,7 +20000,32 @@ msgctxt "#39201"
 msgid "Media import information"
 msgstr ""
 
-#strings from 39202 to 39249 are reserved for media import GUI info
+#: addons/skin.estuary/1080i/DialogMediaImportInfo.xml
+msgctxt "#39202"
+msgid "Provider"
+msgstr ""
+
+#: addons/skin.estuary/1080i/DialogMediaImportInfo.xml
+msgctxt "#39203"
+msgid "Media type"
+msgstr ""
+
+#: addons/skin.estuary/1080i/DialogMediaImportInfo.xml
+msgctxt "#39204"
+msgid "Status"
+msgstr ""
+
+#: addons/skin.estuary/1080i/DialogMediaImportInfo.xml
+msgctxt "#39205"
+msgid "Last synced"
+msgstr ""
+
+#: addons/skin.estuary/1080i/DialogMediaImportInfo.xml
+msgctxt "#39206"
+msgid "Available media types"
+msgstr ""
+
+#strings from 39207 to 39249 are reserved for media import GUI info
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
 msgctxt "#39250"
