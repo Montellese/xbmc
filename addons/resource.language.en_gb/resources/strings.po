@@ -22856,4 +22856,40 @@ msgctxt "#39701"
 msgid "Media import information"
 msgstr ""
 
-#strings from 39702 to 39799 are reserved for media import GUI info
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39702"
+msgid "Provider"
+msgstr ""
+
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39703"
+msgid "Media type"
+msgstr ""
+
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39704"
+msgid "Status"
+msgstr ""
+
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39705"
+msgid "Last synced"
+msgstr ""
+
+#. Label if a media provider / import has never been synchronised.
+#: addons/skin.estuary/xml/Variables.xml
+msgctxt "#39706"
+msgid "Never"
+msgstr ""
+
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39707"
+msgid "Available media types"
+msgstr ""
+
+#: addons/skin.estuary/xml/DialogMediaImportInfo.xml
+msgctxt "#39708"
+msgid "Protocol"
+msgstr ""
+
+#strings from 39709 to 39799 are reserved for media import GUI info

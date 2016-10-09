@@ -558,4 +558,12 @@
 		<value condition="!String.IsEmpty(Listitem.EpgEventIcon)">$INFO[ListItem.EpgEventIcon]</value>
 		<value>$INFO[ListItem.Icon]</value>
 	</variable>
+	<variable name="MediaImportTitle">
+		<value condition="!String.IsEmpty(ListItem.Property(Import.Name))">$INFO[ListItem.Property(Import.Name)]</value>
+		<value>$INFO[ListItem.Property(Source.Name)]</value>
+	</variable>
+	<variable name="MediaImportLastSyncedLabel">
+		<value condition="!String.IsEmpty(ListItem.DateTime)">$INFO[ListItem.DateTime]</value>
+		<value>$LOCALIZE[39706]</value>
+	</variable>
 </includes>
