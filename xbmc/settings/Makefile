@@ -9,6 +9,7 @@ SRCS=AdvancedSettings.cpp \
      SettingCreator.cpp \
      SettingPath.cpp \
      Settings.cpp \
+     SettingsBase.cpp \
      SettingUtils.cpp \
      SkinSettings.cpp \
      VideoSettings.cpp \
