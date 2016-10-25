@@ -1049,6 +1049,7 @@ msgstr ""
 #: system/peripherals.xml
 #: xbmc/addons/GUIViewStateAddonBrowser.cpp
 #: xbmc/dialogs/GUIDialogMediaSource.cpp
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
 #: xbmc/playlists/SmartPlaylist.cpp
 #: system/settings/settings.xml
 #: xbmc/LangInfo.cpp
@@ -19836,6 +19837,7 @@ msgid "Removing %s..."
 msgstr ""
 
 #. Retrieving (media type plural)...
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
 #: xbmc/network/upnp/UPnPMediaImporter.cpp
 msgctxt "#39018"
 msgid "Retrieving %s..."
@@ -20034,3 +20036,25 @@ msgid "Manually"
 msgstr ""
 
 # strings from id 39306 to 39399 reserved for media import settings
+
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
+msgctxt "#39400"
+msgid "Emby"
+msgstr ""
+
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
+msgctxt "#39401"
+msgid "Access"
+msgstr ""
+
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
+msgctxt "#39402"
+msgid "API key"
+msgstr ""
+
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
+msgctxt "#39403"
+msgid "User"
+msgstr ""
+
+# strings from id 39404 to 39499 reserved for media source/import settings

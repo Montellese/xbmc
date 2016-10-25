@@ -56,6 +56,8 @@
 #include "media/import/handler/SeasonImportHandler.h"
 #include "media/import/handler/TvShowImportHandler.h"
 
+#include "media/import/importer/EmbyMediaImporter.h"
+
 CMediaImportManager::~CMediaImportManager()
 {
   Uninitialize();
@@ -81,6 +83,7 @@ void CMediaImportManager::Initialize()
   RegisterMediaImportHandler(std::make_shared<CMusicVideoImportHandler>(this));
 
   // register importers
+  RegisterImporter(std::make_shared<CEmbyMediaImporter>());
 
   // start all registered importers
   {

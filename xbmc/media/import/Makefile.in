@@ -9,6 +9,7 @@ SRCS= MediaImport.cpp \
       handler/SeasonImportHandler.cpp \
       handler/TvShowImportHandler.cpp \
       handler/VideoImportHandler.cpp \
+      importer/EmbyMediaImporter.cpp \
       repositories/GenericMediaImportRepository.cpp \
       repositories/VideoImportRepository.cpp \
       task/MediaImportChangesetTask.cpp \
