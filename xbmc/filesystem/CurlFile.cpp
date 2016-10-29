@@ -432,7 +432,7 @@ CCurlFile::CCurlFile()
   m_ftppasvip = false;
   m_bufferSize = 32768;
   m_postdata = "";
-  m_postdataset = false;
+  m_requestType = RequestType::Get;
   m_username = "";
   m_password = "";
   m_httpauth = "";
@@ -540,9 +540,13 @@ void CCurlFile::SetCommonOptions(CReadState* state)
   g_curlInterface.easy_setopt(m_state->m_easyHandle, CURLOPT_TRANSFERTEXT, FALSE);
 
   // setup POST data if it is set (and it may be empty)
-  if (m_postdataset)
+  if (m_requestType == RequestType::Post || m_requestType == RequestType::Delete)
   {
-    g_curlInterface.easy_setopt(h, CURLOPT_POST, 1 );
+    if (m_requestType == RequestType::Post)
+      g_curlInterface.easy_setopt(h, CURLOPT_POST, 1);
+    else
+      g_curlInterface.easy_setopt(h, CURLOPT_CUSTOMREQUEST, "DELETE");
+
     g_curlInterface.easy_setopt(h, CURLOPT_POSTFIELDSIZE, m_postdata.length());
     g_curlInterface.easy_setopt(h, CURLOPT_POSTFIELDS, m_postdata.c_str());
   }
@@ -823,7 +827,7 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
         else if (name == "postdata")
         {
           m_postdata = Base64::Decode(value);
-          m_postdataset = true;
+          m_requestType = RequestType::Post;
         }
         // other standard headers (see https://en.wikipedia.org/wiki/List_of_HTTP_header_fields)
         else if (name == "accept" || name == "accept-language" || name == "accept-datetime" ||
@@ -870,14 +874,14 @@ void CCurlFile::ParseAndCorrectUrl(CURL &url2)
 bool CCurlFile::Post(const std::string& strURL, const std::string& strPostData, std::string& strHTML)
 {
   m_postdata = strPostData;
-  m_postdataset = true;
+  m_requestType = RequestType::Post;
   return Service(strURL, strHTML);
 }
 
 bool CCurlFile::Get(const std::string& strURL, std::string& strHTML)
 {
   m_postdata = "";
-  m_postdataset = false;
+  m_requestType = RequestType::Get;
   return Service(strURL, strHTML);
 }
 
@@ -936,6 +940,13 @@ bool CCurlFile::Download(const std::string& strURL, const std::string& strFileNa
     *pdwSize = written > 0 ? written : 0;
 
   return written == static_cast<ssize_t>(strData.size());
+}
+
+bool CCurlFile::Delete(const std::string& strURL, std::string& strHTML)
+{
+  m_postdata.clear();
+  m_requestType = RequestType::Delete;
+  return Service(strURL, strHTML);
 }
 
 // Detect whether we are "online" or not! Very simple and dirty!
