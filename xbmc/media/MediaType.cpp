@@ -154,3 +154,25 @@ GroupedMediaTypes CMediaTypes::Split(const std::string& mediaTypes)
 {
   return StringUtils::Split(mediaTypes, MediaTypeStringSeparator);
 }
+
+std::string CMediaTypes::ToLabel(const GroupedMediaTypes& mediaTypes)
+{
+  std::string label;
+  for (auto&& itMediaType = mediaTypes.begin(); itMediaType != mediaTypes.end(); ++itMediaType)
+  {
+    std::string mediaType = GetCapitalPluralLocalization(*itMediaType);
+    if (itMediaType == mediaTypes.begin())
+      label += mediaType;
+    else
+    {
+      int labelId;
+      if (itMediaType + 1 == mediaTypes.end())
+        labelId = 39057;
+      else
+        labelId = 39056;
+      label = StringUtils::Format(g_localizeStrings.Get(labelId).c_str(), label.c_str(), mediaType.c_str());
+    }
+  }
+
+  return label;
+}
