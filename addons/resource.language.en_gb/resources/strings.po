@@ -19530,130 +19530,6 @@ msgstr ""
 #: addons/skin.confluence/720p/DialogSongInfo.xml
 msgctxt "#38041"
 msgid "Mixer"
-msgstr "" 
-
-# empty strings from id 38042 to 38999
-
-#: xbmc/media/import/MediaImportManager.cpp
-msgctxt "#39000"
-msgid "New media provider detected"
-msgstr ""
-
-#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#39001"
-msgid "Unable to import items"
-msgstr ""
-
-#: xbmc/events/MediaImportEvent.cpp
-msgctxt "#39002"
-msgid "Add imports"
-msgstr ""
-
-# empty strings from id 39003 to 39004
-
-#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
-msgctxt "#39005"
-msgid "Media types available for import:"
-msgstr ""
-
-#. (media type plural), (media type plural) (in combination with #39007)
-#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
-msgctxt "#39006"
-msgid "%s, %s"
-msgstr ""
-
-#. (media type plural) and (media type plural) (in combination with #39006)
-#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
-msgctxt "#39007"
-msgid "%s and %s"
-msgstr ""
-
-#. Retrieving media items from (media provider name)
-#: xbmc/media/import/task/MediaImportRetrievalTask.cpp
-msgctxt "#39008"
-msgid "Retrieving media items from %s..."
-msgstr ""
-
-#. Retrieving media items from (media provider name)
-#: xbmc/media/import/task/MediaImportChangesetTask.cpp
-msgctxt "#39009"
-msgid "Processing media items from %s..."
-msgstr "
-
-#. Processing (media type plural)...
-#: xbmc/media/import/task/MediaImportChangesetTask.cpp
-msgctxt "#39010"
-msgid "Processing %s..."
-msgstr ""
-
-#. Importing (media type plural) from (media provider name)...
-#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#39011"
-msgid "Importing %s from %s..."
-msgstr ""
-
-#. Adding (media item title)...
-#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#39012"
-msgid "Adding %s..."
-msgstr ""
-
-#. Updating (media item title)...
-#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#39013"
-msgid "Updating %s..."
-msgstr ""
-
-#. Removing (media item title)...
-#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#39014"
-msgid "Removing %s..."
-msgstr ""
-
-#: xbmc/dialogs/GUIDialogSmartPlaylistRule.cpp
-#: xbmc/playlists/SmartPlaylist.cpp
-msgctxt "#38033"
-msgid "Role"
-msgstr ""
-
-#. Orchestra playing on the recording (if present)
-msgctxt "#38034"
-msgid "Orchestra"
-msgstr ""
-
-#. Lyricist that wrote the lyrics of the song (if present)
-msgctxt "#38035"
-msgid "Lyricist"
-msgstr ""
-
-#. Remixer of the song (if present)
-msgctxt "#38036"
-msgid "Remixer"
-msgstr ""
-
-#. Arranger of the song (if present)
-msgctxt "#38037"
-msgid "Arranger"
-msgstr ""
-
-#. Engineer of the song (if present)
-msgctxt "#38038"
-msgid "Engineer"
-msgstr ""
-
-#. Producer of the song (if present)
-msgctxt "#38039"
-msgid "Producer"
-msgstr ""
-
-#. DJMixer of the song (if present)
-msgctxt "#38040"
-msgid "DJMixer"
-msgstr ""
-
-#. Mixer of the song (if present)
-msgctxt "#38041"
-msgid "Mixer"
 msgstr ""
 
 #. Missing artist name
@@ -19821,88 +19697,183 @@ msgctxt "#39010"
 msgid "Select sort method"
 msgstr ""
 
+# empty strings from id 39011 to 39049
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39050"
+msgid "New media provider detected"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39051"
+msgid "Media provider removed"
+msgstr ""
+
+#: xbmc/events/MediaImportEvent.cpp
+msgctxt "#39052"
+msgid "Add imports"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39053"
+msgid "Synchronisation failed"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39054"
+msgid "Synchronisation successful"
+msgstr ""
+
+#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
+msgctxt "#39055"
+msgid "Media types available for import:"
+msgstr ""
+
+#. (media type plural), (media type plural) (in combination with #39057)
+#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
+msgctxt "#39056"
+msgid "%s, %s"
+msgstr ""
+
+#. (media type plural) and (media type plural) (in combination with #39056)
+#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
+msgctxt "#39057"
+msgid "%s and %s"
+msgstr ""
+
+#. Retrieving media items from (media provider name)
+#: xbmc/media/import/task/MediaImportRetrievalTask.cpp
+msgctxt "#39058"
+msgid "Retrieving media items from %s..."
+msgstr ""
+
+#. Retrieving media items from (media provider name)
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39059"
+msgid "Processing media items from %s..."
+msgstr "
+
+#. Processing (media type plural)...
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39060"
+msgid "Processing %s..."
+msgstr ""
+
+#. Importing (media type plural) from (media provider name)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39061"
+msgid "Importing %s from %s..."
+msgstr ""
+
+#. Adding (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39062"
+msgid "Adding %s..."
+msgstr ""
+
+#. Updating (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39063"
+msgid "Updating %s..."
+msgstr ""
+
+#. Removing (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39064"
+msgid "Removing %s..."
+msgstr ""
+
 #. (container title): (media item title)
 #: xbmc/filesystem/MediaImportDirectory.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
-msgctxt "#39015"
+msgctxt "#39065"
 msgid "%s: %s"
 msgstr ""
 
 #. Removing import of (media type plural) from (media provider name)
 #: xbmc/media/import/repositories/GenericMediaImportRepository.cpp
-msgctxt "#39016"
+msgctxt "#39066"
 msgid "Removing import of %s from %s..."
 msgstr ""
 
-#. Removing (media provider name)...
-#: xbmc/media/import/repositories/GenericMediaImportRepository.cpp
-msgctxt "#39017"
-msgid "Removing %s..."
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39067"
+msgid "New import added"
 msgstr ""
 
 #. Retrieving (media type plural)...
 #: xbmc/media/import/importer/EmbyMediaImporter.cpp
 #: xbmc/network/upnp/UPnPMediaImporter.cpp
-msgctxt "#39018"
+msgctxt "#39068"
 msgid "Retrieving %s..."
 msgstr ""
 
 #. Cleaning up (media type plural) from (media provider name)...
 #: xbmc/media/import/task/MediaImportCleanupTask.cpp
-msgctxt "#39019"
+msgctxt "#39069"
 msgid "Cleaning up %s from %s..."
 msgstr ""
 
 #. Title of the node showing all available media imports
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39020"
+msgctxt "#39070"
 msgid "All media imports"
 msgstr ""
 
 #. Title of the node showing all media imports grouped by media provider
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39021"
+msgctxt "#39071"
 msgid "By media providers"
 msgstr ""
 
 #. Title of the node showing all media imports grouped by media types
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39022"
+msgctxt "#39072"
 msgid "By media types"
 msgstr ""
 
 #. Title of the node showing all available media providers
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39023"
+msgctxt "#39073"
 msgid "All media providers"
 msgstr ""
 
 #. Title of the node showing all active media providers
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39024"
+msgctxt "#39074"
 msgid "Active media providers"
 msgstr ""
 
 #. Title of the node showing all inactive media providers
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39025"
+msgctxt "#39075"
 msgid "Inactive media providers"
 msgstr ""
 
 #. Label of the state of an active media provider
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39026"
+msgctxt "#39076"
 msgid "Active"
 msgstr ""
 
 #. Label of the state of an inactive media provider
 #: xbmc/filesystem/MediaImportDirectory.cpp
-msgctxt "#39027"
+msgctxt "#39077"
 msgid "Inactive"
 msgstr ""
 
-# strings from id 39028 to 39099 reserved for media import
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39078"
+msgid "Removal failed"
+msgstr ""
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39079"
+msgid "Removal successful"
+msgstr ""
+
+# strings from id 39080 to 39099 reserved for media import
 
 #: xbmc/filesystem/MediaImportDirectory.cpp
 #: xbmc/media/import/windows/GUIViewStateMediaSourceBrowser.cpp
@@ -19947,6 +19918,7 @@ msgid "Add import..."
 msgstr ""
 
 #. Context button label to synchronise a media provider/import
+#: xbmc/event/MediaImportEvent.cpp
 #: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
 msgctxt "#39107"
 msgid "Synchronise"
