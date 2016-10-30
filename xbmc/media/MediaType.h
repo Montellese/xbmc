@@ -59,18 +59,19 @@ public:
   static std::string Join(const MediaTypes& mediaTypes);
   static std::string Join(const GroupedMediaTypes& mediaTypes);
   static GroupedMediaTypes Split(const std::string& mediaTypes);
-  
+
+private:
   typedef struct MediaTypeInfo {
     MediaTypeInfo(const MediaType &mediaType, const std::string &plural, bool container,
-                  int localizationSingular, int localizationPlural,
-                  int localizationSingularCapital, int localizationPluralCapital)
-      : mediaType(mediaType),
-        plural(plural),
-        container(container),
-        localizationSingular(localizationSingular),
-        localizationPlural(localizationPlural),
-        localizationSingularCapital(localizationSingularCapital),
-        localizationPluralCapital(localizationPluralCapital)
+      int localizationSingular, int localizationPlural,
+      int localizationSingularCapital, int localizationPluralCapital)
+      : mediaType(mediaType)
+      , plural(plural)
+      , container(container)
+      , localizationSingular(localizationSingular)
+      , localizationPlural(localizationPlural)
+      , localizationSingularCapital(localizationSingularCapital)
+      , localizationPluralCapital(localizationPluralCapital)
     { }
 
     MediaType mediaType;
@@ -82,7 +83,6 @@ public:
     int localizationPluralCapital;
   } MediaTypeInfo;
 
-private:
   static std::map<std::string, MediaTypeInfo>::const_iterator findMediaType(const std::string &mediaType);
 
   static std::map<std::string, MediaTypeInfo> m_mediaTypes;
