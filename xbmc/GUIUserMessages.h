@@ -142,3 +142,12 @@
 
 // Send to RDS Radiotext handlers to inform about changed data
 #define GUI_MSG_UPDATE_RADIOTEXT      GUI_MSG_USER + 41
+
+// Sent to CGUIWindowMediaSourceBrowser
+#define GUI_MSG_SOURCE_ADDED          GUI_MSG_USER + 42
+#define GUI_MSG_SOURCE_UPDATED        GUI_MSG_USER + 43
+#define GUI_MSG_SOURCE_REMOVED        GUI_MSG_USER + 44
+#define GUI_MSG_SOURCE_ACTIVE_CHANGED GUI_MSG_USER + 45
+#define GUI_MSG_IMPORT_ADDED          GUI_MSG_USER + 46
+#define GUI_MSG_IMPORT_UPDATED        GUI_MSG_USER + 47
+#define GUI_MSG_IMPORT_REMOVED        GUI_MSG_USER + 48

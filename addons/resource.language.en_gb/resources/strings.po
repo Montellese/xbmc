@@ -19442,6 +19442,78 @@ msgstr ""
 #: xbmc/video/dialogs/GUIDialogVideoSettings.cpp
 msgctxt "#38032"
 msgid "Angle"
+
+# empty strings from id 38033 to 38999
+
+#: xbmc/media/import/MediaImportManager.cpp
+msgctxt "#39000"
+msgid "New media provider detected"
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#39001"
+msgid "Unable to import items"
+msgstr ""
+
+# empty strings from id 39002 to 39004
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#39005"
+msgid "Media types available for import:"
+msgstr ""
+
+#. (media type plural), (media type plural) (in combination with #37044)
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#39006"
+msgid "%s, %s"
+msgstr ""
+
+#. (media type plural) and (media type plural) (in combination with #37043)
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#39007"
+msgid "%s and %s"
+msgstr ""
+
+#. Retrieving media items from (media provider name)
+#: xbmc/media/import/task/MediaImportRetrievalTask.cpp
+msgctxt "#39008"
+msgid "Retrieving media items from %s..."
+msgstr ""
+
+#. Retrieving media items from (media provider name)
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39009"
+msgid "Processing media items from %s..."
+msgstr "
+
+#. Processing (media type plural)...
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39010"
+msgid "Processing %s..."
+msgstr ""
+
+#. Importing (media type plural) from (media provider name)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39011"
+msgid "Importing %s from %s..."
+msgstr ""
+
+#. Adding (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39012"
+msgid "Adding %s..."
+msgstr ""
+
+#. Updating (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39013"
+msgid "Updating %s..."
+msgstr ""
+
+#. Removing (media item title)...
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39014"
+msgid "Removing %s..."
 msgstr ""
 
 #: xbmc/dialogs/GUIDialogSmartPlaylistRule.cpp

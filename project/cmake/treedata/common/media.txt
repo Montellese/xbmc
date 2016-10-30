@@ -1,1 +1,2 @@
 xbmc/media/import               media/import
+xbmc/media/import/task          media/import/task
