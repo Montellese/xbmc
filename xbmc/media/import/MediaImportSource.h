@@ -26,6 +26,7 @@
 #include "XBDateTime.h"
 #include "media/MediaType.h"
 #include "settings/SettingControl.h"
+#include "settings/lib/SettingConditions.h"
 #include "settings/lib/SettingDefinitions.h"
 #include "settings/SettingsBase.h"
 
@@ -86,6 +87,9 @@ public:
 
     void SetDefinition(const std::string& settingDefinition);
 
+    void AddSimpleCondition(const std::string& condition);
+    void AddComplexCondition(const std::string& name, const SettingConditionCheck& condition);
+
     void SetOptionsFiller(const std::string &settingId, IntegerSettingOptionsFiller optionsFiller, void* data = nullptr);
     void SetOptionsFiller(const std::string &settingId, StringSettingOptionsFiller optionsFiller, void* data = nullptr);
 
@@ -102,6 +106,7 @@ public:
 
     // specializations of CSettingsBase
     void InitializeControls() override;
+    void InitializeConditions() override;
 
     // hide methods of CSettingsBase
     using CSettingsBase::Initialize;
@@ -111,6 +116,9 @@ public:
   private:
     mutable std::string m_settingValues;
     std::string m_settingDefinition;
+
+    std::set<std::string> m_simpleConditions;
+    std::map<std::string, SettingConditionCheck> m_complexConditions;
   };
 
   const CSettings& Settings() const { return m_settings; }

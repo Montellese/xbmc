@@ -157,6 +157,16 @@ void CMediaImportSource::CSettings::SetDefinition(const std::string& settingDefi
   m_settingDefinition = settingDefinition;
 }
 
+void CMediaImportSource::CSettings::AddSimpleCondition(const std::string& condition)
+{
+  m_simpleConditions.insert(condition);
+}
+
+void CMediaImportSource::CSettings::AddComplexCondition(const std::string& name, const SettingConditionCheck& condition)
+{
+  m_complexConditions.insert(std::make_pair(name, condition));
+}
+
 void CMediaImportSource::CSettings::SetOptionsFiller(const std::string &settingId, IntegerSettingOptionsFiller optionsFiller, void* data /* = nullptr */)
 {
   if (!IsLoaded() || settingId.empty())
@@ -224,4 +234,15 @@ void CMediaImportSource::CSettings::InitializeControls()
   GetSettingsManager()->RegisterSettingControl("slider", this);
   GetSettingsManager()->RegisterSettingControl("range", this);
   GetSettingsManager()->RegisterSettingControl("title", this);
+}
+
+void CMediaImportSource::CSettings::InitializeConditions()
+{
+  // add simple conditions
+  for (const auto condition : m_simpleConditions)
+    GetSettingsManager()->AddCondition(condition);
+
+  // add more complex conditions
+  for (const auto condition : m_complexConditions)
+    GetSettingsManager()->AddCondition(condition.first, condition.second);
 }
