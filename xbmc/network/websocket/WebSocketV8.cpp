@@ -20,7 +20,6 @@
 
 #include <string>
 #include <sstream>
-#include "sha1.hpp"
 
 #include "WebSocketV8.h"
 #include "WebSocket.h"
@@ -29,6 +28,7 @@
 #include "utils/HttpParser.h"
 #include "utils/HttpResponse.h"
 #include "utils/log.h"
+#include "utils/sha1.hpp"
 #include "utils/StringUtils.h"
 
 #define WS_HTTP_METHOD          "GET"
