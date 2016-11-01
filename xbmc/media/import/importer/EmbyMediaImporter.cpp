@@ -32,6 +32,7 @@
 #include "utils/JSONVariantParser.h"
 #include "utils/JSONVariantWriter.h"
 #include "utils/log.h"
+#include "utils/sha1.hpp"
 #include "utils/StringUtils.h"
 #include "utils/SystemInfo.h"
 #include "utils/URIUtils.h"
@@ -116,17 +117,23 @@ static const std::string PropertyUserId = "Id";
 static const std::string PropertyUserPolicy = "Policy";
 static const std::string PropertyUserIsDisabled = "IsDisabled";
 
+static const std::string SettingAuthenticationType = "emby.authtype";
+static const uint8_t SettingAuthenticationTypeOptionApiKey = 0;
+static const uint8_t SettingAuthenticationTypeOptionUser = 1;
 static const std::string SettingApiKey = "emby.apikey";
 static const std::string SettingUser = "emby.user";
+static const std::string SettingUserOptionManual = "manual";
+static const std::string SettingUsername = "emby.username";
+static const std::string SettingPassword = "emby.password";
 static const std::string SettingDeviceId = "emby.deviceid";
 
-static void PrepareApiCall(const std::string& apiKey, const std::string& userId, const std::string& deviceId, XFILE::CCurlFile& curl)
+static void PrepareApiCall(const std::string& authToken, const std::string& userId, const std::string& deviceId, XFILE::CCurlFile& curl)
 {
   curl.SetRequestHeader("Accept", EmbyAcceptEncoding);
 
   // set the API key if possible
-  if (!apiKey.empty())
-    curl.SetRequestHeader(EmbyApiKeyHeader, apiKey);
+  if (!authToken.empty())
+    curl.SetRequestHeader(EmbyApiKeyHeader, authToken);
 
   // set the Authorization header if possible
   if (!deviceId.empty())
@@ -175,8 +182,19 @@ CEmbyMediaImporter::CEmbyMediaImporter(const CMediaImport &import)
   if (LoadSourceSettings(source))
   {
     m_deviceId = source.Settings().GetString(SettingDeviceId);
-    m_apiKey = source.Settings().GetString(SettingApiKey);
-    m_userId = source.Settings().GetString(SettingUser);
+
+    int authType = source.Settings().GetInt(SettingAuthenticationType);
+    if (authType == SettingAuthenticationTypeOptionApiKey)
+      m_authenticator = CEmbyAuthenticator::WithApiKey(m_url, m_deviceId, source.Settings().GetString(SettingApiKey));
+    else if (authType == SettingAuthenticationTypeOptionUser)
+    {
+      const std::string userId = source.Settings().GetString(SettingUser);
+      const std::string password = source.Settings().GetString(SettingPassword);
+      if (userId == SettingUserOptionManual)
+        m_authenticator = CEmbyAuthenticator::WithUsername(m_url, m_deviceId, source.Settings().GetString(SettingUsername), password);
+      else
+        m_authenticator = CEmbyAuthenticator::WithUserId(m_url, m_deviceId, userId, password);
+    }
   }
 }
 
@@ -193,24 +211,67 @@ bool CEmbyMediaImporter::LoadSourceSettings(CMediaImportSource& source) const
       "<section id=\"emby\" label=\"39400\">\n"
         "<category id=\"access\" label=\"39401\">\n"
           "<group id=\"1\">\n"
+            "<setting id=\"" + SettingAuthenticationType + "\" type=\"integer\" label=\"39404\">\n"
+              "<level>0</level>\n"
+              "<default>0</default> <!-- API key -->\n"
+              "<constraints>\n"
+                "<options>\n"
+                  "<option label=\"39402\">0</option> <!-- API key -->\n"
+                  "<option label=\"39403\">1</option> <!-- User -->\n"
+                "</options>\n"
+              "</constraints>\n"
+              "<control type=\"spinner\" format=\"string\" />\n"
+            "</setting>\n"
             "<setting id=\"" + SettingApiKey + "\" type=\"string\" label=\"39402\">\n"
               "<level>0</level>\n"
               "<default></default>\n"
               "<constraints>\n"
                 "<allowempty>true</allowempty>\n"
               "</constraints>\n"
+              "<dependencies>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingAuthenticationType + "\" operator=\"is\">0</dependency>\n"
+              "</dependencies>\n"
               "<control type=\"edit\" format=\"string\" />\n"
             "</setting>\n"
             "<setting id=\"" + SettingUser + "\" type=\"string\" label=\"39403\">\n"
+              "<level>0</level>\n"
+              "<default>" + SettingUserOptionManual + "</default>\n"
+              "<dependencies>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingAuthenticationType + "\" operator=\"is\">1</dependency>\n"
+              "</dependencies>\n"
+              "<control type=\"list\" format=\"string\" />\n"
+            "</setting>\n"
+            "<setting id=\"" + SettingUsername + "\" type=\"string\" label=\"1048\">\n"
               "<level>0</level>\n"
               "<default></default>\n"
               "<constraints>\n"
                 "<allowempty>true</allowempty>\n"
               "</constraints>\n"
               "<dependencies>\n"
-                "<dependency type=\"enable\" setting=\"emby.apikey\" operator=\"!is\"></dependency>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingAuthenticationType + "\" operator=\"is\">1</dependency>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingUser + "\" operator=\"is\">" + SettingUserOptionManual + "</dependency>\n"
               "</dependencies>\n"
-              "<control type=\"list\" format=\"string\" />\n"
+              "<control type=\"edit\" format=\"string\" />\n"
+            "</setting>\n"
+            "<setting id=\"" + SettingPassword + "\" type=\"string\" label=\"733\">\n"
+              "<level>0</level>\n"
+              "<default></default>\n"
+              "<constraints>\n"
+                "<allowempty>true</allowempty>\n"
+              "</constraints>\n"
+              "<dependencies>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingAuthenticationType + "\" operator=\"is\">1</dependency>\n"
+                "<dependency type=\"visible\" setting=\"" + SettingUser + "\" operator=\"!is\"></dependency>\n"
+                "<dependency type=\"enable\">\n"
+                  "<or>\n"
+                    "<condition on=\"setting\" setting=\"" + SettingUser + "\" operator=\"!is\">" + SettingUserOptionManual + "</condition>\n"
+                    "<condition on=\"setting\" setting=\"" + SettingUsername + "\" operator=\"!is\"></condition>\n"
+                  "</or>\n"
+                "</dependency>\n"
+              "</dependencies>\n"
+              "<control type=\"edit\" format=\"string\">\n"
+                "<hidden>true</hidden>\n"
+              "</control>\n"
             "</setting>\n"
             "<setting id=\"" + SettingDeviceId + "\" type=\"string\">\n"
               "<visible>false</visible>\n"
@@ -331,9 +392,6 @@ bool CEmbyMediaImporter::Import(CMediaImportRetrievalTask* task) const
     CURL actualUrl = baseUrl;
     actualUrl.SetOption("IncludeItemTypes", embyMediaType->second);
 
-    XFILE::CCurlFile curl;
-    PrepareApiCall(m_apiKey, m_userId, m_deviceId, curl);
-
     std::vector<CFileItemPtr> items;
     uint32_t totalCount = 0;
     uint32_t startIndex = 0;
@@ -345,7 +403,7 @@ bool CEmbyMediaImporter::Import(CMediaImportRetrievalTask* task) const
       actualUrl.SetOption("StartIndex", StringUtils::Format("%u", startIndex));
 
       std::string result;
-      if (!curl.Get(actualUrl.Get(), result) || result.empty())
+      if (!ApiGet(actualUrl.Get(), result) || result.empty())
       {
         CLog::Log(LOGERROR, "CEmbyMediaImporter: failed to retrieve items of media type \"%s\" from %s", importedMediaType.c_str(), CURL::GetRedacted(actualUrl.Get()).c_str());
         return false;
@@ -409,12 +467,9 @@ bool CEmbyMediaImporter::UpdateOnSource(CMediaImportUpdateTask* task) const
   // get the URL to retrieve all details of the item from the Emby server
   const auto getItemUrl = BuildUserItemUrl(itemId);
 
-  XFILE::CCurlFile curl;
-  PrepareApiCall(m_apiKey, m_userId, m_deviceId, curl);
-
   std::string result;
   // retrieve all details of the item
-  if (!curl.Get(getItemUrl, result) || result.empty())
+  if (!ApiGet(getItemUrl, result) || result.empty())
     return false;
 
   const auto resultItem = CJSONVariantParser::Parse(result);
@@ -701,9 +756,6 @@ bool CEmbyMediaImporter::MarkAsWatched(const std::string& itemId, CDateTime last
   if (!lastPlayed.IsValid())
     lastPlayed = CDateTime::GetUTCDateTime();
 
-  XFILE::CCurlFile curl;
-  PrepareApiCall(m_apiKey, m_userId, m_deviceId, curl);
-
   // get the URL to updated the item's played state
   CURL url(BuildUserPlayedItemUrl(itemId));
   // and add the DatePlayed URL parameter
@@ -713,7 +765,7 @@ bool CEmbyMediaImporter::MarkAsWatched(const std::string& itemId, CDateTime last
 
   std::string response;
   // execute the POST request
-  return curl.Post(url.Get(), "", response);
+  return ApiPost(url.Get(), "", response);
 }
 
 bool CEmbyMediaImporter::MarkAsUnwatched(const std::string& itemId) const
@@ -721,24 +773,18 @@ bool CEmbyMediaImporter::MarkAsUnwatched(const std::string& itemId) const
   if (itemId.empty())
     return false;
 
-  XFILE::CCurlFile curl;
-  PrepareApiCall(m_apiKey, m_userId, m_deviceId, curl);
-
   // get the URL to updated the item's played state
   const auto url = BuildUserPlayedItemUrl(itemId);
 
   std::string response;
   // execute the DELETE request
-  return curl.Delete(url, response);
+  return ApiDelete(url, response);
 }
 
 bool CEmbyMediaImporter::UpdateResumePoint(const std::string& itemId, uint64_t resumePointInTicks) const
 {
   if (itemId.empty())
     return false;
-
-  XFILE::CCurlFile curl;
-  PrepareApiCall(m_apiKey, m_userId, m_deviceId, curl);
 
   // get the URL to updated the item's resume point
   const auto url = BuildUrl("Sessions/Playing/Stopped");
@@ -754,8 +800,8 @@ bool CEmbyMediaImporter::UpdateResumePoint(const std::string& itemId, uint64_t r
   const auto postData = CJSONVariantWriter::Write(data, true);
 
   std::string response;
-  // execute the DELETE request
-  return curl.Post(url, postData, response);
+  // execute the POST request
+  return ApiPost(url, postData, response);
 }
 
 std::string CEmbyMediaImporter::BuildUrl(const std::string& endpoint) const
@@ -770,10 +816,10 @@ std::string CEmbyMediaImporter::BuildUrl(const std::string& endpoint) const
 std::string CEmbyMediaImporter::BuildUserUrl(const std::string& endpoint) const
 {
   std::string url = m_url;
-  if (!m_userId.empty())
+  if (!m_authenticator.GetUserId().empty())
   {
     url = URIUtils::AddFileToFolder(url, UrlUsers);
-    url = URIUtils::AddFileToFolder(url, m_userId);
+    url = URIUtils::AddFileToFolder(url, m_authenticator.GetUserId());
   }
 
   if (!endpoint.empty())
@@ -810,21 +856,6 @@ std::string CEmbyMediaImporter::BuildUserPlayedItemUrl(const std::string& itemId
     url = URIUtils::AddFileToFolder(url, itemId);
 
   return url;
-}
-
-std::string CEmbyMediaImporter::BuildEmbyPath(const std::string& url) const
-{
-  CURL fullUrl;
-  fullUrl.SetProtocol(EmbyProtocol);
-
-  std::string hostname = m_apiKey;
-  if (!m_userId.empty())
-    hostname += ":" + m_userId;
-  fullUrl.SetHostName(CURL::Encode(hostname));
-
-  fullUrl.SetFileName(CURL::Encode(url));
-
-  return fullUrl.Get();
 }
 
 std::string CEmbyMediaImporter::BuildPlayableItemPath(const std::string& mediaType, const std::string& itemId, const std::string& container) const
@@ -880,6 +911,78 @@ std::string CEmbyMediaImporter::BuildImagePath(const std::string& itemId, const 
   return url;
 }
 
+bool CEmbyMediaImporter::ApiGet(const std::string& url, std::string& response) const
+{
+  if (!m_authenticator.IsAuthenticated() && !m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user authentication failed");
+    return false;
+  }
+
+  XFILE::CCurlFile curl;
+  PrepareApiCall(m_authenticator.GetAccessToken(), m_authenticator.GetUserId(), m_deviceId, curl);
+
+  if (curl.Get(url, response))
+    return true;
+
+  // TODO: in case of HTTP 401, re-try authentication and then the request again
+  if (!m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user re-authentication failed");
+    return false;
+  }
+
+  return curl.Get(url, response);
+}
+
+bool CEmbyMediaImporter::ApiPost(const std::string& url, const std::string& data, std::string& response) const
+{
+  if (!m_authenticator.IsAuthenticated() && !m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user authentication failed");
+    return false;
+  }
+
+  XFILE::CCurlFile curl;
+  PrepareApiCall(m_authenticator.GetAccessToken(), m_authenticator.GetUserId(), m_deviceId, curl);
+
+  if (curl.Post(url, data, response))
+    return true;
+
+  // TODO: in case of HTTP 401, re-try authentication and then the request again
+  if (!m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user re-authentication failed");
+    return false;
+  }
+
+  return curl.Post(url, data, response);
+}
+
+bool CEmbyMediaImporter::ApiDelete(const std::string& url, std::string& response) const
+{
+  if (!m_authenticator.IsAuthenticated() && !m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user authentication failed");
+    return false;
+  }
+
+  XFILE::CCurlFile curl;
+  PrepareApiCall(m_authenticator.GetAccessToken(), m_authenticator.GetUserId(), m_deviceId, curl);
+
+  if (curl.Delete(url, response))
+    return true;
+
+  // TODO: in case of HTTP 401, re-try authentication and then the request again
+  if (!m_authenticator.Authenticate())
+  {
+    CLog::Log(LOGWARNING, "CEmbyMediaImporter: user re-authentication failed");
+    return false;
+  }
+
+  return curl.Delete(url, response);
+}
+
 bool CEmbyMediaImporter::GetServerId(const std::string& path, std::string& id)
 {
   if (path.empty())
@@ -916,9 +1019,9 @@ void CEmbyMediaImporter::SettingOptionsUsersFiller(const CSetting* setting, std:
 {
   const auto currentValue = current;
 
-  // add default choice and activate it by default
-  list.push_back(std::make_pair(g_localizeStrings.Get(231), ""));
-  current = "";
+  // add option to manually enter a username
+  list.push_back(std::make_pair(g_localizeStrings.Get(413), SettingUserOptionManual));
+  current = SettingUserOptionManual;
 
   if (data == nullptr)
     return;
@@ -949,7 +1052,7 @@ void CEmbyMediaImporter::SettingOptionsUsersFiller(const CSetting* setting, std:
   usersUrl = URIUtils::AddFileToFolder(usersUrl, UrlUsersPublic);
 
   XFILE::CCurlFile curl;
-  PrepareApiCall(apiKey, currentUserId, settings.GetString(SettingDeviceId), curl);
+  PrepareApiCall("", "", settings.GetString(SettingDeviceId), curl);
 
   std::string result;
   if (!curl.Get(usersUrl, result) || result.empty())
@@ -984,6 +1087,124 @@ void CEmbyMediaImporter::SettingOptionsUsersFiller(const CSetting* setting, std:
     if (id == currentValue)
       current = id;
   }
+}
+
+CEmbyMediaImporter::CEmbyAuthenticator::CEmbyAuthenticator()
+  : m_authMethod(AuthenticationMethod::None)
+{ }
+
+CEmbyMediaImporter::CEmbyAuthenticator::CEmbyAuthenticator(const std::string& serviceUrl, const std::string& deviceId,
+  const std::string& apiKey, const std::string& userId, const std::string& username, const std::string& password)
+  : m_authMethod(AuthenticationMethod::None)
+  , m_url(serviceUrl)
+  , m_deviceId(deviceId)
+  , m_apiKey(apiKey)
+  , m_username(username)
+  , m_password(password)
+  , m_userId(userId)
+  , m_accessToken()
+{
+  if (!m_apiKey.empty())
+    m_authMethod = AuthenticationMethod::ApiKey;
+  else if (!m_userId.empty())
+    m_authMethod = AuthenticationMethod::UserId;
+  else if (!m_username.empty())
+    m_authMethod = AuthenticationMethod::Username;
+}
+
+CEmbyMediaImporter::CEmbyAuthenticator CEmbyMediaImporter::CEmbyAuthenticator::WithApiKey(const std::string& serviceUrl, const std::string& deviceId,
+  const std::string& apiKey)
+{
+  return CEmbyAuthenticator(serviceUrl, deviceId, apiKey, "", "", "");
+}
+
+CEmbyMediaImporter::CEmbyAuthenticator CEmbyMediaImporter::CEmbyAuthenticator::WithUserId(const std::string& serviceUrl, const std::string& deviceId,
+  const std::string& userId, const std::string& password /* = "" */)
+{
+  return CEmbyAuthenticator(serviceUrl, deviceId, "", userId, "", password);
+}
+
+CEmbyMediaImporter::CEmbyAuthenticator CEmbyMediaImporter::CEmbyAuthenticator::WithUsername(const std::string& serviceUrl, const std::string& deviceId,
+  const std::string& username, const std::string& password /* = "" */)
+{
+  return CEmbyAuthenticator(serviceUrl, deviceId, "", "", username, password);
+}
+
+bool CEmbyMediaImporter::CEmbyAuthenticator::Authenticate() const
+{
+  if (m_url.empty() || m_deviceId.empty() || m_authMethod == AuthenticationMethod::None)
+    return false;
+
+  if (m_authMethod == AuthenticationMethod::ApiKey)
+  {
+    m_accessToken = m_apiKey;
+    return !m_accessToken.empty();
+  }
+
+  // prepare the authentication URL
+  std::string authUrl = m_url;
+  authUrl = URIUtils::AddFileToFolder(authUrl, UrlUsers);
+
+  // prepare the password
+  boost::uuids::detail::sha1 sha1;
+  sha1.process_bytes(m_password.c_str(), m_password.size());
+
+  unsigned int hash[5];
+  sha1.get_digest(hash);
+
+  std::string passwordSha1;
+  for (const auto hashPart : hash)
+    passwordSha1 += StringUtils::Format("%08x", hashPart);
+
+  // prepare the URL and request body
+  CVariant body(CVariant::VariantTypeObject);
+  switch (m_authMethod)
+  {
+    case AuthenticationMethod::UserId:
+    {
+      authUrl = URIUtils::AddFileToFolder(authUrl, m_userId);
+      authUrl = URIUtils::AddFileToFolder(authUrl, "Authenticate");
+
+      body["Password"] = passwordSha1;
+
+      break;
+    }
+
+    case AuthenticationMethod::Username:
+    {
+      authUrl = URIUtils::AddFileToFolder(authUrl, "AuthenticateByName");
+
+      body["Username"] = m_username;
+      body["Password"] = passwordSha1;
+
+      break;
+    }
+
+    default:
+      return false;
+  }
+
+  const std::string requestBody = CJSONVariantWriter::Write(body, true);
+
+  XFILE::CCurlFile curl;
+  PrepareApiCall("", m_userId, m_deviceId, curl);
+  curl.SetMimeType(EmbyContentType);
+
+  std::string response;
+  if (!curl.Post(authUrl, requestBody, response) || response.empty())
+    return false;
+
+  CVariant responseObj = CJSONVariantParser::Parse(response);
+  if (!responseObj.isObject() ||
+      !responseObj.isMember("AccessToken" /* TODO */) ||
+      !responseObj.isMember("User" /* TODO */) ||
+      !responseObj["User" /* TODO */].isMember("Id" /* TODO */))
+    return false;
+
+  m_accessToken = responseObj["AccessToken" /* TODO */].asString();
+  m_userId = responseObj["User" /* TODO */]["Id" /* TODO */].asString();
+
+  return !m_accessToken.empty();
 }
 
 CEmbyMediaImporter::CEmbyServerDiscovery::CEmbyServerDiscovery()

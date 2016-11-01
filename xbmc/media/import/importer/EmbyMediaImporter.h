@@ -66,10 +66,13 @@ protected:
   std::string BuildUserItemUrl(const std::string& itemId) const;
   std::string BuildUserPlayedItemUrl(const std::string& itemId) const;
 
-  std::string BuildEmbyPath(const std::string& url) const; // TODO: remove this?
   std::string BuildPlayableItemPath(const std::string& mediaType, const std::string& itemId, const std::string& container) const;
   std::string BuildFolderItemPath(const std::string& itemId) const;
   std::string BuildImagePath(const std::string& itemId, const std::string& imageType, const std::string& imageTag = "") const;
+
+  bool ApiGet(const std::string& url, std::string& response) const;
+  bool ApiPost(const std::string& url, const std::string& data, std::string& response) const;
+  bool ApiDelete(const std::string& url, std::string& response) const;
 
   static bool GetServerId(const std::string& path, std::string& id);
   static bool GetItemId(const std::string& path, std::string& id);
@@ -78,9 +81,49 @@ protected:
 
   std::string m_serverId;
   std::string m_deviceId;
-  std::string m_apiKey;
-  std::string m_userId;
   std::string m_url;
+
+  class CEmbyAuthenticator
+  {
+  public:
+    CEmbyAuthenticator();
+    ~CEmbyAuthenticator() = default;
+
+    static CEmbyAuthenticator WithApiKey(const std::string& serviceUrl, const std::string& deviceId, const std::string& apiKey);
+    static CEmbyAuthenticator WithUserId(const std::string& serviceUrl, const std::string& deviceId, const std::string& userId, const std::string& password = "");
+    static CEmbyAuthenticator WithUsername(const std::string& serviceUrl, const std::string& deviceId, const std::string& username, const std::string& password = "");
+
+    bool Authenticate() const;
+    bool IsAuthenticated() const { return !m_accessToken.empty(); }
+
+    const std::string& GetAccessToken() const { return m_accessToken; }
+    const std::string& GetUserId() const { return m_userId; }
+
+  private:
+    explicit CEmbyAuthenticator(const std::string& serviceUrl, const std::string& deviceId,
+      const std::string& apiKey, const std::string& userId, const std::string& username, const std::string& password);
+
+    enum class AuthenticationMethod
+    {
+      None = 0,
+      ApiKey,
+      UserId,
+      Username
+    };
+    AuthenticationMethod m_authMethod;
+
+    std::string m_url;
+    std::string m_deviceId;
+
+    std::string m_apiKey;
+    std::string m_username;
+    std::string m_password;
+
+    mutable std::string m_userId;
+    mutable std::string m_accessToken;
+  };
+
+  CEmbyAuthenticator m_authenticator;
 
   class CEmbyServerDiscovery : protected CThread
   {

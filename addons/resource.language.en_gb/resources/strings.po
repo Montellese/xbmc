@@ -1890,6 +1890,7 @@ msgctxt "#412"
 msgid "Unable to get weather data"
 msgstr ""
 
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
 msgctxt "#413"
 msgid "Manual"
 msgstr ""
@@ -3202,6 +3203,7 @@ msgid "Save & apply"
 msgstr ""
 
 #: system/settings/settings.xml
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
 msgctxt "#733"
 msgid "Password"
 msgstr ""
@@ -3983,6 +3985,7 @@ msgid "Other..."
 msgstr ""
 
 #: system/settings/settings.xml
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
 msgctxt "#1048"
 msgid "Username"
 msgstr ""
@@ -20063,4 +20066,9 @@ msgctxt "#39403"
 msgid "User"
 msgstr ""
 
-# strings from id 39404 to 39499 reserved for media source/import settings
+#: xbmc/media/import/importer/EmbyMediaImporter.cpp
+msgctxt "#39404"
+msgid "Authentication"
+msgstr ""
+
+# strings from id 39405 to 39499 reserved for media source/import settings
