@@ -141,6 +141,7 @@ set(HEADERS ActorProtocol.h
             SortUtils.h
             SpecialSort.h
             Speed.h
+            sha1.hpp
             Splash.h
             Stopwatch.h
             StreamDetails.h
