@@ -10433,16 +10433,7 @@ void CVideoDatabase::SplitPath(const std::string& strFileNameAndPath, std::strin
     strFileName = strFileNameAndPath;
   }
   else
-  {
-    URIUtils::Split(strFileNameAndPath, strPath, strFileName);
-    // Keep protocol options as part of the path
-    if (URIUtils::IsURL(strFileNameAndPath))
-    {
-      CURL url(strFileNameAndPath);
-      if (!url.GetProtocolOptions().empty())
-        strPath += "|" + url.GetProtocolOptions();
-    }
-  }
+    URIUtils::Split(strFileNameAndPath, strPath, strFileName, false);
 }
 
 void CVideoDatabase::InvalidatePathHash(const std::string& strPath)
