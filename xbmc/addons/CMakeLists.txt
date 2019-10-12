@@ -19,6 +19,7 @@ set(SOURCES Addon.cpp
             ImageDecoder.cpp
             ImageResource.cpp
             LanguageResource.cpp
+            MediaImporter.cpp
             PluginSource.cpp
             Repository.cpp
             RepositoryUpdater.cpp
@@ -56,6 +57,7 @@ set(HEADERS Addon.h
             ImageDecoder.h
             ImageResource.h
             LanguageResource.h
+            MediaImporter.h
             PluginSource.h
             Repository.h
             RepositoryUpdater.h

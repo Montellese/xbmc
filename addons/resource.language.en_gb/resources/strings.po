@@ -22194,7 +22194,10 @@ msgctxt "#39028"
 msgid "Addon \"{0:s}\"[CR]Origin \"{1:s}\"[CR]Version \"{2:s}\"[CR]- will uninstall and be replaced. Would you like to proceed?"
 msgstr ""
 
-#empty string with id 39029
+#: /xbmc/addons/addoninfo/AddonInfo.cpp
+msgctxt "#39029"
+msgid "Media importer"
+msgstr ""
 
 #. Media source, a filter and smart playlist rule option
 #: xbmc/dialogs/GUIDialogMediaFilter.cpp
