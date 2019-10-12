@@ -46,3 +46,4 @@ addons/metadata.themoviedb.org.python/*
 addons/metadata.tvshows.themoviedb.org/*
 addons/metadata.tvshows.themoviedb.org.python/*
 addons/kodi.vfs/*
+addons/mediaimporter.emby/*
