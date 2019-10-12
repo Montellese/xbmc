@@ -12,6 +12,7 @@
 #include "DatabaseManager.h"
 #include "PlayListPlayer.h"
 #include "addons/BinaryAddonCache.h"
+#include "addons/MediaImporter.h"
 #include "addons/RepositoryUpdater.h"
 #include "addons/VFSEntry.h"
 #include "addons/binary-addons/BinaryAddonManager.h"
@@ -141,6 +142,7 @@ bool CServiceManager::InitStageTwo(const CAppParamParser &params, const std::str
   m_fileExtensionProvider.reset(new CFileExtensionProvider(*m_addonMgr));
 
   m_mediaImportManager.reset(new CMediaImportManager());
+  m_mediaImportAddons.reset(new ADDON::CMediaImportAddonManager(*m_addonMgr));
 
   m_powerManager.reset(new CPowerManager());
   m_powerManager->Initialize();
@@ -215,6 +217,8 @@ void CServiceManager::DeinitStageTwo()
 
   m_mediaManager->Stop();
   m_mediaManager.reset();
+  m_mediaImportAddons.reset();
+  m_mediaImportManager.reset();
 }
 
 void CServiceManager::DeinitStageOne()
@@ -227,7 +231,6 @@ void CServiceManager::DeinitStageOne()
   CScriptInvocationManager::GetInstance().UnregisterLanguageInvocationHandler(m_XBPython.get());
   m_XBPython.reset();
 #endif
-  m_mediaImportManager.reset();
 }
 
 ADDON::CAddonMgr &CServiceManager::GetAddonMgr()
@@ -258,6 +261,11 @@ ADDON::CServiceAddonManager &CServiceManager::GetServiceAddons()
 ADDON::CRepositoryUpdater &CServiceManager::GetRepositoryUpdater()
 {
   return *m_repositoryUpdater;
+}
+
+ADDON::CMediaImportAddonManager& CServiceManager::GetMediaImportAddons()
+{
+  return *m_mediaImportAddons;
 }
 
 #ifdef HAS_PYTHON

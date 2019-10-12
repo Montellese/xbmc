@@ -48,6 +48,7 @@
 #include "utils/XMLUtils.h"
 
 #include "addons/AddonManager.h" //! @todo Remove me
+#include "addons/MediaImporter.h" //! @todo Remove me
 #include "addons/Service.h" //! @todo Remove me
 #include "favourites/FavouritesService.h" //! @todo Remove me
 #include "guilib/StereoscopicsManager.h" //! @todo Remove me
@@ -257,6 +258,7 @@ void CProfileManager::Clear()
 void CProfileManager::PrepareLoadProfile(unsigned int profileIndex)
 {
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
+  ADDON::CMediaImportAddonManager& mediaImportAddons = CServiceBroker::GetMediaImportAddons();
   CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
   CDatabaseManager& databaseManager = CServiceBroker::GetDatabaseManager();
@@ -266,6 +268,7 @@ void CProfileManager::PrepareLoadProfile(unsigned int profileIndex)
   contextMenuManager.Deinit();
 
   // stop media import
+  mediaImportAddons.Stop();
   mediaImportManager.Uninitialize();
 
   serviceAddons.Stop();
@@ -380,6 +383,7 @@ void CProfileManager::FinalizeLoadProfile()
   CDatabaseManager& databaseManager = CServiceBroker::GetDatabaseManager();
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
+  ADDON::CMediaImportAddonManager& mediaImportAddons = CServiceBroker::GetMediaImportAddons();
   CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
   PVR::CPVRManager &pvrManager = CServiceBroker::GetPVRManager();
   CNetworkBase &networkManager = CServiceBroker::GetNetwork();
@@ -432,6 +436,7 @@ void CProfileManager::FinalizeLoadProfile()
 
     // start media import
     mediaImportManager.Initialize(&CServiceBroker::GetDatabaseManager());
+    mediaImportAddons.Start();
 
     g_application.UpdateLibraries();
   }

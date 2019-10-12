@@ -18,6 +18,7 @@
 #include "PlayListPlayer.h"
 #include "URL.h"
 #include "Util.h"
+#include "addons/MediaImporter.h"
 #include "addons/Skin.h"
 #include "addons/VFSEntry.h"
 #include "cores/AudioEngine/Engines/ActiveAE/ActiveAE.h"
@@ -901,6 +902,7 @@ bool CApplication::Initialize()
 
     // start media import
     CServiceBroker::GetMediaImportManager().Initialize(&databaseManager);
+    CServiceBroker::GetMediaImportAddons().Start();
   }
 
   CLog::Log(LOGINFO, "initialize done");
@@ -2697,6 +2699,7 @@ void CApplication::Stop(int exitCode)
     m_ExitCode = exitCode;
     CLog::Log(LOGINFO, "Stopping all");
 
+    CServiceBroker::GetMediaImportAddons().Stop();
     CServiceBroker::GetMediaImportManager().Uninitialize();
 
     // cancel any jobs from the jobmanager
@@ -2735,6 +2738,7 @@ void CApplication::Stop(int exitCode)
 #endif
 
     // stop media import
+    CServiceBroker::GetMediaImportAddons().Stop();
     CServiceBroker::GetMediaImportManager().Uninitialize();
 
     // Stop services before unloading Python
