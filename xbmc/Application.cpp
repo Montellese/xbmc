@@ -18,6 +18,7 @@
 #include "PlayListPlayer.h"
 #include "URL.h"
 #include "Util.h"
+#include "addons/MediaImporter.h"
 #include "addons/Skin.h"
 #include "addons/VFSEntry.h"
 #include "cores/AudioEngine/Engines/ActiveAE/ActiveAE.h"
@@ -2686,6 +2687,7 @@ void CApplication::Stop(int exitCode)
     m_ExitCode = exitCode;
     CLog::Log(LOGINFO, "Stopping all");
 
+    CServiceBroker::GetMediaImportAddons().Stop();
     CServiceBroker::GetMediaImportManager().Uninitialize();
 
     // cancel any jobs from the jobmanager
