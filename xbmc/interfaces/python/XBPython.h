@@ -16,8 +16,12 @@
 #include "threads/Thread.h"
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
+
+class CMediaImport;
+class CMediaImportSource;
 class CPythonInvoker;
 class CVariant;
 
@@ -36,6 +40,11 @@ namespace xbmc
 {
 class Monitor;
 }
+
+namespace xbmcmediaimport
+{
+class Observer;
+}
 } // namespace XBMCAddon
 
 template<class T>
@@ -46,6 +55,8 @@ struct LockableType : public T, public CCriticalSection
 
 typedef LockableType<std::vector<void*>> PlayerCallbackList;
 typedef LockableType<std::vector<XBMCAddon::xbmc::Monitor*>> MonitorCallbackList;
+typedef LockableType<std::unordered_map<std::string, XBMCAddon::xbmcmediaimport::Observer*>>
+    MediaImporterObserverCallbackList;
 typedef LockableType<std::vector<PyElem>> PyList;
 typedef std::vector<LibraryLoader*> PythonExtensionLibraries;
 
@@ -90,6 +101,19 @@ public:
                       const std::string& method,
                       const std::string& data);
 
+  void RegisterPythonMediaImporterObserverCallback(const std::string& importerId,
+                                                   XBMCAddon::xbmcmediaimport::Observer* observer);
+  void UnregisterPythonMediaImporterObserverCallback(
+      const std::string& importerId, XBMCAddon::xbmcmediaimport::Observer* observer);
+  void OnSourceAdded(const std::string& addonId, const CMediaImportSource& source);
+  void OnSourceUpdated(const std::string& addonId, const CMediaImportSource& source);
+  void OnSourceRemoved(const std::string& addonId, const CMediaImportSource& source);
+  void OnSourceActivated(const std::string& addonId, const CMediaImportSource& source);
+  void OnSourceDeactivated(const std::string& addonId, const CMediaImportSource& source);
+  void OnImportAdded(const std::string& addonId, const CMediaImport& import);
+  void OnImportUpdated(const std::string& addonId, const CMediaImport& import);
+  void OnImportRemoved(const std::string& addonId, const CMediaImport& import);
+
   void Process() override;
   void PulseGlobalEvent() override;
   void Uninitialize() override;
@@ -112,6 +136,7 @@ private:
   PyList m_vecPyList;
   PlayerCallbackList m_vecPlayerCallbackList;
   MonitorCallbackList m_vecMonitorCallbackList;
+  MediaImporterObserverCallbackList m_mapMediaImporterObserverCallbackList;
 
   // any global events that scripts should be using
   CEvent m_globalEvent;
