@@ -45,10 +45,12 @@ namespace XBMCAddon
     {
     private:
       CVideoInfoTag* infoTag;
+      bool owned;
 
     public:
 #ifndef SWIG
-      explicit InfoTagVideo(const CVideoInfoTag& tag);
+      explicit InfoTagVideo(const CVideoInfoTag* tag);
+      explicit InfoTagVideo(CVideoInfoTag* tag);
 #endif
       InfoTagVideo();
       ~InfoTagVideo() override;
