@@ -22537,3 +22537,53 @@ msgid "Manually"
 msgstr ""
 
 # empty strings from id 39537 to 39549 are reserved for media import settings
+
+#: xbmc/media/import/task/MediaImportImportItemsRetrievalTask.cpp
+#: xbmc/media/import/task/MediaImportLocalItemsRetrievalTask.cpp
+msgctxt "#39558"
+msgid "Retrieving media items from {provider}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39559"
+msgid "Processing media items from {provider}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportChangesetTask.cpp
+msgctxt "#39560"
+msgid "Processing {mediatype}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39561"
+msgid "Importing {mediatype} from {provider}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39562"
+msgid "Adding {mediaitem}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39563"
+msgid "Updating {mediaitem}..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#39564"
+msgid "Removing {mediaitem}..."
+msgstr ""
+
+#empty string id 39565
+
+#: xbmc/media/import/task/MediaImportRemovalTask.cpp
+msgctxt "#39566"
+msgid "Removing import of {mediatype} from {provider}..."
+msgstr ""
+
+# empty strings from id 39567 to 39568
+
+#: xbmc/media/import/task/MediaImportCleanupTask.cpp
+msgctxt "#39569"
+msgid "Cleaning up {mediatype} from {provider}..."
+msgstr ""
