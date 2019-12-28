@@ -166,12 +166,13 @@
 #include <cdio/logging.h>
 #endif
 
-#include "storage/MediaManager.h"
-#include "utils/SaveFileStateJob.h"
-#include "utils/AlarmClock.h"
-#include "utils/StringUtils.h"
 #include "DatabaseManager.h"
 #include "input/InputManager.h"
+#include "media/import/MediaImportManager.h"
+#include "storage/MediaManager.h"
+#include "utils/AlarmClock.h"
+#include "utils/SaveFileStateJob.h"
+#include "utils/StringUtils.h"
 
 #ifdef TARGET_POSIX
 #include "platform/posix/XHandle.h"
@@ -895,7 +896,12 @@ bool CApplication::Initialize()
 
   CServiceBroker::GetRepositoryUpdater().Start();
   if (!profileManager->UsingLoginScreen())
+  {
     CServiceBroker::GetServiceAddons().Start();
+
+    // start media import
+    CServiceBroker::GetMediaImportManager().Initialize(&databaseManager);
+  }
 
   CLog::Log(LOGINFO, "initialize done");
 
@@ -2696,6 +2702,8 @@ void CApplication::Stop(int exitCode)
     m_ExitCode = exitCode;
     CLog::Log(LOGINFO, "Stopping all");
 
+    CServiceBroker::GetMediaImportManager().Uninitialize();
+
     // cancel any jobs from the jobmanager
     CJobManager::GetInstance().CancelJobs();
 
@@ -2730,6 +2738,9 @@ void CApplication::Stop(int exitCode)
     if (XBMCHelper::GetInstance().IsAlwaysOn() == false)
       XBMCHelper::GetInstance().Stop();
 #endif
+
+    // stop media import
+    CServiceBroker::GetMediaImportManager().Uninitialize();
 
     // Stop services before unloading Python
     CServiceBroker::GetServiceAddons().Stop();
