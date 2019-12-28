@@ -52,6 +52,7 @@
 #include "favourites/FavouritesService.h" //! @todo Remove me
 #include "guilib/StereoscopicsManager.h" //! @todo Remove me
 #include "interfaces/json-rpc/JSONRPC.h" //! @todo Remove me
+#include "media/import/MediaImportManager.h" //! @todo Remove me
 #include "network/Network.h" //! @todo Remove me
 #include "network/NetworkServices.h" //! @todo Remove me
 #include "pvr/PVRManager.h" //! @todo Remove me
@@ -256,11 +257,15 @@ void CProfileManager::Clear()
 void CProfileManager::PrepareLoadProfile(unsigned int profileIndex)
 {
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
+  CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
   PVR::CPVRManager &pvrManager = CServiceBroker::GetPVRManager();
   CNetworkBase &networkManager = CServiceBroker::GetNetwork();
 
   contextMenuManager.Deinit();
+
+  // stop media import
+  mediaImportManager.Uninitialize();
 
   serviceAddons.Stop();
 
@@ -372,6 +377,7 @@ void CProfileManager::FinalizeLoadProfile()
 {
   CContextMenuManager &contextMenuManager = CServiceBroker::GetContextMenuManager();
   ADDON::CServiceAddonManager &serviceAddons = CServiceBroker::GetServiceAddons();
+  CMediaImportManager& mediaImportManager = CServiceBroker::GetMediaImportManager();
   PVR::CPVRManager &pvrManager = CServiceBroker::GetPVRManager();
   CNetworkBase &networkManager = CServiceBroker::GetNetwork();
   ADDON::CAddonMgr &addonManager = CServiceBroker::GetAddonMgr();
@@ -418,6 +424,10 @@ void CProfileManager::FinalizeLoadProfile()
   if (!m_profileLoadedForLogin || (m_profileLoadedForLogin && m_lastUsedProfile == 0))
   {
     serviceAddons.Start();
+
+    // start media import
+    mediaImportManager.Initialize(&CServiceBroker::GetDatabaseManager());
+
     g_application.UpdateLibraries();
   }
 
