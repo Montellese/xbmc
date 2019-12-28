@@ -166,12 +166,13 @@
 #include <cdio/logging.h>
 #endif
 
-#include "storage/MediaManager.h"
-#include "utils/SaveFileStateJob.h"
-#include "utils/AlarmClock.h"
-#include "utils/StringUtils.h"
 #include "DatabaseManager.h"
 #include "input/InputManager.h"
+#include "media/import/MediaImportManager.h"
+#include "storage/MediaManager.h"
+#include "utils/AlarmClock.h"
+#include "utils/SaveFileStateJob.h"
+#include "utils/StringUtils.h"
 
 #ifdef TARGET_POSIX
 #include "platform/posix/XHandle.h"
@@ -2688,6 +2689,8 @@ void CApplication::Stop(int exitCode)
     m_AppFocused = false;
     m_ExitCode = exitCode;
     CLog::Log(LOGINFO, "Stopping all");
+
+    CServiceBroker::GetMediaImportManager().Uninitialize();
 
     // cancel any jobs from the jobmanager
     CJobManager::GetInstance().CancelJobs();
