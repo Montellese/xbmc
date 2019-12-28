@@ -24,6 +24,7 @@
 #include "input/InputManager.h"
 #include "interfaces/generic/ScriptInvocationManager.h"
 #include "interfaces/python/XBPython.h"
+#include "media/import/MediaImportManager.h"
 #include "network/Network.h"
 #include "peripherals/Peripherals.h"
 #include "powermanagement/PowerManager.h"
@@ -139,6 +140,8 @@ bool CServiceManager::InitStageTwo(const CAppParamParser &params, const std::str
 
   m_fileExtensionProvider.reset(new CFileExtensionProvider(*m_addonMgr));
 
+  m_mediaImportManager.reset(new CMediaImportManager());
+
   m_powerManager.reset(new CPowerManager());
   m_powerManager->Initialize();
   m_powerManager->SetDefaults();
@@ -170,6 +173,8 @@ bool CServiceManager::InitStageThree(const std::shared_ptr<CProfileManager>& pro
     m_PVRManager->Init();
 
   m_playerCoreFactory.reset(new CPlayerCoreFactory(*profileManager));
+
+  m_mediaImportManager->Initialize();
 
   init_level = 3;
   return true;
@@ -224,6 +229,7 @@ void CServiceManager::DeinitStageOne()
   CScriptInvocationManager::GetInstance().UnregisterLanguageInvocationHandler(m_XBPython.get());
   m_XBPython.reset();
 #endif
+  m_mediaImportManager.reset();
 }
 
 ADDON::CAddonMgr &CServiceManager::GetAddonMgr()
@@ -286,6 +292,11 @@ CPlatform& CServiceManager::GetPlatform()
 PLAYLIST::CPlayListPlayer& CServiceManager::GetPlaylistPlayer()
 {
   return *m_playlistPlayer;
+}
+
+CMediaImportManager& CServiceManager::GetMediaImportManager()
+{
+  return *m_mediaImportManager;
 }
 
 GAME::CControllerManager& CServiceManager::GetGameControllerManager()
