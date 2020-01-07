@@ -1217,6 +1217,24 @@ namespace XBMCAddon
       xbmc::InfoTagMusic* getMusicInfoTag();
 #endif
 
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_xbmcgui_listitem
+      /// @brief \python_func{ getMediaProviderId() }
+      ///-----------------------------------------------------------------------
+      /// Returns the identifier of the media provider this item was imported from.
+      ///
+      /// @return    media provider identifer
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      /// @python_v19 New function added.
+      ///
+      getMediaProviderId();
+#else
+      String getMediaProviderId() const;
+#endif
+
 private:
       std::vector<std::string> getStringArray(const InfoLabelValue& alt, const std::string& tag, std::string value = "");
 

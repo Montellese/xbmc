@@ -881,5 +881,10 @@ namespace XBMCAddon
     {
       return item->GetVideoInfoTag();
     }
+
+    String ListItem::getMediaProviderId() const
+    {
+      return item->GetSource();
+    }
   }
 }
