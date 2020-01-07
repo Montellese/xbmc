@@ -927,6 +927,11 @@ namespace XBMCAddon
       return new xbmc::InfoTagGame();
     }
 
+    String ListItem::getMediaProviderId() const
+    {
+      return item->GetSource();
+    }
+
     std::vector<std::string> ListItem::getStringArray(const InfoLabelValue& alt,
                                                       const std::string& tag,
                                                       std::string value,
