@@ -70,6 +70,10 @@ public:
 
   // proxy calls
   void AddSubtitle(const std::string& strSubPath);
+  void AddSubtitle(const std::string& strSubPath,
+                   const std::string& name,
+                   const std::string& language,
+                   bool activate = true);
   bool CanPause();
   bool CanSeek();
   void DoAudioWork();
