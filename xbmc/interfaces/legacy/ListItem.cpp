@@ -352,6 +352,12 @@ namespace XBMCAddon
       setPathRaw(path);
     }
 
+    void ListItem::setDynamicPath(const String& path)
+    {
+      XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
+      item->SetDynPath(path);
+    }
+
     void ListItem::setMimeType(const String& mimetype)
     {
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
