@@ -7125,9 +7125,9 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
       return false;
 
     // Apply the limiting directly here if there's no special sorting but limiting
-    if (extFilter.limit.empty() &&
-      sorting.sortBy == SortByNone &&
-      (sorting.limitStart > 0 || sorting.limitEnd > 0))
+    if (extFilter.limit.empty() && sorting.sortBy == SortByNone &&
+        (sorting.limitStart > 0 || sorting.limitEnd > 0 ||
+         (sorting.limitStart == 0 && sorting.limitEnd == 0)))
     {
       total = (int)strtol(GetSingleValue(PrepareSQL(strSQL, "COUNT(1)") + strSQLExtra, m_pDS).c_str(), NULL, 10);
       strSQLExtra += DatabaseUtils::BuildLimitClause(sorting.limitEnd, sorting.limitStart);
@@ -7136,13 +7136,14 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
     strSQL = PrepareSQL(strSQL, !extFilter.fields.empty() ? extFilter.fields.c_str() : "*") + strSQLExtra;
 
     int iRowsFound = RunQuery(strSQL);
-    if (iRowsFound <= 0)
-      return iRowsFound == 0;
 
     // store the total value of items as a property
     if (total < iRowsFound)
       total = iRowsFound;
     items.SetProperty("total", total);
+
+    if (iRowsFound <= 0)
+      return iRowsFound == 0;
 
     // sanitize the video url by removing the trailing "-1/" if present
     if (appendFullShowPath)
@@ -7437,9 +7438,9 @@ bool CVideoDatabase::GetMoviesByWhere(const std::string& strBaseDir, const Filte
       return false;
 
     // Apply the limiting directly here if there's no special sorting but limiting
-    if (extFilter.limit.empty() &&
-        sorting.sortBy == SortByNone &&
-       (sorting.limitStart > 0 || sorting.limitEnd > 0))
+    if (extFilter.limit.empty() && sorting.sortBy == SortByNone &&
+        (sorting.limitStart > 0 || sorting.limitEnd > 0 ||
+         (sorting.limitStart == 0 && sorting.limitEnd == 0)))
     {
       total = (int)strtol(GetSingleValue(PrepareSQL(strSQL, "COUNT(1)") + strSQLExtra, m_pDS).c_str(), NULL, 10);
       strSQLExtra += DatabaseUtils::BuildLimitClause(sorting.limitEnd, sorting.limitStart);
@@ -7448,13 +7449,14 @@ bool CVideoDatabase::GetMoviesByWhere(const std::string& strBaseDir, const Filte
     strSQL = PrepareSQL(strSQL, !extFilter.fields.empty() ? extFilter.fields.c_str() : "*") + strSQLExtra;
 
     int iRowsFound = RunQuery(strSQL);
-    if (iRowsFound <= 0)
-      return iRowsFound == 0;
 
     // store the total value of items as a property
     if (total < iRowsFound)
       total = iRowsFound;
     items.SetProperty("total", total);
+
+    if (iRowsFound <= 0)
+      return iRowsFound == 0;
 
     DatabaseResults results;
     results.reserve(iRowsFound);
@@ -7548,9 +7550,9 @@ bool CVideoDatabase::GetTvShowsByWhere(const std::string& strBaseDir, const Filt
       return false;
 
     // Apply the limiting directly here if there's no special sorting but limiting
-    if (extFilter.limit.empty() &&
-        sorting.sortBy == SortByNone &&
-        (sorting.limitStart > 0 || sorting.limitEnd > 0))
+    if (extFilter.limit.empty() && sorting.sortBy == SortByNone &&
+        (sorting.limitStart > 0 || sorting.limitEnd > 0 ||
+         (sorting.limitStart == 0 && sorting.limitEnd == 0)))
     {
       total = (int)strtol(GetSingleValue(PrepareSQL(strSQL, "COUNT(1)") + strSQLExtra, m_pDS).c_str(), NULL, 10);
       strSQLExtra += DatabaseUtils::BuildLimitClause(sorting.limitEnd, sorting.limitStart);
@@ -7559,13 +7561,14 @@ bool CVideoDatabase::GetTvShowsByWhere(const std::string& strBaseDir, const Filt
     strSQL = PrepareSQL(strSQL, !extFilter.fields.empty() ? extFilter.fields.c_str() : "*") + strSQLExtra;
 
     int iRowsFound = RunQuery(strSQL);
-    if (iRowsFound <= 0)
-      return iRowsFound == 0;
 
     // store the total value of items as a property
     if (total < iRowsFound)
       total = iRowsFound;
     items.SetProperty("total", total);
+
+    if (iRowsFound <= 0)
+      return iRowsFound == 0;
 
     DatabaseResults results;
     results.reserve(iRowsFound);
@@ -7676,9 +7679,9 @@ bool CVideoDatabase::GetEpisodesByWhere(const std::string& strBaseDir, const Fil
       return false;
 
     // Apply the limiting directly here if there's no special sorting but limiting
-    if (extFilter.limit.empty() &&
-      sorting.sortBy == SortByNone &&
-      (sorting.limitStart > 0 || sorting.limitEnd > 0))
+    if (extFilter.limit.empty() && sorting.sortBy == SortByNone &&
+        (sorting.limitStart > 0 || sorting.limitEnd > 0 ||
+         (sorting.limitStart == 0 && sorting.limitEnd == 0)))
     {
       total = (int)strtol(GetSingleValue(PrepareSQL(strSQL, "COUNT(1)") + strSQLExtra, m_pDS).c_str(), NULL, 10);
       strSQLExtra += DatabaseUtils::BuildLimitClause(sorting.limitEnd, sorting.limitStart);
@@ -7687,13 +7690,14 @@ bool CVideoDatabase::GetEpisodesByWhere(const std::string& strBaseDir, const Fil
     strSQL = PrepareSQL(strSQL, !extFilter.fields.empty() ? extFilter.fields.c_str() : "*") + strSQLExtra;
 
     int iRowsFound = RunQuery(strSQL);
-    if (iRowsFound <= 0)
-      return iRowsFound == 0;
 
     // store the total value of items as a property
     if (total < iRowsFound)
       total = iRowsFound;
     items.SetProperty("total", total);
+
+    if (iRowsFound <= 0)
+      return iRowsFound == 0;
 
     DatabaseResults results;
     results.reserve(iRowsFound);
@@ -8587,9 +8591,9 @@ bool CVideoDatabase::GetMusicVideosByWhere(const std::string &baseDir, const Fil
       return false;
 
     // Apply the limiting directly here if there's no special sorting but limiting
-    if (extFilter.limit.empty() &&
-      sorting.sortBy == SortByNone &&
-      (sorting.limitStart > 0 || sorting.limitEnd > 0))
+    if (extFilter.limit.empty() && sorting.sortBy == SortByNone &&
+        (sorting.limitStart > 0 || sorting.limitEnd > 0 ||
+         (sorting.limitStart == 0 && sorting.limitEnd == 0)))
     {
       total = (int)strtol(GetSingleValue(PrepareSQL(strSQL, "COUNT(1)") + strSQLExtra, m_pDS).c_str(), NULL, 10);
       strSQLExtra += DatabaseUtils::BuildLimitClause(sorting.limitEnd, sorting.limitStart);
@@ -8598,13 +8602,14 @@ bool CVideoDatabase::GetMusicVideosByWhere(const std::string &baseDir, const Fil
     strSQL = PrepareSQL(strSQL, !extFilter.fields.empty() ? extFilter.fields.c_str() : "*") + strSQLExtra;
 
     int iRowsFound = RunQuery(strSQL);
-    if (iRowsFound <= 0)
-      return iRowsFound == 0;
 
     // store the total value of items as a property
     if (total < iRowsFound)
       total = iRowsFound;
     items.SetProperty("total", total);
+
+    if (iRowsFound <= 0)
+      return iRowsFound == 0;
 
     DatabaseResults results;
     results.reserve(iRowsFound);
