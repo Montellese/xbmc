@@ -399,7 +399,10 @@ void CGUIDialogSettingsBase::SetupControls(bool createSettings /* = true */)
   // get the section
   SettingSectionPtr section = GetSection();
   if (section == NULL)
+  {
+    SetHasVisibleSettings(false);
     return;
+  }
 
   // update the screen string
   if (section->GetLabel() >= 0)
@@ -524,6 +527,10 @@ std::string CGUIDialogSettingsBase::GetLocalizedString(uint32_t labelId) const
 
 void CGUIDialogSettingsBase::SetupView()
 {
+  // setup and hide the "no settings available" label
+  SetControlLabel(CONTROL_SETTINGS_EMPTY_LABEL, 10059);
+  SetHasVisibleSettings(false);
+
   SetupControls();
 }
 
@@ -531,21 +538,21 @@ std::set<std::string> CGUIDialogSettingsBase::CreateSettings()
 {
   FreeSettingsControls();
 
-  std::set<std::string> settingMap;
-
-  if (m_categories.size() <= 0)
-    return settingMap;
-
-  if (m_iCategory < 0 || m_iCategory >= (int)m_categories.size())
+  if (m_iCategory < 0 || m_iCategory >= static_cast<int>(m_categories.size()))
     m_iCategory = 0;
 
-  CGUIControlGroupList* group = dynamic_cast<CGUIControlGroupList*>(GetControl(SETTINGS_GROUP_ID));
-  if (group == NULL)
-    return settingMap;
+  std::set<std::string> settingMap;
 
-  SettingCategoryPtr category = m_categories.at(m_iCategory);
-  if (category == NULL)
+  SettingCategoryPtr category;
+  if (m_categories.size() > 0)
+    category = m_categories.at(m_iCategory);
+
+  CGUIControlGroupList* group = dynamic_cast<CGUIControlGroupList*>(GetControl(SETTINGS_GROUP_ID));
+  if (group == nullptr || category == nullptr)
+  {
+    SetHasVisibleSettings(false);
     return settingMap;
+  }
 
   // set the description of the current category
   SetDescription(category->GetHelp());
@@ -617,6 +624,7 @@ std::string CGUIDialogSettingsBase::GetSettingsLabel(const std::shared_ptr<ISett
 
 void CGUIDialogSettingsBase::UpdateSettings()
 {
+  bool atLeastOneSettingVisible = false;
   for (std::vector<BaseSettingControlPtr>::iterator it = m_settingControls.begin();
        it != m_settingControls.end(); ++it)
   {
@@ -627,7 +635,11 @@ void CGUIDialogSettingsBase::UpdateSettings()
       continue;
 
     pSettingControl->UpdateFromSetting();
+
+    atLeastOneSettingVisible |= pSettingControl->GetControl()->IsVisible();
   }
+
+  SetHasVisibleSettings(atLeastOneSettingVisible);
 }
 
 CGUIControl* CGUIDialogSettingsBase::AddSetting(const std::shared_ptr<CSetting>& pSetting,
@@ -949,4 +961,12 @@ BaseSettingControlPtr CGUIDialogSettingsBase::GetSettingControl(int controlId)
     return BaseSettingControlPtr();
 
   return m_settingControls[controlId - CONTROL_SETTINGS_START_CONTROL];
+}
+
+void CGUIDialogSettingsBase::SetHasVisibleSettings(bool hasVisibleSettings)
+{
+  if (hasVisibleSettings)
+    SET_CONTROL_HIDDEN(CONTROL_SETTINGS_EMPTY_LABEL);
+  else
+    SET_CONTROL_VISIBLE(CONTROL_SETTINGS_EMPTY_LABEL);
 }

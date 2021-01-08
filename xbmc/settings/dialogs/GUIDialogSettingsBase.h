@@ -18,6 +18,7 @@
 #include <vector>
 
 #define CONTROL_SETTINGS_LABEL 2
+#define CONTROL_SETTINGS_EMPTY_LABEL 4
 #define CONTROL_SETTINGS_DESCRIPTION 6
 
 #define CONTROL_SETTINGS_OKAY_BUTTON 28
@@ -159,6 +160,8 @@ protected:
   CGUIControl* AddGroupLabel(const std::shared_ptr<CSettingGroup>& group,
                              float width,
                              int& iControlID);
+
+  void SetHasVisibleSettings(bool hasVisibleSettings);
 
   std::vector<std::shared_ptr<CSettingCategory>> m_categories;
   std::vector<BaseSettingControlPtr> m_settingControls;
