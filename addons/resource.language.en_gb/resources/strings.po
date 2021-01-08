@@ -5039,7 +5039,12 @@ msgctxt "#10058"
 msgid "Remove tag from library"
 msgstr ""
 
-#empty strings from id 10059 to 10098
+#: xbmc/settings/dialogs/GUIDialogSettingsBase.cpp
+msgctxt "#10059"
+msgid "No settings available"
+msgstr ""
+
+#empty strings from id 10060 to 10098
 
 #: xbmc/guilib/WindowIDs.h
 msgctxt "#10099"
