@@ -524,6 +524,10 @@ std::string CGUIDialogSettingsBase::GetLocalizedString(uint32_t labelId) const
 
 void CGUIDialogSettingsBase::SetupView()
 {
+  // setup and hide the "no settings available" label
+  SetControlLabel(CONTROL_SETTINGS_EMPTY_LABEL, 10059);
+  SET_CONTROL_HIDDEN(CONTROL_SETTINGS_EMPTY_LABEL);
+
   SetupControls();
 }
 
@@ -617,6 +621,7 @@ std::string CGUIDialogSettingsBase::GetSettingsLabel(const std::shared_ptr<ISett
 
 void CGUIDialogSettingsBase::UpdateSettings()
 {
+  bool atLeastOneSettingVisible = false;
   for (std::vector<BaseSettingControlPtr>::iterator it = m_settingControls.begin();
        it != m_settingControls.end(); ++it)
   {
@@ -627,7 +632,14 @@ void CGUIDialogSettingsBase::UpdateSettings()
       continue;
 
     pSettingControl->UpdateFromSetting();
+
+    atLeastOneSettingVisible |= pSettingControl->GetControl()->IsVisible();
   }
+
+  if (atLeastOneSettingVisible)
+    SET_CONTROL_HIDDEN(CONTROL_SETTINGS_EMPTY_LABEL);
+  else
+    SET_CONTROL_VISIBLE(CONTROL_SETTINGS_EMPTY_LABEL);
 }
 
 CGUIControl* CGUIDialogSettingsBase::AddSetting(const std::shared_ptr<CSetting>& pSetting,
