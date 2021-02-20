@@ -523,6 +523,13 @@ public:
   bool GetFileInfo(const std::string& strFilenameAndPath, CVideoInfoTag& details, int idFile = -1);
 
   int GetPathId(const std::string& strPath);
+
+  /*! \brief Get the id of a file from path
+   \param url full path to the file
+   \return id of the file, -1 if it is not in the db.
+   */
+  int GetFileId(const std::string& url);
+
   int GetTvShowId(const std::string& strPath);
   int GetEpisodeId(const std::string& strFilenameAndPath, int idEpisode=-1, int idSeason=-1); // idEpisode, idSeason are used for multipart episodes as hints
   int GetSeasonId(int idShow, int season);
@@ -1052,12 +1059,6 @@ protected:
    \return id of the file, -1 if it is not in the db.
    */
   int GetFileId(const CFileItem &item);
-
-  /*! \brief Get the id of a file from path
-   \param url full path to the file
-   \return id of the file, -1 if it is not in the db.
-   */
-  int GetFileId(const std::string& url);
 
   /*! \brief Get the id of a source from its identifier
    \param sourceIdentifier identifier of the source
