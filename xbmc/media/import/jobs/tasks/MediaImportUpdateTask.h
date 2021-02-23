@@ -9,6 +9,7 @@
 #pragma once
 
 #include "FileItem.h"
+#include "media/import/IMediaImporterManager.h"
 #include "media/import/jobs/tasks/IMediaImportTask.h"
 
 #include <memory>

@@ -14,6 +14,9 @@
 #include "media/import/jobs/MediaImportTaskTypes.h"
 #include "utils/logtypes.h"
 
+#include <memory>
+#include <string>
+
 /*!
  * \brief Interface of a media importer capable of importing media items from
  * a specific source into the local library.
@@ -106,6 +109,8 @@ protected:
   CMediaImportTaskProcessorJob* m_processorJob;
   CGUIDialogProgressBarHandle* m_progress;
 };
+
+using MediaImportTaskPtr = std::shared_ptr<IMediaImportTask>;
 
 class IMediaImportTaskCallback
 {

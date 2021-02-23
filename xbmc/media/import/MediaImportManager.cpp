@@ -29,11 +29,14 @@
 #include "media/import/handlers/MusicVideoImportHandler.h"
 #include "media/import/handlers/SeasonImportHandler.h"
 #include "media/import/handlers/TvShowImportHandler.h"
+#include "media/import/jobs/MediaImportImportsRemovalJob.h"
+#include "media/import/jobs/MediaImportItemsSynchronizationJob.h"
 #include "media/import/jobs/MediaImportSourceActivationJob.h"
 #include "media/import/jobs/MediaImportSourceJobBase.h"
 #include "media/import/jobs/MediaImportSourceReadyJob.h"
 #include "media/import/jobs/MediaImportSourceRegistrationJob.h"
 #include "media/import/jobs/MediaImportTaskProcessorJob.h"
+#include "media/import/jobs/MediaImportUpdateItemOnSourceJob.h"
 #include "media/import/jobs/tasks/MediaImportChangesetTask.h"
 #include "media/import/jobs/tasks/MediaImportImportItemsRetrievalTask.h"
 #include "media/import/jobs/tasks/MediaImportLocalItemsRetrievalTask.h"
@@ -728,8 +731,8 @@ void CMediaImportManager::RemoveSource(const std::string& sourceID)
     }
   }
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::Remove(source, imports, this, this);
+  CMediaImportImportsRemovalJob* processorJob =
+      new CMediaImportImportsRemovalJob(source, imports, this, this);
   AddJob(source.GetIdentifier(), processorJob);
 
   m_logger->info("source removal task for {} started", source);
@@ -1068,8 +1071,8 @@ void CMediaImportManager::RemoveImport(const std::string& path, const GroupedMed
   if (!FindImport(path, mediaTypes, import))
     return;
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::Remove(import, this, this);
+  CMediaImportImportsRemovalJob* processorJob =
+      new CMediaImportImportsRemovalJob(import.GetSource(), {import}, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("import removal task for {} started", import);
@@ -1234,7 +1237,7 @@ void CMediaImportManager::Import(const CMediaImportSource& source, bool automati
   for (const auto& import : imports)
   {
     auto processorJob =
-        CMediaImportTaskProcessorJob::Import(import, automatically, this, this, this);
+        CMediaImportItemsSynchronizationJob::Import(import, automatically, this, this, this);
     if (processorJob == nullptr)
       continue;
 
@@ -1248,8 +1251,8 @@ void CMediaImportManager::Import(const CMediaImportSource& source, bool automati
 
 void CMediaImportManager::Import(const CMediaImport& import, bool automatically /* = false */)
 {
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::Import(import, automatically, this, this, this);
+  CMediaImportItemsSynchronizationJob* processorJob =
+      CMediaImportItemsSynchronizationJob::Import(import, automatically, this, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("import task for {} started", import);
@@ -1589,8 +1592,8 @@ bool CMediaImportManager::AddImportedItems(const CMediaImport& import, const CFi
   if (changedItems.empty())
     return false;
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::ChangeImportedItems(import, changedItems, this, this);
+  CMediaImportItemsSynchronizationJob* processorJob =
+      CMediaImportItemsSynchronizationJob::ChangeImportedItems(import, changedItems, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("add imported items task for {} started", import);
@@ -1626,8 +1629,8 @@ bool CMediaImportManager::UpdateImportedItems(const CMediaImport& import,
   if (changedItems.empty())
     return false;
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::ChangeImportedItems(import, changedItems, this, this);
+  CMediaImportItemsSynchronizationJob* processorJob =
+      CMediaImportItemsSynchronizationJob::ChangeImportedItems(import, changedItems, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("update imported items task for {} started", import);
@@ -1663,8 +1666,8 @@ bool CMediaImportManager::RemoveImportedItems(const CMediaImport& import,
   if (changedItems.empty())
     return false;
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::ChangeImportedItems(import, changedItems, this, this);
+  CMediaImportItemsSynchronizationJob* processorJob =
+      CMediaImportItemsSynchronizationJob::ChangeImportedItems(import, changedItems, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("remove imported items task from {} started", import);
@@ -1700,8 +1703,8 @@ bool CMediaImportManager::ChangeImportedItems(const CMediaImport& import,
   if (changedItems.empty())
     return false;
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::ChangeImportedItems(import, changedItems, this, this);
+  CMediaImportItemsSynchronizationJob* processorJob =
+      CMediaImportItemsSynchronizationJob::ChangeImportedItems(import, changedItems, this, this);
   AddJob(import.GetSource().GetIdentifier(), processorJob);
 
   m_logger->info("change imported items task for {} started", import);
@@ -1749,8 +1752,8 @@ bool CMediaImportManager::UpdateImportedItemOnSource(const CFileItem& item)
     return false;
   }
 
-  CMediaImportTaskProcessorJob* processorJob =
-      CMediaImportTaskProcessorJob::UpdateImportedItemOnSource(import, item, this, this);
+  CMediaImportUpdateItemOnSourceJob* processorJob =
+      new CMediaImportUpdateItemOnSourceJob(import, item, this, this);
   AddJob(sourceID, processorJob);
 
   m_logger->info("import update task for {} from {} started", item.GetPath(), import);
@@ -2021,8 +2024,8 @@ void CMediaImportManager::OnJobComplete(unsigned int jobID, bool success, CJob* 
   auto taskProcessorJob = dynamic_cast<CMediaImportTaskProcessorJob*>(job);
   if (taskProcessorJob != nullptr)
   {
-    sourceID = taskProcessorJob->GetPath();
-    RemoveJob(taskProcessorJob->GetPath(), taskProcessorJob);
+    sourceID = taskProcessorJob->GetSource().GetIdentifier();
+    RemoveJob(sourceID, taskProcessorJob);
   }
   else
   {
@@ -2080,14 +2083,11 @@ void CMediaImportManager::OnJobProgress(unsigned int jobID,
   if (job == nullptr)
     return;
 
-  if (strcmp(job->GetType(), "MediaImportTaskProcessorJob") == 0)
-  {
-    const CMediaImportTaskProcessorJob* processorJob =
-        static_cast<const CMediaImportTaskProcessorJob*>(job);
-    if (processorJob->GetCurrentTask() != nullptr &&
-        processorJob->GetCurrentTask()->GetProgressBarHandle() != nullptr)
-      processorJob->GetCurrentTask()->GetProgressBarHandle()->SetProgress(progress, total);
-  }
+  const CMediaImportTaskProcessorJob* processorJob =
+      dynamic_cast<const CMediaImportTaskProcessorJob*>(job);
+  if (processorJob != nullptr && processorJob->GetCurrentTask() != nullptr &&
+      processorJob->GetCurrentTask()->GetProgressBarHandle() != nullptr)
+    processorJob->GetCurrentTask()->GetProgressBarHandle()->SetProgress(progress, total);
 }
 
 void CMediaImportManager::OnTimeout()
