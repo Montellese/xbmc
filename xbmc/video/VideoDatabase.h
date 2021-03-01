@@ -1034,4 +1034,6 @@ private:
 
   static void AnnounceRemove(const std::string& content, int id, bool scanning = false);
   static void AnnounceUpdate(const std::string& content, int id);
+
+  static CDateTime GetDateAdded(const std::string& filename, CDateTime dateAdded = CDateTime());
 };
