@@ -1351,7 +1351,7 @@ int CVideoDatabase::GetMusicVideoId(const std::string& strFilenameAndPath)
 
 //********************************************************************************************************************************
 int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
-                             const CDateTime& dateAdded /* = CDateTime() */)
+                             const CVideoInfoTag& details)
 {
   try
   {
@@ -1363,10 +1363,10 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
     int idMovie = GetMovieId(strFilenameAndPath);
     if (idMovie < 0)
     {
-      int idFile = AddFile(strFilenameAndPath);
+      int idFile = AddFile(strFilenameAndPath, details);
       if (idFile < 0)
         return -1;
-      UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
+
       std::string strSQL=PrepareSQL("insert into movie (idMovie, idFile) values (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMovie = (int)m_pDS->lastinsertid();
@@ -1401,7 +1401,7 @@ int CVideoDatabase::AddTvShow()
 //********************************************************************************************************************************
 int CVideoDatabase::AddEpisode(int idShow,
                                const std::string& strFilenameAndPath,
-                               const CDateTime& dateAdded /* = CDatetime() */)
+                               const CVideoInfoTag& details)
 {
   try
   {
@@ -1410,10 +1410,9 @@ int CVideoDatabase::AddEpisode(int idShow,
     if (nullptr == m_pDS)
       return -1;
 
-    int idFile = AddFile(strFilenameAndPath);
+    int idFile = AddFile(strFilenameAndPath, details);
     if (idFile < 0)
       return -1;
-    UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
 
     std::string strSQL=PrepareSQL("insert into episode (idEpisode, idFile, idShow) values (NULL, %i, %i)", idFile, idShow);
     m_pDS->exec(strSQL);
@@ -1427,7 +1426,7 @@ int CVideoDatabase::AddEpisode(int idShow,
 }
 
 int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
-    const CDateTime& dateAdded /* = CDateTime() */)
+                                  const CVideoInfoTag& details)
 {
   try
   {
@@ -1439,10 +1438,10 @@ int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
     int idMVideo = GetMusicVideoId(strFilenameAndPath);
     if (idMVideo < 0)
     {
-      int idFile = AddFile(strFilenameAndPath);
+      int idFile = AddFile(strFilenameAndPath, details);
       if (idFile < 0)
         return -1;
-      UpdateFileDateAdded(idFile, strFilenameAndPath, dateAdded);
+
       std::string strSQL=PrepareSQL("insert into musicvideo (idMVideo, idFile) values (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMVideo = (int)m_pDS->lastinsertid();
@@ -2402,7 +2401,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
       // only add a new movie if we don't already have a valid idMovie
       // (DeleteMovie is called with bKeepId == true so the movie won't
       // be removed from the movie table)
-      idMovie = AddMovie(strFilenameAndPath, details.m_dateAdded);
+      idMovie = AddMovie(strFilenameAndPath, details);
       if (idMovie < 0)
       {
         RollbackTransaction();
@@ -2813,7 +2812,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
       // only add a new episode if we don't already have a valid idEpisode
       // (DeleteEpisode is called with bKeepId == true so the episode won't
       // be removed from the episode table)
-      idEpisode = AddEpisode(idShow, strFilenameAndPath, details.m_dateAdded);
+      idEpisode = AddEpisode(idShow, strFilenameAndPath, details);
       if (idEpisode < 0)
       {
         RollbackTransaction();
@@ -2928,7 +2927,7 @@ int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPat
       // only add a new musicvideo if we don't already have a valid idMVideo
       // (DeleteMusicVideo is called with bKeepId == true so the musicvideo won't
       // be removed from the musicvideo table)
-      idMVideo = AddMusicVideo(strFilenameAndPath, details.m_dateAdded);
+      idMVideo = AddMusicVideo(strFilenameAndPath, details);
       if (idMVideo < 0)
       {
         RollbackTransaction();
