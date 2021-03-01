@@ -906,6 +906,7 @@ bool CVideoDatabase::GetSourcePath(const std::string &path, std::string &sourceP
 //********************************************************************************************************************************
 int CVideoDatabase::AddFile(const std::string& strFileNameAndPath,
                             const std::string& parentPath /* = "" */,
+                            const CDateTime& dateAdded /* = CDateTime() */,
                             int playcount /* = 0 */,
                             const CDateTime& lastPlayed /* = CDateTime() */)
 {
@@ -918,10 +919,12 @@ int CVideoDatabase::AddFile(const std::string& strFileNameAndPath,
     if (nullptr == m_pDS)
       return -1;
 
+    const auto finalDateAdded = GetDateAdded(strFileNameAndPath, dateAdded);
+
     std::string strFileName, strPath;
     SplitPath(strFileNameAndPath,strPath,strFileName);
 
-    int idPath = AddPath(strPath, parentPath);
+    int idPath = AddPath(strPath, parentPath, finalDateAdded);
     if (idPath < 0)
       return -1;
 
@@ -936,13 +939,16 @@ int CVideoDatabase::AddFile(const std::string& strFileNameAndPath,
     }
     m_pDS->close();
 
+    std::string strPlaycount = "NULL";
+    if (playcount > 0)
+      strPlaycount = StringUtils::Format("%d", playcount);
     std::string strLastPlayed = "NULL";
     if (lastPlayed.IsValid())
       strLastPlayed = "'" + lastPlayed.GetAsDBDateTime() + "'";
 
-    strSQL = PrepareSQL("INSERT INTO files (idFile, idPath, strFileName, playCount, lastPlayed) "
-                        "VALUES(NULL, %i, '%s', %d, " + strLastPlayed + ")",
-                        idPath, strFileName.c_str(), playcount);
+    strSQL = PrepareSQL("INSERT INTO files (idFile, idPath, strFileName, playCount, lastPlayed, dateAdded) "
+                        "VALUES(NULL, %i, '%s', " + strPlaycount + ", " + strLastPlayed + ", '%s')",
+                        idPath, strFileName.c_str(), finalDateAdded.GetAsDBDateTime().c_str());
     m_pDS->exec(strSQL);
     idFile = (int)m_pDS->lastinsertid();
     return idFile;
@@ -958,12 +964,19 @@ int CVideoDatabase::AddFile(const CFileItem& item)
 {
   if (item.IsVideoDb() && item.HasVideoInfoTag())
   {
-    if (item.GetVideoInfoTag()->m_iFileId != -1)
-      return item.GetVideoInfoTag()->m_iFileId;
+    const auto videoInfoTag = item.GetVideoInfoTag();
+    if (videoInfoTag->m_iFileId != -1)
+      return videoInfoTag->m_iFileId;
     else
-      return AddFile(item.GetVideoInfoTag()->m_strFileNameAndPath);
+      return AddFile(videoInfoTag->GetPath(), *videoInfoTag);
   }
   return AddFile(item.GetPath());
+}
+
+int CVideoDatabase::AddFile(const std::string& url, const CVideoInfoTag& details)
+{
+  return AddFile(url, "", details.m_dateAdded,
+                 details.GetPlayCount(), details.m_lastPlayed);
 }
 
 void CVideoDatabase::UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPath, const CDateTime& dateAdded /* = CDateTime() */)
