@@ -36,6 +36,7 @@
 #include "media/import/jobs/MediaImportSourceReadyJob.h"
 #include "media/import/jobs/MediaImportSourceRegistrationJob.h"
 #include "media/import/jobs/MediaImportTaskProcessorJob.h"
+#include "media/import/jobs/MediaImportThreadedItemsSynchronizationJob.h"
 #include "media/import/jobs/MediaImportUpdateItemOnSourceJob.h"
 #include "media/import/jobs/tasks/MediaImportChangesetTask.h"
 #include "media/import/jobs/tasks/MediaImportImportItemsRetrievalTask.h"
@@ -1236,12 +1237,17 @@ void CMediaImportManager::Import(const CMediaImportSource& source, bool automati
   bool importStarted = false;
   for (const auto& import : imports)
   {
-    auto processorJob =
-        CMediaImportItemsSynchronizationJob::Import(import, automatically, this, this, this);
-    if (processorJob == nullptr)
+    if (automatically && !SupportsAutomaticImport(import))
+    {
+      m_logger->debug("automatic import of items from {} is disabled", import);
+      continue;
+    }
+
+    auto job = new CMediaImportThreadedItemsSynchronizationJob(import, this, this, this);
+    if (job == nullptr)
       continue;
 
-    AddJob(source.GetIdentifier(), processorJob);
+    AddJob(source.GetIdentifier(), job);
     importStarted = true;
   }
 
@@ -1251,9 +1257,14 @@ void CMediaImportManager::Import(const CMediaImportSource& source, bool automati
 
 void CMediaImportManager::Import(const CMediaImport& import, bool automatically /* = false */)
 {
-  CMediaImportItemsSynchronizationJob* processorJob =
-      CMediaImportItemsSynchronizationJob::Import(import, automatically, this, this, this);
-  AddJob(import.GetSource().GetIdentifier(), processorJob);
+  if (automatically && !SupportsAutomaticImport(import))
+  {
+    m_logger->debug("automatic import of items from {} is disabled", import);
+    return;
+  }
+
+  auto job = new CMediaImportThreadedItemsSynchronizationJob(import, this, this, this);
+  AddJob(import.GetSource().GetIdentifier(), job);
 
   m_logger->info("import task for {} started", import);
 }
@@ -2085,9 +2096,14 @@ void CMediaImportManager::OnJobProgress(unsigned int jobID,
 
   const CMediaImportTaskProcessorJob* processorJob =
       dynamic_cast<const CMediaImportTaskProcessorJob*>(job);
-  if (processorJob != nullptr && processorJob->GetCurrentTask() != nullptr &&
-      processorJob->GetCurrentTask()->GetProgressBarHandle() != nullptr)
-    processorJob->GetCurrentTask()->GetProgressBarHandle()->SetProgress(progress, total);
+  if (processorJob != nullptr)
+  {
+    auto progressBarHandle = processorJob->GetProgressBarHandle();
+    if (progressBarHandle != nullptr)
+      progressBarHandle->SetProgress(progress, total);
+    else
+      return; // TODO(Montellese)
+  }
 }
 
 void CMediaImportManager::OnTimeout()
@@ -2119,7 +2135,7 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask* t
   }
   else if (taskType == MediaImportTaskType::Synchronisation)
   {
-    const auto* synchronisationTask = dynamic_cast<const CMediaImportSynchronisationTask*>(task);
+    const auto* synchronisationTask = dynamic_cast<const CMediaImportSynchronisationTaskBase*>(task);
     if (synchronisationTask == nullptr)
       return false;
 
@@ -2131,8 +2147,13 @@ bool CMediaImportManager::OnTaskComplete(bool success, const IMediaImportTask* t
       return false;
     }
 
+    const auto* asyncSynchronizationTask =
+        dynamic_cast<const CMediaImportSynchronisationAsyncTask*>(synchronisationTask);
+
     // early return here if this is not the last media type to be synchronised to avoid multiple updates
-    if (synchronisationTask->GetMediaType() != import.GetMediaTypes().back())
+    // for async synchronization tasks we only receive one callback
+    if (asyncSynchronizationTask == nullptr &&
+        synchronisationTask->GetMediaType() != import.GetMediaTypes().back())
       return true;
 
     bool updated = false;
@@ -2298,4 +2319,11 @@ void CMediaImportManager::SendImportMessage(const CMediaImport& import, int mess
 
   CGUIMessage msg(GUI_MSG_NOTIFY_ALL, 0, 0, message, 0, importItem);
   CServiceBroker::GetGUI()->GetWindowManager().SendThreadMessage(msg);
+}
+
+bool CMediaImportManager::SupportsAutomaticImport(const CMediaImport& import)
+{
+  CMediaImport tmpImport = import;
+  return tmpImport.Settings()->Load() &&
+    tmpImport.Settings()->GetImportTrigger() == MediaImportTrigger::Auto;
 }

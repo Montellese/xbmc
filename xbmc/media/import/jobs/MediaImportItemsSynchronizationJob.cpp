@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2013-2019 Team Kodi
+ *  Copyright (C) 2021 Team Kodi
  *  This file is part of Kodi - https://kodi.tv
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
@@ -30,7 +30,8 @@ CMediaImportItemsSynchronizationJob::CMediaImportItemsSynchronizationJob(
     bool hasProgress)
   : CMediaImportTaskProcessorJob(source, callback, hasProgress),
     m_importerManager(importerManager),
-    m_importHandlerManager(importHandlerManager)
+    m_importHandlerManager(importHandlerManager),
+    m_partialChangeset(false)
 {
 }
 
@@ -303,21 +304,21 @@ void CMediaImportItemsSynchronizationJob::ProcessChangesetTasks()
 void CMediaImportItemsSynchronizationJob::ProcessSynchronisationTasks()
 {
   // go through all media types in the proper order and perform the synchronisation
-  for (auto&& mediaTypeData = m_mediaTypeData.begin(); mediaTypeData != m_mediaTypeData.end();
-       ++mediaTypeData)
+  for (auto& mediaTypeData : m_mediaTypeData)
   {
     const CMediaImport& import = m_import;
     auto synchronisationTask = std::make_shared<CMediaImportSynchronisationTask>(
-        import, MediaImportHandlerPtr(mediaTypeData->m_importHandler->Create()),
-        mediaTypeData->m_importedItems);
+        import,
+        MediaImportHandlerPtr(mediaTypeData.m_importHandler->Create()),
+        mediaTypeData.m_importedItems);
 
     // if processing the task failed remove the import (no cleanup needed)
     GetLogger()->info("starting import synchronisation task for {} items from {}...",
-                      mediaTypeData->m_mediaType, import);
+                      mediaTypeData.m_mediaType, import);
     if (!CMediaImportTaskProcessorJob::ProcessTask(synchronisationTask))
     {
-      GetLogger()->warn("import changeset task for {} items from {} failed",
-                        mediaTypeData->m_mediaType, import);
+      GetLogger()->warn("import synchronization task for {} items from {} failed",
+                        mediaTypeData.m_mediaType, import);
       // don't remove the import even though it failed because we should run the cleanup
     }
   }
@@ -342,14 +343,6 @@ void CMediaImportItemsSynchronizationJob::ProcessCleanupTasks()
                         mediaTypeData->m_mediaType, import);
     }
   }
-}
-
-bool CMediaImportItemsSynchronizationJob::OnTaskComplete(bool success, const IMediaImportTask* task)
-{
-  if (m_callback == nullptr)
-    return true;
-
-  return m_callback->OnTaskComplete(success, task);
 }
 
 bool CMediaImportItemsSynchronizationJob::SetImport(

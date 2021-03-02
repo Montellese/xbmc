@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2013-2019 Team Kodi
+ *  Copyright (C) 2021 Team Kodi
  *  This file is part of Kodi - https://kodi.tv
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
@@ -58,7 +58,6 @@ protected:
   void ProcessChangesetTasks();
   void ProcessSynchronisationTasks();
   void ProcessCleanupTasks();
-  bool OnTaskComplete(bool success, const IMediaImportTask* task);
 
   bool SetImport(const CMediaImport& import, std::vector<MediaImportTaskType> tasksToBeProcessed);
 

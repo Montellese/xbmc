@@ -131,6 +131,22 @@ public:
   virtual bool FinishSynchronisation(const CMediaImport& import) = 0;
 
   /*!
+   * \brief Starts synchronizing a batch of items
+   *
+   * \param import Place from where the given items were imported
+   * \return True if the preparations were successful, false otherwise
+   */
+  virtual bool StartSynchronisationBatch(const CMediaImport& import) = 0;
+
+  /*!
+   * \brief Finishes synchronizing a batch of items
+   *
+   * \param import Place from where the given items were imported
+   * \return True if the finalizations were successful, false otherwise
+   */
+  virtual bool FinishSynchronisationBatch(const CMediaImport& import) = 0;
+
+  /*!
    * \brief Adds the given item from the given import to the library
    *
    * \param import Place from where the given items were imported

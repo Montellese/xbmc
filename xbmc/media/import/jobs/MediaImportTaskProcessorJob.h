@@ -28,10 +28,17 @@ public:
 
   std::shared_ptr<const IMediaImportTask> GetCurrentTask() const { return m_task; }
 
+  /*
+   * \brief Prepares a progress indicator with the given title set.
+   *
+   * \param title Title to be set in the progress indicator.
+   */
+  CGUIDialogProgressBarHandle* PrepareProgressBarHandle(const std::string& title);
+
   /*!
    * \brief Get the progress bar handle instance used by the import task
    */
-  CGUIDialogProgressBarHandle* GetProgressBarHandle(const std::string& title = "");
+  CGUIDialogProgressBarHandle* GetProgressBarHandle() const { return m_progress; }
 
   // implementation of CJob
   bool DoWork() override;

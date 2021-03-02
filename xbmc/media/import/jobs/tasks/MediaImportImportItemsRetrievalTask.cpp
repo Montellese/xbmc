@@ -11,6 +11,7 @@
 #include "guilib/LocalizeStrings.h"
 #include "media/import/IMediaImporter.h"
 #include "media/import/MediaImportManager.h"
+#include "threads/SingleLock.h"
 #include "utils/StringUtils.h"
 #include "utils/log.h"
 
@@ -19,12 +20,15 @@
 using namespace fmt::literals;
 
 CMediaImportImportItemsRetrievalTask::CMediaImportImportItemsRetrievalTask(
-    const CMediaImport& import, const IMediaImporterManager* importerManager)
+    const CMediaImport& import,
+    const IMediaImporterManager* importerManager,
+    IMediaImportItemsRetrievalObserver* observer /* = nullptr */)
   : IMediaImportTask("CMediaImportImportItemsRetrievalTask", import),
     m_importerManager(importerManager),
     m_importer(),
     m_retrievedItems(),
-    m_isChangeset(false)
+    m_isChangeset(false),
+    m_itemsRetrievalObserver(observer)
 {
   // pre-fill the item maps with all media types to be retrieved
   for (const auto& mediaType : import.GetMediaTypes())
@@ -79,16 +83,39 @@ void CMediaImportImportItemsRetrievalTask::SetLocalItems(const std::vector<CFile
   localItems->second = items;
 }
 
+ChangesetItems CMediaImportImportItemsRetrievalTask::GetRetrievedItems(
+    const MediaType& mediaType) const
+{
+  CSingleLock lock(m_critical);
+
+  auto retrievedItems = m_retrievedItems.find(mediaType);
+  if (retrievedItems == m_retrievedItems.end())
+    return {};
+
+  return retrievedItems->second;
+}
+
+ChangesetItems CMediaImportImportItemsRetrievalTask::GetAndClearRetrievedItems(
+    const MediaType& mediaType)
+{
+  CSingleLock lock(m_critical);
+
+  auto retrievedItems = m_retrievedItems.find(mediaType);
+  if (retrievedItems == m_retrievedItems.end())
+    return {};
+
+  const auto items = retrievedItems->second;
+  retrievedItems->second.clear();
+
+  return items;
+}
+
 void CMediaImportImportItemsRetrievalTask::AddItem(
     const CFileItemPtr& item,
     const MediaType& mediaType,
     MediaImportChangesetType changesetType /* = MediaImportChangesetTypeNone */)
 {
-  auto retrievedItems = m_retrievedItems.find(mediaType);
-  if (retrievedItems == m_retrievedItems.end())
-    return;
-
-  retrievedItems->second.push_back(std::make_pair(changesetType, item));
+  AddItems({ item }, mediaType, changesetType);
 }
 
 void CMediaImportImportItemsRetrievalTask::AddItems(
@@ -96,16 +123,38 @@ void CMediaImportImportItemsRetrievalTask::AddItems(
     const MediaType& mediaType,
     MediaImportChangesetType changesetType /* = MediaImportChangesetTypeNone */)
 {
-  for (const auto& item : items)
-    AddItem(item, mediaType, changesetType);
+  {
+    CSingleLock lock(m_critical);
+
+    auto retrievedItems = m_retrievedItems.find(mediaType);
+    if (retrievedItems == m_retrievedItems.end())
+      return;
+
+    for (const auto& item : items)
+      retrievedItems->second.push_back(std::make_pair(changesetType, item));
+  }
+
+  NotifyItemsRetrievedObserver(mediaType);
 }
 
 void CMediaImportImportItemsRetrievalTask::SetItems(const ChangesetItems& items,
                                                     const MediaType& mediaType)
 {
-  auto retrievedItems = m_retrievedItems.find(mediaType);
-  if (retrievedItems == m_retrievedItems.end())
-    return;
+  {
+    CSingleLock lock(m_critical);
 
-  retrievedItems->second = items;
+    auto retrievedItems = m_retrievedItems.find(mediaType);
+    if (retrievedItems == m_retrievedItems.end())
+      return;
+
+    retrievedItems->second = items;
+  }
+
+  NotifyItemsRetrievedObserver(mediaType);
+}
+
+void CMediaImportImportItemsRetrievalTask::NotifyItemsRetrievedObserver(const MediaType& mediaType)
+{
+  if (m_itemsRetrievalObserver != nullptr)
+    m_itemsRetrievalObserver->ItemsRetrieved(mediaType);
 }

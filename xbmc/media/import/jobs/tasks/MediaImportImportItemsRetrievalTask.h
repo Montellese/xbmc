@@ -13,15 +13,25 @@
 #include "media/import/IMediaImporterManager.h"
 #include "media/import/MediaImportChangesetTypes.h"
 #include "media/import/jobs/tasks/IMediaImportTask.h"
+#include "threads/CriticalSection.h"
 
 #include <map>
 #include <memory>
+
+class IMediaImportItemsRetrievalObserver
+{
+public:
+  virtual ~IMediaImportItemsRetrievalObserver() = default;
+
+  virtual void ItemsRetrieved(const MediaType& mediaType) = 0;
+};
 
 class CMediaImportImportItemsRetrievalTask : public IMediaImportTask
 {
 public:
   CMediaImportImportItemsRetrievalTask(const CMediaImport& import,
-                                       const IMediaImporterManager* importerManager);
+                                       const IMediaImporterManager* importerManager,
+                                       IMediaImportItemsRetrievalObserver* observer = nullptr);
   virtual ~CMediaImportImportItemsRetrievalTask() = default;
 
   /*!
@@ -56,10 +66,15 @@ public:
    * \param mediaType media type of the imported items
    * \return list of imported items
    */
-  const ChangesetItems& GetRetrievedItems(const MediaType& mediaType) const
-  {
-    return m_retrievedItems.find(mediaType)->second;
-  }
+  ChangesetItems GetRetrievedItems(const MediaType& mediaType) const;
+
+  /*!
+   * \brief Get a list of imported items and clear them
+   *
+   * \param mediaType media type of the imported items
+   * \return list of imported items
+   */
+  ChangesetItems GetAndClearRetrievedItems(const MediaType& mediaType);
 
   /*!
    * \brief Whether the retrieved items are already a changeset or not
@@ -81,7 +96,7 @@ public:
   * \brief Add a list of imported items of a specific changeset type
   *
   * \param items imported items
-   * \param mediaType media type of the items
+  * \param mediaType media type of the items
   * \param changesetType changeset type of the imported items
   */
   void AddItems(const std::vector<CFileItemPtr>& items,
@@ -106,9 +121,15 @@ public:
   bool DoWork() override;
 
 protected:
+  void NotifyItemsRetrievedObserver(const MediaType& mediaType);
+
   const IMediaImporterManager* m_importerManager;
   std::shared_ptr<IMediaImporter> m_importer;
   std::map<MediaType, std::vector<CFileItemPtr>> m_localItems;
   std::map<MediaType, ChangesetItems> m_retrievedItems;
   bool m_isChangeset;
+
+  IMediaImportItemsRetrievalObserver* m_itemsRetrievalObserver;
+
+  mutable CCriticalSection m_critical;
 };

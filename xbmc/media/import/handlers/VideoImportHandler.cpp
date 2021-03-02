@@ -139,8 +139,6 @@ bool CVideoImportHandler::StartSynchronisation(const CMediaImport& import)
   if (!m_db.Open())
     return false;
 
-  m_db.BeginTransaction();
-
   CServiceBroker::GetAnnouncementManager()->Announce(ANNOUNCEMENT::VideoLibrary, "OnScanStarted");
   return true;
 }
@@ -153,12 +151,31 @@ bool CVideoImportHandler::FinishSynchronisation(const CMediaImport& import)
   // now make sure the items are enabled
   SetImportedItemsEnabled(import, true);
 
-  m_db.CommitTransaction();
   m_db.Close();
 
   m_sourceIds.clear();
 
   CServiceBroker::GetAnnouncementManager()->Announce(ANNOUNCEMENT::VideoLibrary, "OnScanFinished");
+
+  return true;
+}
+
+bool CVideoImportHandler::StartSynchronisationBatch(const CMediaImport& import)
+{
+  if (!m_db.IsOpen())
+    return false;
+
+  m_db.BeginTransaction();
+
+  return true;
+}
+
+bool CVideoImportHandler::FinishSynchronisationBatch(const CMediaImport& import)
+{
+  if (!m_db.IsOpen())
+    return false;
+
+  m_db.CommitTransaction();
 
   return true;
 }
