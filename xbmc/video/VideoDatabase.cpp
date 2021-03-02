@@ -1100,15 +1100,15 @@ int CVideoDatabase::AddFile(const CFileItem& item)
     if (videoInfoTag->m_iFileId != -1)
       return videoInfoTag->m_iFileId;
     else
-      return AddFile(videoInfoTag->GetPath(), *videoInfoTag);
+      return AddFile(*videoInfoTag);
   }
   return AddFile(item.GetPath());
 }
 
-int CVideoDatabase::AddFile(const std::string& url, const CVideoInfoTag& details)
+int CVideoDatabase::AddFile(const CVideoInfoTag& details, const std::string& parentPath /* = "" */)
 {
-  return AddFile(url, "", details.m_dateAdded,
-                 details.GetPlayCount(), details.m_lastPlayed);
+  return AddFile(details.GetPath(), parentPath, details.m_dateAdded, details.GetPlayCount(),
+                 details.m_lastPlayed);
 }
 
 void CVideoDatabase::UpdateFileDateAdded(int idFile, const std::string& strFileNameAndPath, const CDateTime& dateAdded /* = CDateTime() */)
@@ -1560,9 +1560,10 @@ int CVideoDatabase::GetMusicVideoId(const std::string& strFilenameAndPath)
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
-                             const CVideoInfoTag& details)
+int CVideoDatabase::AddMovie(const CVideoInfoTag& details)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     if (nullptr == m_pDB)
@@ -1570,14 +1571,15 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
     if (nullptr == m_pDS)
       return -1;
 
-    int idMovie = GetMovieId(strFilenameAndPath);
+    int idMovie = GetMovieId(filePath);
     if (idMovie < 0)
     {
-      int idFile = AddFile(strFilenameAndPath, details);
+      int idFile = AddFile(details);
       if (idFile < 0)
         return -1;
 
-      std::string strSQL=PrepareSQL("insert into movie (idMovie, idFile) values (NULL, %i)", idFile);
+      std::string strSQL =
+          PrepareSQL("INSERT INTO movie (idMovie, idFile) VALUES (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMovie = (int)m_pDS->lastinsertid();
     }
@@ -1586,7 +1588,7 @@ int CVideoDatabase::AddMovie(const std::string& strFilenameAndPath,
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   return -1;
 }
@@ -1643,10 +1645,10 @@ int CVideoDatabase::AddTvShow()
 }
 
 //********************************************************************************************************************************
-int CVideoDatabase::AddEpisode(int idShow,
-                               const std::string& strFilenameAndPath,
-                               const CVideoInfoTag& details)
+int CVideoDatabase::AddEpisode(int idShow, const CVideoInfoTag& details)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     if (nullptr == m_pDB)
@@ -1654,24 +1656,26 @@ int CVideoDatabase::AddEpisode(int idShow,
     if (nullptr == m_pDS)
       return -1;
 
-    int idFile = AddFile(strFilenameAndPath, details);
+    int idFile = AddFile(details);
     if (idFile < 0)
       return -1;
 
-    std::string strSQL=PrepareSQL("insert into episode (idEpisode, idFile, idShow) values (NULL, %i, %i)", idFile, idShow);
+    std::string strSQL = PrepareSQL(
+        "INSERT INTO episode (idEpisode, idFile, idShow) VALUES (NULL, %i, %i)", idFile, idShow);
     m_pDS->exec(strSQL);
     return (int)m_pDS->lastinsertid();
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   return -1;
 }
 
-int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
-                                  const CVideoInfoTag& details)
+int CVideoDatabase::AddMusicVideo(const CVideoInfoTag& details)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     if (nullptr == m_pDB)
@@ -1679,14 +1683,15 @@ int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
     if (nullptr == m_pDS)
       return -1;
 
-    int idMVideo = GetMusicVideoId(strFilenameAndPath);
+    int idMVideo = GetMusicVideoId(filePath);
     if (idMVideo < 0)
     {
-      int idFile = AddFile(strFilenameAndPath, details);
+      int idFile = AddFile(details);
       if (idFile < 0)
         return -1;
 
-      std::string strSQL=PrepareSQL("insert into musicvideo (idMVideo, idFile) values (NULL, %i)", idFile);
+      std::string strSQL =
+          PrepareSQL("INSERT INTO musicvideo (idMVideo, idFile) VALUES (NULL, %i)", idFile);
       m_pDS->exec(strSQL);
       idMVideo = (int)m_pDS->lastinsertid();
     }
@@ -1695,7 +1700,7 @@ int CVideoDatabase::AddMusicVideo(const std::string& strFilenameAndPath,
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   return -1;
 }
@@ -2624,7 +2629,7 @@ int CVideoDatabase::SetDetailsForItem(int id, const MediaType& mediaType, CVideo
     return -1;
 
   if (mediaType == MediaTypeMovie)
-    return SetDetailsForMovie(details.GetPath(), details, artwork, id);
+    return SetDetailsForMovie(details, artwork, id);
   else if (mediaType == MediaTypeVideoCollection)
     return SetDetailsForMovieSet(details, artwork, id);
   else if (mediaType == MediaTypeTvShow)
@@ -2638,22 +2643,25 @@ int CVideoDatabase::SetDetailsForItem(int id, const MediaType& mediaType, CVideo
   else if (mediaType == MediaTypeSeason)
     return SetDetailsForSeason(details, artwork, details.m_iIdShow, id);
   else if (mediaType == MediaTypeEpisode)
-    return SetDetailsForEpisode(details.GetPath(), details, artwork, details.m_iIdShow, id);
+    return SetDetailsForEpisode(details, artwork, details.m_iIdShow, id);
   else if (mediaType == MediaTypeMusicVideo)
-    return SetDetailsForMusicVideo(details.GetPath(), details, artwork, id);
+    return SetDetailsForMusicVideo(details, artwork, id);
 
   return -1;
 }
 
-int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CVideoInfoTag& details,
-    const std::map<std::string, std::string> &artwork, int idMovie /* = -1 */)
+int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
+                                       const std::map<std::string, std::string>& artwork,
+                                       int idMovie /* = -1 */)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     BeginTransaction();
 
     if (idMovie < 0)
-      idMovie = GetMovieId(strFilenameAndPath);
+      idMovie = GetMovieId(filePath);
 
     if (idMovie > -1)
       DeleteMovie(idMovie, true); // true to keep the table entry
@@ -2662,7 +2670,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
       // only add a new movie if we don't already have a valid idMovie
       // (DeleteMovie is called with bKeepId == true so the movie won't
       // be removed from the movie table)
-      idMovie = AddMovie(strFilenameAndPath, details);
+      idMovie = AddMovie(details);
       if (idMovie < 0)
       {
         RollbackTransaction();
@@ -2701,7 +2709,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
     }
 
     if (details.HasStreamDetails())
-      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(strFilenameAndPath));
+      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(filePath));
 
     SetArtForItem(idMovie, MediaTypeMovie, artwork);
 
@@ -2724,7 +2732,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
         CDateTime lastPlayed;
         lastPlayed.SetFromDBDateTime(m_pDS->fv("files.lastPlayed").get_asString());
 
-        int idFile = GetFileId(strFilenameAndPath);
+        int idFile = GetFileId(filePath);
 
         // update with playCount and lastPlayed
         strSQL = PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount, lastPlayed.GetAsDBDateTime().c_str(), idFile);
@@ -2756,7 +2764,7 @@ int CVideoDatabase::SetDetailsForMovie(const std::string& strFilenameAndPath, CV
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   RollbackTransaction();
   return -1;
@@ -3057,14 +3065,18 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
   return -1;
 }
 
-int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, CVideoInfoTag& details,
-    const std::map<std::string, std::string> &artwork, int idShow, int idEpisode)
+int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
+                                         const std::map<std::string, std::string>& artwork,
+                                         int idShow,
+                                         int idEpisode /* = -1 */)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     BeginTransaction();
     if (idEpisode < 0)
-      idEpisode = GetEpisodeId(strFilenameAndPath);
+      idEpisode = GetEpisodeId(filePath);
 
     if (idEpisode > 0)
       DeleteEpisode(idEpisode, true); // true to keep the table entry
@@ -3073,7 +3085,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
       // only add a new episode if we don't already have a valid idEpisode
       // (DeleteEpisode is called with bKeepId == true so the episode won't
       // be removed from the episode table)
-      idEpisode = AddEpisode(idShow, strFilenameAndPath, details);
+      idEpisode = AddEpisode(idShow, details);
       if (idEpisode < 0)
       {
         RollbackTransaction();
@@ -3096,7 +3108,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
       if (details.m_iFileId != -1)
         SetStreamDetailsForFileId(details.m_streamDetails, details.m_iFileId);
       else
-        SetStreamDetailsForFile(details.m_streamDetails, strFilenameAndPath);
+        SetStreamDetailsForFile(details.m_streamDetails, filePath);
     }
 
     // ensure we have this season already added
@@ -3121,7 +3133,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
         CDateTime lastPlayed;
         lastPlayed.SetFromDBDateTime(m_pDS->fv("files.lastPlayed").get_asString());
 
-        int idFile = GetFileId(strFilenameAndPath);
+        int idFile = GetFileId(filePath);
 
         // update with playCount and lastPlayed
         strSQL = PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount, lastPlayed.GetAsDBDateTime().c_str(), idFile);
@@ -3145,7 +3157,7 @@ int CVideoDatabase::SetDetailsForEpisode(const std::string& strFilenameAndPath, 
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   RollbackTransaction();
   return -1;
@@ -3171,17 +3183,18 @@ int CVideoDatabase::AddSeason(int showID, int season, const std::string& name /*
   return seasonId;
 }
 
-int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPath,
-                                            CVideoInfoTag& details,
+int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
                                             const std::map<std::string, std::string>& artwork,
                                             int idMVideo /* = -1 */)
 {
+  const auto filePath = details.GetPath();
+
   try
   {
     BeginTransaction();
 
     if (idMVideo < 0)
-      idMVideo = GetMusicVideoId(strFilenameAndPath);
+      idMVideo = GetMusicVideoId(filePath);
 
     if (idMVideo > -1)
       DeleteMusicVideo(idMVideo, true); // Keep id
@@ -3190,7 +3203,7 @@ int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPat
       // only add a new musicvideo if we don't already have a valid idMVideo
       // (DeleteMusicVideo is called with bKeepId == true so the musicvideo won't
       // be removed from the musicvideo table)
-      idMVideo = AddMusicVideo(strFilenameAndPath, details);
+      idMVideo = AddMusicVideo(details);
       if (idMVideo < 0)
       {
         RollbackTransaction();
@@ -3209,7 +3222,7 @@ int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPat
     details.m_iIdUniqueID = UpdateUniqueIDs(idMVideo, MediaTypeMusicVideo, details);
 
     if (details.HasStreamDetails())
-      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(strFilenameAndPath));
+      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(filePath));
 
     SetArtForItem(idMVideo, MediaTypeMusicVideo, artwork);
 
@@ -3232,7 +3245,7 @@ int CVideoDatabase::SetDetailsForMusicVideo(const std::string& strFilenameAndPat
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, strFilenameAndPath.c_str());
+    CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
   RollbackTransaction();
   return -1;
