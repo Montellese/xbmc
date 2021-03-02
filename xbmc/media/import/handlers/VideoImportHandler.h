@@ -39,6 +39,8 @@ public:
 
   bool StartSynchronisation(const CMediaImport& import) override;
   bool FinishSynchronisation(const CMediaImport& import) override;
+  bool StartSynchronisationBatch(const CMediaImport& import) override;
+  bool FinishSynchronisationBatch(const CMediaImport& import) override;
 
   bool AddImportedItem(const CMediaImport& import, CFileItem* item) override;
 

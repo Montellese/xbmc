@@ -55,8 +55,8 @@ void CMediaImportTaskProcessorJob::ResetTask()
   m_task.reset();
 }
 
-CGUIDialogProgressBarHandle* CMediaImportTaskProcessorJob::GetProgressBarHandle(
-    const std::string& title /* = "" */)
+CGUIDialogProgressBarHandle* CMediaImportTaskProcessorJob::PrepareProgressBarHandle(
+    const std::string& title)
 {
   if (!m_hasProgress)
     return nullptr;

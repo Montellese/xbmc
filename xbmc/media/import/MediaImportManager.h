@@ -593,6 +593,8 @@ private:
   void SendSourceMessage(const CMediaImportSource& source, int message, int param = 0);
   void SendImportMessage(const CMediaImport& import, int message);
 
+  static bool SupportsAutomaticImport(const CMediaImport& import);
+
   Logger m_logger;
 
   bool m_initialized;

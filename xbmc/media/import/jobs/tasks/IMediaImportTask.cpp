@@ -48,5 +48,5 @@ void IMediaImportTask::SetProgress(int progress, int total)
 void IMediaImportTask::PrepareProgressBarHandle(const std::string& title)
 {
   if (m_processorJob != nullptr)
-    m_progress = m_processorJob->GetProgressBarHandle(title);
+    m_progress = m_processorJob->PrepareProgressBarHandle(title);
 }
