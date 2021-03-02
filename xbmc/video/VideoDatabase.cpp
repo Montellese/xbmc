@@ -1282,17 +1282,30 @@ int CVideoDatabase::GetFileId(const CFileItem &item)
 {
   int fileId = -1;
   if (item.HasVideoInfoTag())
-  {
-    if (item.GetVideoInfoTag()->m_iFileId != -1)
-      fileId = item.GetVideoInfoTag()->m_iFileId;
-    else if (!item.GetVideoInfoTag()->m_strFileNameAndPath.empty())
-      fileId = GetFileId(item.GetVideoInfoTag()->m_strFileNameAndPath);
-  }
+    fileId = GetFileId(*item.GetVideoInfoTag());
 
   if (fileId == -1)
     fileId = GetFileId(item.GetPath());
 
   return fileId;
+}
+
+int CVideoDatabase::GetFileId(const CVideoInfoTag& details)
+{
+  if (details.m_iFileId > 0)
+    return details.m_iFileId;
+
+  const auto& filePath = details.GetPath();
+  if (filePath.empty())
+    return -1;
+
+  return GetFileId(filePath);
+}
+
+int CVideoDatabase::GetAndFillFileId(CVideoInfoTag& details)
+{
+  details.m_iFileId = GetFileId(details);
+  return details.m_iFileId;
 }
 
 int CVideoDatabase::GetSourceId(const std::string& sourceIdentifier)
@@ -2709,7 +2722,7 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
     }
 
     if (details.HasStreamDetails())
-      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(filePath));
+      SetStreamDetailsForFileId(details.m_streamDetails, GetAndFillFileId(details));
 
     SetArtForItem(idMovie, MediaTypeMovie, artwork);
 
@@ -2732,10 +2745,10 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
         CDateTime lastPlayed;
         lastPlayed.SetFromDBDateTime(m_pDS->fv("files.lastPlayed").get_asString());
 
-        int idFile = GetFileId(filePath);
-
         // update with playCount and lastPlayed
-        strSQL = PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount, lastPlayed.GetAsDBDateTime().c_str(), idFile);
+        strSQL =
+            PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount,
+                       lastPlayed.GetAsDBDateTime().c_str(), GetAndFillFileId(details));
         m_pDS->exec(strSQL);
       }
 
@@ -2801,12 +2814,7 @@ int CVideoDatabase::UpdateDetailsForMovie(int idMovie, CVideoInfoTag& details, c
     if (updatedDetails.find("uniqueid") != updatedDetails.end())
       details.m_iIdUniqueID = UpdateUniqueIDs(idMovie, MediaTypeMovie, details);
     if (updatedDetails.find("dateadded") != updatedDetails.end() && details.m_dateAdded.IsValid())
-    {
-      if (details.m_iFileId <= 0)
-        details.m_iFileId = GetFileId(details.GetPath());
-
-      UpdateFileDateAdded(details.m_iFileId, details.GetPath(), details.m_dateAdded);
-    }
+      UpdateFileDateAdded(GetAndFillFileId(details), details.GetPath(), details.m_dateAdded);
 
     // track if the set was updated
     int idSet = 0;
@@ -3104,12 +3112,7 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
     details.m_iIdUniqueID = UpdateUniqueIDs(idEpisode, MediaTypeEpisode, details);
 
     if (details.HasStreamDetails())
-    {
-      if (details.m_iFileId != -1)
-        SetStreamDetailsForFileId(details.m_streamDetails, details.m_iFileId);
-      else
-        SetStreamDetailsForFile(details.m_streamDetails, filePath);
-    }
+      SetStreamDetailsForFileId(details.m_streamDetails, GetAndFillFileId(details));
 
     // ensure we have this season already added
     int idSeason = AddSeason(idShow, details.m_iSeason);
@@ -3133,10 +3136,10 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
         CDateTime lastPlayed;
         lastPlayed.SetFromDBDateTime(m_pDS->fv("files.lastPlayed").get_asString());
 
-        int idFile = GetFileId(filePath);
-
         // update with playCount and lastPlayed
-        strSQL = PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount, lastPlayed.GetAsDBDateTime().c_str(), idFile);
+        strSQL =
+            PrepareSQL("update files set playCount=%i,lastPlayed='%s' where idFile=%i", playCount,
+                       lastPlayed.GetAsDBDateTime().c_str(), GetAndFillFileId(details));
         m_pDS->exec(strSQL);
       }
 
@@ -3222,7 +3225,7 @@ int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
     details.m_iIdUniqueID = UpdateUniqueIDs(idMVideo, MediaTypeMusicVideo, details);
 
     if (details.HasStreamDetails())
-      SetStreamDetailsForFileId(details.m_streamDetails, GetFileId(filePath));
+      SetStreamDetailsForFileId(details.m_streamDetails, GetAndFillFileId(details));
 
     SetArtForItem(idMVideo, MediaTypeMusicVideo, artwork);
 
