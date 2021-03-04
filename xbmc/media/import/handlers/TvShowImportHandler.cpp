@@ -56,8 +56,8 @@ bool CTvShowImportHandler::UpdateImportedItem(const CMediaImport& import, CFileI
   std::vector<std::pair<std::string, std::string>> tvshowPaths;
   tvshowPaths.push_back(std::make_pair(item->GetPath(), tvshow->m_basePath));
   std::map<int, std::map<std::string, std::string>> seasonArt;
-  if (m_db.SetDetailsForTvShow(tvshowPaths, *tvshow, item->GetArt(), seasonArt, tvshow->m_iDbId) <=
-      0)
+  if (m_db.SetDetailsForTvShowInTransaction(tvshowPaths, *tvshow, item->GetArt(), seasonArt,
+                                            tvshow->m_iDbId) <= 0)
   {
     GetLogger()->error("failed to set details for tvshow \"{}\" imported from {}",
                        tvshow->m_strTitle, import);
@@ -198,21 +198,21 @@ bool CTvShowImportHandler::AddImportedItem(CVideoDatabase& videodb,
     // simply add the path of the imported tvshow to the tvshow's paths
     if (exists && tvshow != nullptr)
     {
-      info->m_iDbId =
-          videodb.SetDetailsForTvShow(tvshowPaths, *(tvshow->GetVideoInfoTag()), tvshow->GetArt(),
-                                      seasonArt, tvshow->GetVideoInfoTag()->m_iDbId);
+      info->m_iDbId = videodb.SetDetailsForTvShowInTransaction(
+          tvshowPaths, *(tvshow->GetVideoInfoTag()), tvshow->GetArt(), seasonArt,
+          tvshow->GetVideoInfoTag()->m_iDbId);
     }
   }
 
   // couldn't find a matching local tvshow so add the newly imported one
   if (!exists)
-    info->m_iDbId = videodb.SetDetailsForTvShow(tvshowPaths, *info, item->GetArt(), seasonArt);
+    info->m_iDbId =
+        videodb.SetDetailsForTvShowInTransaction(tvshowPaths, *info, item->GetArt(), seasonArt);
 
   // make sure that the tvshow was properly added
   if (info->m_iDbId <= 0)
   {
-    GetLogger()->error("failed to set details for added tvshow \"{}\" imported from {}",
-                       info->m_strTitle, import);
+    GetLogger()->error("failed to add tvshow \"{}\" imported from {}", info->m_strTitle, import);
     return false;
   }
 
@@ -306,7 +306,7 @@ bool CTvShowImportHandler::RemoveImportedItem(CVideoDatabase& videodb,
       videodb.RemoveImportFromItem(item->GetVideoInfoTag()->m_iDbId, GetMediaType(), import);
     }
     else
-      videodb.DeleteTvShow(item->GetVideoInfoTag()->m_iDbId, false, false);
+      videodb.DeleteTvShowInTransaction(item->GetVideoInfoTag()->m_iDbId, false, false);
 
     // either way remove the path
     videodb.DeletePath(tvshowPath.first, tvshowPath.second);
