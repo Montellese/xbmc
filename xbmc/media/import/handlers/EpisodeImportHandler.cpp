@@ -86,8 +86,8 @@ bool CEpisodeImportHandler::UpdateImportedItem(const CMediaImport& import, CFile
 
   const auto episode = item->GetVideoInfoTag();
 
-  if (m_db.SetDetailsForEpisode(*episode, item->GetArt(), episode->m_iIdShow,
-                                episode->m_iDbId) <= 0)
+  if (m_db.SetDetailsForEpisodeInTransaction(*episode, item->GetArt(), episode->m_iIdShow,
+                                             episode->m_iDbId) <= 0)
   {
     GetLogger()->error(
         "failed to set details for added episode \"{}\" S{:02d}E{:02d} imported from {}",
@@ -260,12 +260,11 @@ bool CEpisodeImportHandler::AddImportedItem(CVideoDatabase& videodb,
   }
 
   episode->m_iDbId =
-      videodb.SetDetailsForEpisode(*episode, item->GetArt(), episode->m_iIdShow);
+      videodb.SetDetailsForEpisodeInTransaction(*episode, item->GetArt(), episode->m_iIdShow);
   if (episode->m_iDbId <= 0)
   {
-    GetLogger()->error(
-        "failed to set details for added episode \"{}\" S{:02d}E{:02d} imported from {}",
-        episode->m_strShowTitle, episode->m_iSeason, episode->m_iEpisode, import);
+    GetLogger()->error("failed to add episode \"{}\" S{:02d}E{:02d} imported from {}",
+                       episode->m_strShowTitle, episode->m_iSeason, episode->m_iEpisode, import);
     return false;
   }
 
