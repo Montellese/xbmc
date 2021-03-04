@@ -546,6 +546,9 @@ public:
                                       const std::map<std::string, std::string>& artwork,
                                       int idMovie = -1);
   int SetDetailsForMovieSet(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idSet = -1);
+  int SetDetailsForMovieSetInTransaction(const CVideoInfoTag& details,
+                                         const std::map<std::string, std::string>& artwork,
+                                         int idSet = -1);
 
   /*! \brief add a tvshow to the library, setting metadata detail
    First checks for whether this TV Show is already in the database (based on idTvShow, or via GetMatchingTvShow)
@@ -1100,6 +1103,11 @@ protected:
                          int idMovie,
                          bool withTransaction);
   void DeleteMovie(int idMovie, bool bKeepId, bool withTransaction);
+
+  int SetDetailsForMovieSet(const CVideoInfoTag& details,
+                            const std::map<std::string, std::string>& artwork,
+                            int idSet,
+                            bool withTransaction);
 
   int AddToTable(const std::string& table, const std::string& firstField, const std::string& secondField, const std::string& value);
   int UpdateRatings(int mediaId, const char *mediaType, const RatingMap& values, const std::string& defaultRating);

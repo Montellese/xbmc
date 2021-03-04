@@ -2896,20 +2896,41 @@ int CVideoDatabase::UpdateDetailsForMovie(int idMovie, CVideoInfoTag& details, c
   return -1;
 }
 
-int CVideoDatabase::SetDetailsForMovieSet(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idSet /* = -1 */)
+int CVideoDatabase::SetDetailsForMovieSet(const CVideoInfoTag& details,
+                                          const std::map<std::string, std::string>& artwork,
+                                          int idSet /* = -1 */)
+{
+  return SetDetailsForMovieSet(details, artwork, idSet, true);
+}
+
+int CVideoDatabase::SetDetailsForMovieSetInTransaction(
+    const CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    int idSet /* = -1 */)
+{
+  return SetDetailsForMovieSet(details, artwork, idSet, false);
+}
+
+int CVideoDatabase::SetDetailsForMovieSet(const CVideoInfoTag& details,
+                                          const std::map<std::string, std::string>& artwork,
+                                          int idSet,
+                                          bool withTransaction)
 {
   if (details.m_strTitle.empty())
     return -1;
 
   try
   {
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
+
     if (idSet < 0)
     {
       idSet = AddSet(details.m_strTitle, details.m_strPlot);
       if (idSet < 0)
       {
-        RollbackTransaction();
+        if (withTransaction)
+          RollbackTransaction();
         return -1;
       }
     }
@@ -2919,7 +2940,9 @@ int CVideoDatabase::SetDetailsForMovieSet(const CVideoInfoTag& details, const st
     // and insert the new row
     std::string sql = PrepareSQL("UPDATE sets SET strSet='%s', strOverview='%s' WHERE idSet=%i", details.m_strTitle.c_str(), details.m_strPlot.c_str(), idSet);
     m_pDS->exec(sql);
-    CommitTransaction();
+
+    if (withTransaction)
+      CommitTransaction();
 
     return idSet;
   }
@@ -2927,7 +2950,10 @@ int CVideoDatabase::SetDetailsForMovieSet(const CVideoInfoTag& details, const st
   {
     CLog::Log(LOGERROR, "%s (%i) failed", __FUNCTION__, idSet);
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return -1;
 }
 
