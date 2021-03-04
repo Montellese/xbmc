@@ -20,8 +20,8 @@ bool CMusicVideoImportHandler::UpdateImportedItem(const CMediaImport& import, CF
   if (item == nullptr || !item->HasVideoInfoTag() || item->GetVideoInfoTag()->m_iDbId <= 0)
     return false;
 
-  if (m_db.SetDetailsForMusicVideo(*(item->GetVideoInfoTag()), item->GetArt(),
-                                   item->GetVideoInfoTag()->m_iDbId) <= 0)
+  if (m_db.SetDetailsForMusicVideoInTransaction(*(item->GetVideoInfoTag()), item->GetArt(),
+                                                item->GetVideoInfoTag()->m_iDbId) <= 0)
   {
     GetLogger()->error("failed to set details for music video \"{}\" imported from {}",
                        item->GetLabel(), import);
@@ -39,7 +39,7 @@ bool CMusicVideoImportHandler::RemoveImportedItem(const CMediaImport& import, co
   if (item == nullptr || !item->HasVideoInfoTag())
     return false;
 
-  m_db.DeleteMusicVideo(item->GetVideoInfoTag()->m_iDbId);
+  m_db.DeleteMusicVideoInTransaction(item->GetVideoInfoTag()->m_iDbId);
   RemoveFile(m_db, item);
 
   return true;
@@ -93,11 +93,11 @@ bool CMusicVideoImportHandler::AddImportedItem(CVideoDatabase& videodb,
   PrepareItem(videodb, import, item);
 
   item->GetVideoInfoTag()->m_iDbId =
-      videodb.SetDetailsForMusicVideo(*(item->GetVideoInfoTag()), item->GetArt());
+      videodb.SetDetailsForMusicVideoInTransaction(*(item->GetVideoInfoTag()), item->GetArt());
   if (item->GetVideoInfoTag()->m_iDbId <= 0)
   {
-    GetLogger()->error("failed to set details for added music video \"{}\" imported from {}",
-                       item->GetLabel(), import);
+    GetLogger()->error("failed to add music video \"{}\" imported from {}", item->GetLabel(),
+                       import);
     return false;
   }
 
