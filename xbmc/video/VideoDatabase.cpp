@@ -3234,17 +3234,34 @@ int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
                                             const std::map<std::string, std::string>& artwork,
                                             int idMVideo /* = -1 */)
 {
+  return SetDetailsForMusicVideo(details, artwork, idMVideo, true);
+}
+
+int CVideoDatabase::SetDetailsForMusicVideoInTransaction(
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    int idMVideo /* = -1 */)
+{
+  return SetDetailsForMusicVideo(details, artwork, idMVideo, false);
+}
+
+int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
+                                            const std::map<std::string, std::string>& artwork,
+                                            int idMVideo,
+                                            bool withTransaction)
+{
   const auto filePath = details.GetPath();
 
   try
   {
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     if (idMVideo < 0)
       idMVideo = GetMusicVideoId(filePath);
 
     if (idMVideo > -1)
-      DeleteMusicVideo(idMVideo, true); // Keep id
+      DeleteMusicVideoInTransaction(idMVideo, true); // Keep id
     else
     {
       // only add a new musicvideo if we don't already have a valid idMVideo
@@ -3253,7 +3270,8 @@ int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
       idMVideo = AddNewMusicVideo(details);
       if (idMVideo < 0)
       {
-        RollbackTransaction();
+        if (withTransaction)
+          RollbackTransaction();
         return -1;
       }
     }
@@ -3286,7 +3304,9 @@ int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
       sql += PrepareSQL(", premiered = '%i'", details.GetYear());
     sql += PrepareSQL(" where idMVideo=%i", idMVideo);
     m_pDS->exec(sql);
-    CommitTransaction();
+
+    if (withTransaction)
+      CommitTransaction();
 
     return idMVideo;
   }
@@ -3294,7 +3314,10 @@ int CVideoDatabase::SetDetailsForMusicVideo(CVideoInfoTag& details,
   {
     CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return -1;
 }
 
@@ -3948,6 +3971,16 @@ void CVideoDatabase::DeleteEpisode(int idEpisode, bool bKeepId /* = false */)
 
 void CVideoDatabase::DeleteMusicVideo(int idMVideo, bool bKeepId /* = false */)
 {
+  return DeleteMusicVideo(idMVideo, bKeepId, true);
+}
+
+void CVideoDatabase::DeleteMusicVideoInTransaction(int idMVideo, bool bKeepId /* = false */)
+{
+  return DeleteMusicVideo(idMVideo, bKeepId, false);
+}
+
+void CVideoDatabase::DeleteMusicVideo(int idMVideo, bool bKeepId, bool withTransaction)
+{
   if (idMVideo < 0)
     return;
 
@@ -3958,7 +3991,8 @@ void CVideoDatabase::DeleteMusicVideo(int idMVideo, bool bKeepId /* = false */)
     if (nullptr == m_pDS)
       return;
 
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     int idFile = GetDbId(PrepareSQL("SELECT idFile FROM musicvideo WHERE idMVideo=%i", idMVideo));
     DeleteStreamDetails(idFile);
@@ -3979,13 +4013,14 @@ void CVideoDatabase::DeleteMusicVideo(int idMVideo, bool bKeepId /* = false */)
     if (!bKeepId)
       AnnounceRemove(MediaTypeMusicVideo, idMVideo);
 
-    CommitTransaction();
-
+    if (withTransaction)
+      CommitTransaction();
   }
   catch (...)
   {
     CLog::Log(LOGERROR, "%s failed", __FUNCTION__);
-    RollbackTransaction();
+    if (withTransaction)
+      RollbackTransaction();
   }
 }
 

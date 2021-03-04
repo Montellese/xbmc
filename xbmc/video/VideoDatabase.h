@@ -570,6 +570,9 @@ public:
   int SetDetailsForMusicVideo(CVideoInfoTag& details,
                               const std::map<std::string, std::string>& artwork,
                               int idMVideo = -1);
+  int SetDetailsForMusicVideoInTransaction(CVideoInfoTag& details,
+                                           const std::map<std::string, std::string>& artwork,
+                                           int idMVideo = -1);
   void SetStreamDetailsForFile(const CStreamDetails& details, const std::string &strFileNameAndPath);
   void SetStreamDetailsForFileId(const CStreamDetails& details, int idFile);
 
@@ -587,6 +590,7 @@ public:
   void DeleteSeason(int idSeason, bool bKeepId = false, bool deleteChildren = true);
   void DeleteEpisode(int idEpisode, bool bKeepId = false);
   void DeleteMusicVideo(int idMusicVideo, bool bKeepId = false);
+  void DeleteMusicVideoInTransaction(int idMusicVideo, bool bKeepId = false);
   void DeleteDetailsForTvShow(int idTvShow);
   void DeleteStreamDetails(int idFile);
   void RemoveContentForPath(const std::string& strPath,CGUIDialogProgress *progress = NULL);
@@ -1108,6 +1112,12 @@ protected:
                             const std::map<std::string, std::string>& artwork,
                             int idSet,
                             bool withTransaction);
+
+  int SetDetailsForMusicVideo(CVideoInfoTag& details,
+                              const std::map<std::string, std::string>& artwork,
+                              int idMVideo,
+                              bool withTransaction);
+  void DeleteMusicVideo(int idMVideo, bool bKeepId, bool withTransaction);
 
   int AddToTable(const std::string& table, const std::string& firstField, const std::string& secondField, const std::string& value);
   int UpdateRatings(int mediaId, const char *mediaType, const RatingMap& values, const std::string& defaultRating);
