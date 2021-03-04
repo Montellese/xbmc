@@ -20,8 +20,8 @@ bool CMovieImportHandler::UpdateImportedItem(const CMediaImport& import, CFileIt
   if (item == nullptr || !item->HasVideoInfoTag() || item->GetVideoInfoTag()->m_iDbId <= 0)
     return false;
 
-  if (m_db.SetDetailsForMovie(*(item->GetVideoInfoTag()), item->GetArt(),
-                              item->GetVideoInfoTag()->m_iDbId) <= 0)
+  if (m_db.SetDetailsForMovieInTransaction(*(item->GetVideoInfoTag()), item->GetArt(),
+                                           item->GetVideoInfoTag()->m_iDbId) <= 0)
   {
     GetLogger()->error("failed to set details for movie \"{}\" imported from {}", item->GetLabel(),
                        import);
@@ -39,7 +39,7 @@ bool CMovieImportHandler::RemoveImportedItem(const CMediaImport& import, const C
   if (item == nullptr || !item->HasVideoInfoTag())
     return false;
 
-  m_db.DeleteMovie(item->GetVideoInfoTag()->m_iDbId);
+  m_db.DeleteMovieInTransaction(item->GetVideoInfoTag()->m_iDbId);
   RemoveFile(m_db, item);
 
   return true;
@@ -87,11 +87,10 @@ bool CMovieImportHandler::AddImportedItem(CVideoDatabase& videodb,
   PrepareItem(videodb, import, item);
 
   item->GetVideoInfoTag()->m_iDbId =
-      videodb.SetDetailsForMovie(*(item->GetVideoInfoTag()), item->GetArt());
+      videodb.SetDetailsForMovieInTransaction(*(item->GetVideoInfoTag()), item->GetArt());
   if (item->GetVideoInfoTag()->m_iDbId <= 0)
   {
-    GetLogger()->error("failed to set details for added movie \"{}\" imported from {}",
-                       item->GetLabel(), import);
+    GetLogger()->error("failed to add movie \"{}\" imported from {}", item->GetLabel(), import);
     return false;
   }
 
