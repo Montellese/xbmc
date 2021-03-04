@@ -3074,21 +3074,44 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, CVideoInfoTag &details
   return false;
 }
 
-int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std::map<std::string,
-    std::string> &artwork, int idShow, int idSeason /* = -1 */)
+int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details,
+                                        const std::map<std::string, std::string>& artwork,
+                                        int idShow,
+                                        int idSeason /* = -1 */)
+{
+  return SetDetailsForSeason(details, artwork, idShow, idSeason, true);
+}
+
+int CVideoDatabase::SetDetailsForSeasonInTransaction(
+    const CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    int idShow,
+    int idSeason /* = -1 */)
+{
+  return SetDetailsForSeason(details, artwork, idShow, idSeason, false);
+}
+
+int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details,
+                                        const std::map<std::string, std::string>& artwork,
+                                        int idShow,
+                                        int idSeason,
+                                        bool withTransaction)
 {
   if (idShow < 0 || details.m_iSeason < -1)
     return -1;
 
-   try
+  try
   {
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
+
     if (idSeason < 0)
     {
       idSeason = AddSeason(idShow, details.m_iSeason);
       if (idSeason < 0)
       {
-        RollbackTransaction();
+        if (withTransaction)
+          RollbackTransaction();
         return -1;
       }
     }
@@ -3105,7 +3128,9 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
       sql += ", userrating = NULL";
     sql += PrepareSQL(" WHERE idSeason=%i", idSeason);
     m_pDS->exec(sql.c_str());
-    CommitTransaction();
+
+    if (withTransaction)
+      CommitTransaction();
 
     return idSeason;
   }
@@ -3113,7 +3138,10 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
   {
     CLog::Log(LOGERROR, "%s (%i) failed", __FUNCTION__, idSeason);
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return -1;
 }
 
@@ -3921,6 +3949,21 @@ void CVideoDatabase::DeleteSeason(int idSeason,
                                   bool bKeepId /* = false */,
                                   bool deleteChildren /* = true */)
 {
+  return DeleteSeason(idSeason, bKeepId, deleteChildren, true);
+}
+
+void CVideoDatabase::DeleteSeasonInTransaction(int idSeason,
+                                               bool bKeepId /* = false */,
+                                               bool deleteChildren /* = true */)
+{
+  return DeleteSeason(idSeason, bKeepId, deleteChildren, false);
+}
+
+void CVideoDatabase::DeleteSeason(int idSeason,
+                                  bool bKeepId,
+                                  bool deleteChildren,
+                                  bool withTransaction)
+{
   if (idSeason < 0)
     return;
 
@@ -3929,7 +3972,8 @@ void CVideoDatabase::DeleteSeason(int idSeason,
     if (m_pDB == nullptr || m_pDS == nullptr || m_pDS2 == nullptr)
       return;
 
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     if (deleteChildren)
     {
@@ -3948,12 +3992,14 @@ void CVideoDatabase::DeleteSeason(int idSeason,
 
     ExecuteQuery(PrepareSQL("DELETE FROM seasons WHERE idSeason = %i", idSeason));
 
-    CommitTransaction();
+    if (withTransaction)
+      CommitTransaction();
   }
   catch (...)
   {
     CLog::Log(LOGERROR, "%s (%d) failed", __FUNCTION__, idSeason);
-    RollbackTransaction();
+    if (withTransaction)
+      RollbackTransaction();
   }
 }
 

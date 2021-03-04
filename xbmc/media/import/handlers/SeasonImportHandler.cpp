@@ -120,7 +120,8 @@ bool CSeasonImportHandler::UpdateImportedItem(const CMediaImport& import, CFileI
 
   const auto season = item->GetVideoInfoTag();
 
-  if (m_db.SetDetailsForSeason(*season, item->GetArt(), season->m_iIdShow, season->m_iDbId) <= 0)
+  if (m_db.SetDetailsForSeasonInTransaction(*season, item->GetArt(), season->m_iIdShow,
+                                            season->m_iDbId) <= 0)
   {
     GetLogger()->error("failed to set details for \"{}\" season {} imported from {}",
                        season->m_strShowTitle, season->m_iSeason, import);
@@ -304,11 +305,12 @@ bool CSeasonImportHandler::AddImportedItem(CVideoDatabase& videodb,
   // no need to add the season again if it already exists locally
   if (season->m_iDbId <= 0)
   {
-    season->m_iDbId = videodb.SetDetailsForSeason(*season, item->GetArt(), season->m_iIdShow);
+    season->m_iDbId =
+        videodb.SetDetailsForSeasonInTransaction(*season, item->GetArt(), season->m_iIdShow);
     if (season->m_iDbId <= 0)
     {
-      GetLogger()->error("failed to set details for added \"{}\" season {} imported from {}",
-                         season->m_strShowTitle, season->m_iSeason, import);
+      GetLogger()->error("failed to add \"{}\" season {} imported from {}", season->m_strShowTitle,
+                         season->m_iSeason, import);
       return false;
     }
   }
@@ -393,7 +395,7 @@ bool CSeasonImportHandler::RemoveImportedItem(CVideoDatabase& videodb,
     if (countAllEpisodes > countImportedEpisodes)
       videodb.RemoveImportFromItem(item->GetVideoInfoTag()->m_iDbId, GetMediaType(), import);
     else
-      videodb.DeleteSeason(item->GetVideoInfoTag()->m_iDbId, false, false);
+      videodb.DeleteSeasonInTransaction(item->GetVideoInfoTag()->m_iDbId, false, false);
   }
 
   return true;

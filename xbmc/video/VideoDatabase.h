@@ -563,6 +563,10 @@ public:
   int SetDetailsForTvShow(const std::vector< std::pair<std::string, std::string> > &paths, CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, const std::map<int, std::map<std::string, std::string> > &seasonArt, int idTvShow = -1);
   bool UpdateDetailsForTvShow(int idTvShow, CVideoInfoTag &details, const std::map<std::string, std::string> &artwork, const std::map<int, std::map<std::string, std::string> > &seasonArt);
   int SetDetailsForSeason(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idShow, int idSeason = -1);
+  int SetDetailsForSeasonInTransaction(const CVideoInfoTag& details,
+                                       const std::map<std::string, std::string>& artwork,
+                                       int idShow,
+                                       int idSeason = -1);
   int SetDetailsForEpisode(CVideoInfoTag& details,
                            const std::map<std::string, std::string>& artwork,
                            int idShow,
@@ -592,6 +596,7 @@ public:
   void DeleteTvShow(int idTvShow, bool bKeepId = false, bool deleteChildren = true);
   void DeleteTvShow(const std::string& strPath, bool deleteChildren = true);
   void DeleteSeason(int idSeason, bool bKeepId = false, bool deleteChildren = true);
+  void DeleteSeasonInTransaction(int idSeason, bool bKeepId = false, bool deleteChildren = true);
   void DeleteEpisode(int idEpisode, bool bKeepId = false);
   void DeleteMusicVideo(int idMusicVideo, bool bKeepId = false);
   void DeleteMusicVideoInTransaction(int idMusicVideo, bool bKeepId = false);
@@ -1122,6 +1127,13 @@ protected:
                               int idMVideo,
                               bool withTransaction);
   void DeleteMusicVideo(int idMVideo, bool bKeepId, bool withTransaction);
+
+  int SetDetailsForSeason(const CVideoInfoTag& details,
+                          const std::map<std::string, std::string>& artwork,
+                          int idShow,
+                          int idSeason,
+                          bool withTransaction);
+  void DeleteSeason(int idSeason, bool bKeepId, bool deleteChildren, bool withTransaction);
 
   int SetDetailsForEpisode(CVideoInfoTag& details,
                            const std::map<std::string, std::string>& artwork,
