@@ -567,6 +567,10 @@ public:
                            const std::map<std::string, std::string>& artwork,
                            int idShow,
                            int idEpisode = -1);
+  int SetDetailsForEpisodeInTransaction(CVideoInfoTag& details,
+                                        const std::map<std::string, std::string>& artwork,
+                                        int idShow,
+                                        int idEpisode = -1);
   int SetDetailsForMusicVideo(CVideoInfoTag& details,
                               const std::map<std::string, std::string>& artwork,
                               int idMVideo = -1);
@@ -1118,6 +1122,12 @@ protected:
                               int idMVideo,
                               bool withTransaction);
   void DeleteMusicVideo(int idMVideo, bool bKeepId, bool withTransaction);
+
+  int SetDetailsForEpisode(CVideoInfoTag& details,
+                           const std::map<std::string, std::string>& artwork,
+                           int idShow,
+                           int idEpisode,
+                           bool withTransaction);
 
   int AddToTable(const std::string& table, const std::string& firstField, const std::string& secondField, const std::string& value);
   int UpdateRatings(int mediaId, const char *mediaType, const RatingMap& values, const std::string& defaultRating);

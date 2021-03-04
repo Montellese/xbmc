@@ -3122,11 +3122,31 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
                                          int idShow,
                                          int idEpisode /* = -1 */)
 {
+  return SetDetailsForEpisode(details, artwork, idShow, idEpisode, true);
+}
+
+int CVideoDatabase::SetDetailsForEpisodeInTransaction(
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    int idShow,
+    int idEpisode /* = -1 */)
+{
+  return SetDetailsForEpisode(details, artwork, idShow, idEpisode, false);
+}
+
+int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
+                                         const std::map<std::string, std::string>& artwork,
+                                         int idShow,
+                                         int idEpisode,
+                                         bool withTransaction)
+{
   const auto filePath = details.GetPath();
 
   try
   {
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
+
     if (idEpisode < 0)
       idEpisode = GetEpisodeId(filePath);
 
@@ -3140,7 +3160,8 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
       idEpisode = AddNewEpisode(idShow, details);
       if (idEpisode < 0)
       {
-        RollbackTransaction();
+        if (withTransaction)
+          RollbackTransaction();
         return -1;
       }
     }
@@ -3198,7 +3219,9 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
     sql += PrepareSQL(", idSeason = %i", idSeason);
     sql += PrepareSQL(" where idEpisode=%i", idEpisode);
     m_pDS->exec(sql);
-    CommitTransaction();
+
+    if (withTransaction)
+      CommitTransaction();
 
     return idEpisode;
   }
@@ -3206,7 +3229,10 @@ int CVideoDatabase::SetDetailsForEpisode(CVideoInfoTag& details,
   {
     CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return -1;
 }
 
