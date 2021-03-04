@@ -233,9 +233,9 @@ bool CEpisodeImportHandler::AddImportedItem(CVideoDatabase& videodb,
     {
       std::vector<std::pair<std::string, std::string>> tvshowPaths;
       tvshowPaths.push_back(std::make_pair(tvshow.m_strPath, tvshow.m_basePath));
-      tvshow.m_iDbId = tvshow.m_iIdShow =
-          videodb.SetDetailsForTvShow(tvshowPaths, tvshow, CGUIListItem::ArtMap(),
-                                      std::map<int, std::map<std::string, std::string>>());
+      tvshow.m_iDbId = tvshow.m_iIdShow = videodb.SetDetailsForTvShowInTransaction(
+          tvshowPaths, tvshow, CGUIListItem::ArtMap(),
+          std::map<int, std::map<std::string, std::string>>());
       if (tvshow.m_iDbId <= 0)
       {
         GetLogger()->error("failed to set details for added tvshow \"{}\" imported from {}",

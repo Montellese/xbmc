@@ -2968,9 +2968,33 @@ int CVideoDatabase::GetMatchingTvShow(const CVideoInfoTag &details)
   return id;
 }
 
-int CVideoDatabase::SetDetailsForTvShow(const std::vector<std::pair<std::string, std::string> > &paths,
-    CVideoInfoTag& details, const std::map<std::string, std::string> &artwork,
-    const std::map<int, std::map<std::string, std::string> > &seasonArt, int idTvShow /*= -1 */)
+int CVideoDatabase::SetDetailsForTvShow(
+    const std::vector<std::pair<std::string, std::string>>& paths,
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    const std::map<int, std::map<std::string, std::string>>& seasonArt,
+    int idTvShow /*= -1 */)
+{
+  return SetDetailsForTvShow(paths, details, artwork, seasonArt, idTvShow, true);
+}
+
+int CVideoDatabase::SetDetailsForTvShowInTransaction(
+    const std::vector<std::pair<std::string, std::string>>& paths,
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    const std::map<int, std::map<std::string, std::string>>& seasonArt,
+    int idTvShow /*= -1 */)
+{
+  return SetDetailsForTvShow(paths, details, artwork, seasonArt, idTvShow, false);
+}
+
+int CVideoDatabase::SetDetailsForTvShow(
+    const std::vector<std::pair<std::string, std::string>>& paths,
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    const std::map<int, std::map<std::string, std::string>>& seasonArt,
+    int idTvShow,
+    bool withTransaction)
 {
 
   /*
@@ -3004,15 +3028,29 @@ int CVideoDatabase::SetDetailsForTvShow(const std::vector<std::pair<std::string,
   for (const auto &i : paths)
     AddPathToTvShow(idTvShow, i.first, i.second, details.m_dateAdded);
 
-  UpdateDetailsForTvShow(idTvShow, details, artwork, seasonArt);
+  UpdateDetailsForTvShow(idTvShow, details, artwork, seasonArt, withTransaction);
 
   return idTvShow;
 }
 
-bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, CVideoInfoTag &details,
-    const std::map<std::string, std::string> &artwork, const std::map<int, std::map<std::string, std::string>> &seasonArt)
+bool CVideoDatabase::UpdateDetailsForTvShow(
+    int idTvShow,
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    const std::map<int, std::map<std::string, std::string>>& seasonArt)
 {
-  BeginTransaction();
+  return UpdateDetailsForTvShow(idTvShow, details, artwork, seasonArt, true);
+}
+
+bool CVideoDatabase::UpdateDetailsForTvShow(
+    int idTvShow,
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    const std::map<int, std::map<std::string, std::string>>& seasonArt,
+    bool withTransaction)
+{
+  if (withTransaction)
+    BeginTransaction();
 
   DeleteDetailsForTvShow(idTvShow);
 
@@ -3067,10 +3105,15 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, CVideoInfoTag &details
   sql += PrepareSQL(" WHERE idShow=%i", idTvShow);
   if (ExecuteQuery(sql))
   {
-    CommitTransaction();
+    if (withTransaction)
+      CommitTransaction();
+
     return true;
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return false;
 }
 
@@ -3880,6 +3923,21 @@ void CVideoDatabase::DeleteTvShow(int idTvShow,
                                   bool bKeepId /* = false */,
                                   bool deleteChildren /* = true */)
 {
+  return DeleteTvShow(idTvShow, bKeepId, deleteChildren, true);
+}
+
+void CVideoDatabase::DeleteTvShowInTransaction(int idTvShow,
+                                               bool bKeepId /* = false */,
+                                               bool deleteChildren /* = true */)
+{
+  return DeleteTvShow(idTvShow, bKeepId, deleteChildren, false);
+}
+
+void CVideoDatabase::DeleteTvShow(int idTvShow,
+                                  bool bKeepId,
+                                  bool deleteChildren,
+                                  bool withTransaction)
+{
   if (idTvShow < 0)
     return;
 
@@ -3890,7 +3948,8 @@ void CVideoDatabase::DeleteTvShow(int idTvShow,
     if (nullptr == m_pDS)
       return;
 
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     std::map<int, std::string> paths;
     GetPathsForTvShow(idTvShow, paths);
@@ -3935,13 +3994,15 @@ void CVideoDatabase::DeleteTvShow(int idTvShow,
     if (!bKeepId)
       AnnounceRemove(MediaTypeTvShow, idTvShow);
 
-    CommitTransaction();
-
+    if (withTransaction)
+      CommitTransaction();
   }
   catch (...)
   {
     CLog::Log(LOGERROR, "%s (%d) failed", __FUNCTION__, idTvShow);
-    RollbackTransaction();
+
+    if (withTransaction)
+      RollbackTransaction();
   }
 }
 
