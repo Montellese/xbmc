@@ -542,6 +542,9 @@ public:
   int SetDetailsForMovie(CVideoInfoTag& details,
                          const std::map<std::string, std::string>& artwork,
                          int idMovie = -1);
+  int SetDetailsForMovieInTransaction(CVideoInfoTag& details,
+                                      const std::map<std::string, std::string>& artwork,
+                                      int idMovie = -1);
   int SetDetailsForMovieSet(const CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, int idSet = -1);
 
   /*! \brief add a tvshow to the library, setting metadata detail
@@ -575,6 +578,7 @@ public:
   int UpdateDetailsForMovie(int idMovie, CVideoInfoTag& details, const std::map<std::string, std::string> &artwork, const std::set<std::string> &updatedDetails);
 
   void DeleteMovie(int idMovie, bool bKeepId = false);
+  void DeleteMovieInTransaction(int idMovie, bool bKeepId = false);
   void DeleteTvShow(int idTvShow, bool bKeepId = false, bool deleteChildren = true);
   void DeleteTvShow(const std::string& strPath, bool deleteChildren = true);
   void DeleteSeason(int idSeason, bool bKeepId = false, bool deleteChildren = true);
@@ -1090,6 +1094,12 @@ protected:
   int GetImportId(const std::string& sourceIdentifier, const GroupedMediaTypes& mediaTypes);
   int GetImportId(const CMediaImport& import);
   int GetImportId(int idSource, const GroupedMediaTypes& mediaTypes);
+
+  int SetDetailsForMovie(CVideoInfoTag& details,
+                         const std::map<std::string, std::string>& artwork,
+                         int idMovie,
+                         bool withTransaction);
+  void DeleteMovie(int idMovie, bool bKeepId, bool withTransaction);
 
   int AddToTable(const std::string& table, const std::string& firstField, const std::string& secondField, const std::string& value);
   int UpdateRatings(int mediaId, const char *mediaType, const RatingMap& values, const std::string& defaultRating);

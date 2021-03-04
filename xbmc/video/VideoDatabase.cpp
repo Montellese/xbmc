@@ -2662,17 +2662,34 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
                                        const std::map<std::string, std::string>& artwork,
                                        int idMovie /* = -1 */)
 {
+  return SetDetailsForMovie(details, artwork, idMovie, true);
+}
+
+int CVideoDatabase::SetDetailsForMovieInTransaction(
+    CVideoInfoTag& details,
+    const std::map<std::string, std::string>& artwork,
+    int idMovie /* = -1 */)
+{
+  return SetDetailsForMovie(details, artwork, idMovie, false);
+}
+
+int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
+                                       const std::map<std::string, std::string>& artwork,
+                                       int idMovie,
+                                       bool withTransaction)
+{
   const auto filePath = details.GetPath();
 
   try
   {
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     if (idMovie < 0)
       idMovie = GetMovieId(filePath);
 
     if (idMovie > -1)
-      DeleteMovie(idMovie, true); // true to keep the table entry
+      DeleteMovieInTransaction(idMovie, true); // true to keep the table entry
     else
     {
       // only add a new movie if we don't already have a valid idMovie
@@ -2681,7 +2698,8 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
       idMovie = AddNewMovie(details);
       if (idMovie < 0)
       {
-        RollbackTransaction();
+        if (withTransaction)
+          RollbackTransaction();
         return idMovie;
       }
     }
@@ -2766,7 +2784,9 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
       sql += PrepareSQL(", premiered = '%i'", details.GetYear());
     sql += PrepareSQL(" where idMovie=%i", idMovie);
     m_pDS->exec(sql);
-    CommitTransaction();
+
+    if (withTransaction)
+      CommitTransaction();
 
     return idMovie;
   }
@@ -2774,7 +2794,10 @@ int CVideoDatabase::SetDetailsForMovie(CVideoInfoTag& details,
   {
     CLog::Log(LOGERROR, "{} ({}) failed", __FUNCTION__, filePath);
   }
-  RollbackTransaction();
+
+  if (withTransaction)
+    RollbackTransaction();
+
   return -1;
 }
 
@@ -3689,6 +3712,16 @@ void CVideoDatabase::DeleteBookMarkForEpisode(const CVideoInfoTag& tag)
 //********************************************************************************************************************************
 void CVideoDatabase::DeleteMovie(int idMovie, bool bKeepId /* = false */)
 {
+  DeleteMovie(idMovie, bKeepId, true);
+}
+
+void CVideoDatabase::DeleteMovieInTransaction(int idMovie, bool bKeepId /* = false */)
+{
+  DeleteMovie(idMovie, bKeepId, false);
+}
+
+void CVideoDatabase::DeleteMovie(int idMovie, bool bKeepId, bool withTransaction)
+{
   if (idMovie < 0)
     return;
 
@@ -3699,7 +3732,8 @@ void CVideoDatabase::DeleteMovie(int idMovie, bool bKeepId /* = false */)
     if (nullptr == m_pDS)
       return;
 
-    BeginTransaction();
+    if (withTransaction)
+      BeginTransaction();
 
     int idFile = GetDbId(PrepareSQL("SELECT idFile FROM movie WHERE idMovie=%i", idMovie));
     DeleteStreamDetails(idFile);
@@ -3721,13 +3755,14 @@ void CVideoDatabase::DeleteMovie(int idMovie, bool bKeepId /* = false */)
     if (!bKeepId)
       AnnounceRemove(MediaTypeMovie, idMovie);
 
-    CommitTransaction();
-
+    if (withTransaction)
+      CommitTransaction();
   }
   catch (...)
   {
     CLog::Log(LOGERROR, "%s failed", __FUNCTION__);
-    RollbackTransaction();
+    if (withTransaction)
+      RollbackTransaction();
   }
 }
 
