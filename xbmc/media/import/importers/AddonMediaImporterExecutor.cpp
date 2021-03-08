@@ -87,7 +87,7 @@ void CAddonMediaImporterExecutor::SetProgressStatus(const std::string& status)
 bool CAddonMediaImporterExecutor::IsCancelled() const
 {
   if (m_task != nullptr)
-    return m_task->ShouldCancel(m_currentProgress, m_currentTotal);
+    return m_task->ShouldCancel();
 
   return false;
 }

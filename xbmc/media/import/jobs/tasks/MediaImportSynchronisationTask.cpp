@@ -162,7 +162,7 @@ bool CMediaImportSynchronisationTask::DoWork()
   for (const auto& item : m_items)
   {
     // check if we should cancel
-    if (ShouldCancel(progress, total) || !SynchroniseItem(item))
+    if (ShouldCancel() || !SynchroniseItem(item))
     {
       result = false;
       break;
@@ -251,8 +251,7 @@ bool CMediaImportSynchronisationAsyncTask::DoWork()
     bool eventReceived = m_processItemsEvent.WaitMSec(100);
 
     // check if we should cancel
-    // TODO(Montellese): don't report progress
-    if (ShouldCancel(m_countProcessedItems, total))
+    if (ShouldCancel())
     {
       result = false;
       break;
@@ -282,7 +281,7 @@ bool CMediaImportSynchronisationAsyncTask::DoWork()
     for (const auto& item : itemsToProcess)
     {
       // check if we should cancel
-      if (ShouldCancel(m_countProcessedItems, total) || !SynchroniseItem(item))
+      if (ShouldCancel() || !SynchroniseItem(item))
       {
         result = false;
         break;

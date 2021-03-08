@@ -27,6 +27,14 @@ bool IMediaImportTask::ShouldCancel(unsigned int progress, unsigned int total) c
   return m_processorJob->ShouldCancel(progress, total);
 }
 
+bool IMediaImportTask::ShouldCancel() const
+{
+  if (m_processorJob == nullptr)
+    return false;
+
+  return m_processorJob->ShouldCancel();
+}
+
 void IMediaImportTask::SetProgressTitle(const std::string& title)
 {
   if (m_progress != nullptr)

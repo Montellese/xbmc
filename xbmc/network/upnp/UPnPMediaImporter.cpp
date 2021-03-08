@@ -241,7 +241,7 @@ bool CUPnPMediaImporter::Import(CMediaImportImportItemsRetrievalTask* task)
       return false;
 
     success = false;
-    if (task->ShouldCancel(0, 1))
+    if (task->ShouldCancel())
       return false;
 
     std::vector<CFileItemPtr> items;

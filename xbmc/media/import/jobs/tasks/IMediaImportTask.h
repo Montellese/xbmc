@@ -74,6 +74,7 @@ public:
    * \return True if the task should be cancelled, false otherwise
    */
   bool ShouldCancel(unsigned int progress, unsigned int total) const;
+  bool ShouldCancel() const;
 
   /*
    * \brief Sets the title of the progress indicator.
