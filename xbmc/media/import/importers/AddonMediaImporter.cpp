@@ -829,6 +829,12 @@ void CAddonMediaImporter::SetCanUpdateResumePositionOnProvider(
              CAddonMediaImporterExecutor::Action::CanUpdateResumePositionOnSource);
 }
 
+bool CAddonMediaImporter::ShouldCancel(HandleType handle) throw(
+    InvalidAddonMediaImporterHandleException)
+{
+  return CAddonMediaImporterExecutor::GetExecutorFromHandle(handle)->ShouldCancel();
+}
+
 bool CAddonMediaImporter::ShouldCancel(
     HandleType handle,
     unsigned int progress,

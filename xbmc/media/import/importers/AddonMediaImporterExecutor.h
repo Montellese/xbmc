@@ -77,6 +77,7 @@ public:
 
   bool Execute(const std::string& options);
 
+  bool ShouldCancel();
   bool ShouldCancel(unsigned int progress, unsigned int total);
   void SetProgressStatus(const std::string& status);
 

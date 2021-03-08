@@ -196,6 +196,7 @@ public:
       bool canUpdateResumePositionOnSource) throw(InvalidAddonMediaImporterHandleException);
 
   // methods concerning the current state and progress of the add-on script(s)
+  static bool ShouldCancel(HandleType handle) throw(InvalidAddonMediaImporterHandleException);
   static bool ShouldCancel(HandleType handle,
                            unsigned int progress,
                            unsigned int total) throw(InvalidAddonMediaImporterHandleException);

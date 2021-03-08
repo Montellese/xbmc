@@ -252,7 +252,7 @@ void setCanUpdateResumePositionOnProvider(int handle, bool canUpdateResumePositi
 #ifdef DOXYGEN_SHOULD_USE_THIS
 // TODO(Montellese)
 #else
-bool shouldCancel(int handle, unsigned int progress, unsigned int total);
+bool shouldCancel(int handle, unsigned int progress = 0, unsigned int total = 0);
 #endif
 
 #ifdef DOXYGEN_SHOULD_USE_THIS

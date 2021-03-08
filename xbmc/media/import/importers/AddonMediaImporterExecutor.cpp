@@ -67,6 +67,14 @@ bool CAddonMediaImporterExecutor::Execute(const std::string& options)
   return RunScript(options);
 }
 
+bool CAddonMediaImporterExecutor::ShouldCancel()
+{
+  if (m_task != nullptr)
+    return m_task->ShouldCancel();
+
+  return false;
+}
+
 bool CAddonMediaImporterExecutor::ShouldCancel(unsigned int progress, unsigned int total)
 {
   m_currentProgress = progress;
@@ -87,7 +95,7 @@ void CAddonMediaImporterExecutor::SetProgressStatus(const std::string& status)
 bool CAddonMediaImporterExecutor::IsCancelled() const
 {
   if (m_task != nullptr)
-    return m_task->ShouldCancel(m_currentProgress, m_currentTotal);
+    return m_task->ShouldCancel();
 
   return false;
 }

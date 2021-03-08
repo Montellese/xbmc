@@ -235,7 +235,6 @@ bool CMediaImportChangesetAsyncTask::DoWork()
   ChangesetItems itemsToProcess;
   bool partialChangeset = false;
   bool finish = false;
-  size_t total = 0;
 
   while (!finish)
   {
@@ -243,8 +242,7 @@ bool CMediaImportChangesetAsyncTask::DoWork()
     bool eventReceived = m_processItemsEvent.WaitMSec(100);
 
     // check if we should cancel
-    // TODO(Montellese): don't report progress
-    if (ShouldCancel(m_countProcessedItems, total))
+    if (ShouldCancel())
     {
       result = false;
       break;
@@ -258,7 +256,6 @@ bool CMediaImportChangesetAsyncTask::DoWork()
       CSingleLock lock(m_critical);
       std::move(m_itemsToProcess.begin(), m_itemsToProcess.end(), std::back_inserter(itemsToProcess));
       m_itemsToProcess.clear();
-      total += itemsToProcess.size();
 
       partialChangeset = m_partialChangeset;
       finish = m_finish;
@@ -268,7 +265,7 @@ bool CMediaImportChangesetAsyncTask::DoWork()
     for (ChangesetItems::iterator item = itemsToProcess.begin(); item != itemsToProcess.end();)
     {
       // check if we should cancel
-      if (ShouldCancel(m_countProcessedItems, total))
+      if (ShouldCancel())
       {
         result = false;
         break;
@@ -281,8 +278,6 @@ bool CMediaImportChangesetAsyncTask::DoWork()
         item = itemsToProcess.erase(item);
       else
         ++item;
-
-      ++m_countProcessedItems;
     }
 
     // notify the observer about the processed items

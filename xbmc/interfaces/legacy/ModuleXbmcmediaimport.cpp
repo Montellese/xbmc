@@ -142,9 +142,12 @@ void setCanUpdateResumePositionOnProvider(int handle, bool canUpdateResumePositi
                                                             canUpdateResumePositionOnProvider);
 }
 
-bool shouldCancel(int handle, unsigned int progress, unsigned int total)
+bool shouldCancel(int handle, unsigned int progress /* = 0 */, unsigned int total /* = 0 */)
 {
-  return CAddonMediaImporter::ShouldCancel(handle, progress, total);
+  if (total == 0)
+    return CAddonMediaImporter::ShouldCancel(handle);
+  else
+    return CAddonMediaImporter::ShouldCancel(handle, progress, total);
 }
 
 void setProgressStatus(int handle, const String& status)

@@ -95,7 +95,6 @@ private:
 
   IMediaImportChangesetItemsObserver* m_changesetItemsObserver;
 
-  size_t m_countProcessedItems = 0;
   ChangesetItems m_itemsToProcess;
 
   bool m_partialChangeset = false;
