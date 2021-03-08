@@ -322,6 +322,14 @@ protected:
   CJob *GetNextJob(const CJobWorker *worker);
 
   /*!
+   \brief Callback from CJob to check for cancellation.
+   \param job pointer to the calling subclassed CJob instance.
+   \return true if the job has been cancelled, else returns false.
+   \sa CJob
+   */
+  bool ShouldCancel(const CJob* job) const;
+
+  /*!
    \brief Callback from CJobWorker after a job has completed.
    Calls IJobCallback::OnJobComplete(), and then destroys job.
    \param job a pointer to the calling subclassed CJob instance.

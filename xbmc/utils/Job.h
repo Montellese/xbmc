@@ -154,6 +154,7 @@ public:
    \sa IJobCallback::OnJobProgress()
    */
   virtual bool ShouldCancel(unsigned int progress, unsigned int total) const;
+  virtual bool ShouldCancel() const;
 private:
   friend class CJobManager;
   CJobManager *m_callback;

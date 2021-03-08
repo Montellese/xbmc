@@ -23,6 +23,13 @@ bool CJob::ShouldCancel(unsigned int progress, unsigned int total) const
   return false;
 }
 
+bool CJob::ShouldCancel() const
+{
+  if (m_callback)
+    return m_callback->ShouldCancel(this);
+  return false;
+}
+
 CJobWorker::CJobWorker(CJobManager *manager) : CThread("JobWorker")
 {
   m_jobManager = manager;
@@ -357,6 +364,19 @@ CJob *CJobManager::GetNextJob(const CJobWorker *worker)
   // have no jobs
   RemoveWorker(worker);
   return NULL;
+}
+
+bool CJobManager::ShouldCancel(const CJob* job) const
+{
+  CSingleLock lock(m_section);
+
+  // find the job in the processing queue and check whether it's cancelled (no callback)
+  Processing::const_iterator i = find(m_processing.begin(), m_processing.end(), job);
+  if (i != m_processing.end() && i->m_callback != nullptr)
+    return false;
+
+  // couldn't find the job or it's been cancelled
+  return true;
 }
 
 bool CJobManager::OnJobProgress(unsigned int progress, unsigned int total, const CJob *job) const
