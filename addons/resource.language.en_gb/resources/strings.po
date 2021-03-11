@@ -22884,4 +22884,21 @@ msgctxt "#39708"
 msgid "Protocol"
 msgstr ""
 
-#strings from 39709 to 39799 are reserved for media import GUI info
+# empty string with id 39709
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#39710"
+msgid "Synchronise media provider"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#39711"
+msgid "Synchronise media import"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#39712"
+msgid "The settings of {:s} have changed. Would you like to synchronise it?"
+msgstr ""
+
+#strings from 39713 to 39799 are reserved for media import GUI info
