@@ -30,7 +30,7 @@ public:
   bool OnAction(const CAction& action) override;
   bool OnBack(int actionID) override;
 
-  static bool ShowForMediaImport(const CFileItemPtr& item);
+  static bool ShowForMediaImport(const CFileItemPtr& item, bool allowSync = true);
   static bool ShowForMediaImportSource(const CFileItemPtr& item);
 
 protected:
@@ -51,13 +51,17 @@ protected:
   void InitializeMediaImportSettings();
   void InitializeMediaImportSourceSettings();
 
-  bool SetMediaImport(const CFileItemPtr& item);
+  bool SetMediaImport(const CFileItemPtr& item, bool allowSync);
   bool SetMediaImportSource(const CFileItemPtr& item);
+  void SetItem(const CFileItemPtr& item, bool allowSync);
 
   CFileItemPtr m_item;
   std::shared_ptr<CMediaImport> m_import;
   std::shared_ptr<CMediaImportSource> m_source;
   MediaImporterPtr m_importer;
+
+  bool m_allowSync = false;
+  std::string m_originalSettingsXml;
 
   Logger m_logger;
 };
