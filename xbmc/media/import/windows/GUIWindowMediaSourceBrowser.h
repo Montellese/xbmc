@@ -49,7 +49,7 @@ protected:
   bool OnSourceInfo(const CFileItemPtr& item);
   bool OnSourceDelete(const CFileItemPtr& item);
   bool OnImportSynchronise(const CFileItemPtr& item);
-  bool OnImportInfo(const CFileItemPtr& item);
+  bool OnImportInfo(const CFileItemPtr& item, bool allowSync = true);
   bool OnImportDelete(const CFileItemPtr& item);
 
   void OnSourceAdded(const std::string& sourceId);

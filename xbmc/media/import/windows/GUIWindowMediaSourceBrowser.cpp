@@ -428,7 +428,8 @@ bool CGUIWindowMediaSourceBrowser::OnImportSynchronise(const CFileItemPtr& item)
   return false;
 }
 
-bool CGUIWindowMediaSourceBrowser::OnImportInfo(const CFileItemPtr& item)
+bool CGUIWindowMediaSourceBrowser::OnImportInfo(const CFileItemPtr& item,
+                                                bool allowSync /* = true */)
 {
   if (item == nullptr)
     return false;
@@ -443,7 +444,7 @@ bool CGUIWindowMediaSourceBrowser::OnImportInfo(const CFileItemPtr& item)
     return false;
   }
 
-  return CGUIDialogMediaImportInfo::ShowForMediaImport(item);
+  return CGUIDialogMediaImportInfo::ShowForMediaImport(item, allowSync);
 }
 
 bool CGUIWindowMediaSourceBrowser::OnImportDelete(const CFileItemPtr& item)
@@ -829,7 +830,7 @@ bool CGUIWindowMediaSourceBrowser::AddNewImport(CFileItemPtr newImportItem, cons
       m_viewControl.SetSelectedItem(importItem->GetPath());
 
       // and now finally open the import info dialog
-      OnImportInfo(importItem);
+      OnImportInfo(importItem, false);
 
       // now see if the add import button is still there and if so re-select it
       if (m_vecItems->Contains(newImportItem->GetPath()))

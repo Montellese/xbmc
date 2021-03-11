@@ -10,9 +10,11 @@
 
 #include "FileItem.h"
 #include "ServiceBroker.h"
+#include "dialogs/GUIDialogYesNo.h"
 #include "filesystem/MediaImportDirectory.h"
 #include "guilib/GUIComponent.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/LocalizeStrings.h"
 #include "guilib/WindowIDs.h"
 #include "input/Key.h"
 #include "media/MediaType.h"
@@ -89,7 +91,8 @@ bool CGUIDialogMediaImportInfo::OnBack(int actionID)
   return CGUIDialogSettingsManagerBase::OnBack(actionID);
 }
 
-bool CGUIDialogMediaImportInfo::ShowForMediaImport(const CFileItemPtr& item)
+bool CGUIDialogMediaImportInfo::ShowForMediaImport(const CFileItemPtr& item,
+                                                   bool allowSync /* = true */)
 {
   if (item == nullptr)
     return false;
@@ -101,7 +104,7 @@ bool CGUIDialogMediaImportInfo::ShowForMediaImport(const CFileItemPtr& item)
 
   // TODO(Montellese): showing this dialog while the responsible importer or the matching import is
   //                   being synchronized might have unexpected side effects
-  if (!dialog->SetMediaImport(item))
+  if (!dialog->SetMediaImport(item, allowSync))
     return false;
 
   dialog->Open();
@@ -187,26 +190,73 @@ std::shared_ptr<CSettingSection> CGUIDialogMediaImportInfo::GetSection()
 
 bool CGUIDialogMediaImportInfo::Save()
 {
+  auto& mediaImportManager = CServiceBroker::GetMediaImportManager();
+
   bool success = false;
+  std::string newSettingsXml;
   if (m_import != nullptr)
   {
     if (m_importer->UnloadImportSettings(*m_import))
-      success = CServiceBroker::GetMediaImportManager().UpdateImport(*m_import);
+      success = mediaImportManager.UpdateImport(*m_import);
 
     if (success)
+    {
       m_logger->info("settings for import {} saved", *m_import);
+      newSettingsXml = m_import->Settings()->ToXml();
+    }
     else
       m_logger->error("failed to save settings for import {}", *m_import);
   }
   else if (m_source != nullptr)
   {
     if (m_importer->UnloadSourceSettings(*m_source))
-      success = CServiceBroker::GetMediaImportManager().UpdateSource(*m_source);
+      success = mediaImportManager.UpdateSource(*m_source);
 
     if (success)
+    {
       m_logger->info("settings for source {} saved", *m_source);
+      newSettingsXml = m_source->Settings()->ToXml();
+    }
     else
       m_logger->error("failed to save settings for source {}", *m_source);
+  }
+
+  if (success)
+  {
+    // if we are allowed to start a synchronization check if the setting's XML has changed
+    if (m_allowSync && newSettingsXml != m_originalSettingsXml)
+    {
+      // for a media source we need to check whether it is empty or not
+      if (m_import != nullptr ||
+         (m_source != nullptr &&
+          !mediaImportManager.GetImportsBySource(m_source->GetIdentifier()).empty()))
+      {
+        // ask the user whether he wants to synchronize the changed source / import
+        auto dialog = static_cast<CGUIDialogYesNo*>(
+          CServiceBroker::GetGUI()->GetWindowManager().GetWindow(WINDOW_DIALOG_YES_NO));
+        if (dialog == nullptr)
+          return false;
+
+        auto heading = 39711;
+        if (m_source != nullptr)
+          heading = 39710;
+        dialog->SetHeading(heading);
+        dialog->SetText(StringUtils::Format(g_localizeStrings.Get(39712), m_item->GetLabel()));
+        dialog->Open();
+
+        if (dialog->IsConfirmed())
+        {
+          // synchronize the changed source / import
+          if (m_import != nullptr)
+          {
+            mediaImportManager.Import(m_import->GetSource().GetIdentifier(),
+                                      m_import->GetMediaTypes());
+          }
+          else
+            mediaImportManager.Import(m_source->GetIdentifier());
+        }
+      }
+    }
   }
 
   return success;
@@ -249,7 +299,7 @@ void CGUIDialogMediaImportInfo::InitializeMediaImportSourceSettings()
     return;
 }
 
-bool CGUIDialogMediaImportInfo::SetMediaImport(const CFileItemPtr& item)
+bool CGUIDialogMediaImportInfo::SetMediaImport(const CFileItemPtr& item, bool allowSync)
 {
   if (!item->HasProperty(PROPERTY_SOURCE_IDENTIFIER) ||
       !item->HasProperty(PROPERTY_IMPORT_MEDIATYPES))
@@ -274,8 +324,10 @@ bool CGUIDialogMediaImportInfo::SetMediaImport(const CFileItemPtr& item)
   if (m_importer == nullptr)
     return false;
 
-  // copy the given item
-  *m_item = *item;
+  // remember the original setting's XML
+  m_originalSettingsXml = m_import->Settings()->ToXml();
+
+  SetItem(item, allowSync);
 
   return true;
 }
@@ -298,8 +350,18 @@ bool CGUIDialogMediaImportInfo::SetMediaImportSource(const CFileItemPtr& item)
   if (m_importer == nullptr)
     return false;
 
+  // remember the original setting's XML
+  m_originalSettingsXml = m_source->Settings()->ToXml();
+
+  SetItem(item, true);
+
+  return true;
+}
+
+void CGUIDialogMediaImportInfo::SetItem(const CFileItemPtr& item, bool allowSync)
+{
   // copy the given item
   *m_item = *item;
 
-  return true;
+  m_allowSync = allowSync;
 }
