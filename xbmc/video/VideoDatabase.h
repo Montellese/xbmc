@@ -991,6 +991,10 @@ public:
     }
   }
 
+  std::string PrepareInsertArtForItemQuery(int mediaId,
+                                           const MediaType& mediaType,
+                                           const std::string& artType,
+                                           const std::string& url);
   void SetArtForItem(int mediaId, const MediaType &mediaType, const std::string &artType, const std::string &url);
   void SetArtForItem(int mediaId, const MediaType &mediaType, const std::map<std::string, std::string> &art);
   bool GetArtForItem(int mediaId, const MediaType &mediaType, std::map<std::string, std::string> &art);
@@ -1095,7 +1099,16 @@ protected:
   int AddRatings(int mediaId, const char *mediaType, const RatingMap& values, const std::string& defaultRating);
   int UpdateUniqueIDs(int mediaId, const char *mediaType, const CVideoInfoTag& details);
   int AddUniqueIDs(int mediaId, const char *mediaType, const CVideoInfoTag& details);
-  int AddActor(const std::string& strActor, const std::string& thumbURL, const std::string &thumb = "");
+
+  int GetActorId(const std::string& name);
+  int GetMaxActorId();
+  std::string PrepareAddActorQuery(const std::string& name, const std::string& thumbUrls);
+  void UpdateActor(int actorId, const std::string& thumbUrls, const std::string& thumb = "");
+
+  std::string PrepareAddLinkToActorQuery(
+      int mediaId, const std::string& mediaType, int actorId, const std::string& role, int order);
+  void AddLinkToActor(
+      int mediaId, const std::string& mediaType, int actorId, const std::string& role, int order);
 
   int AddTvShow();
 
@@ -1116,7 +1129,11 @@ protected:
   int GetMatchingTvShow(const CVideoInfoTag &show);
 
   // link functions - these two do all the work
-  void AddLinkToActor(int mediaId, const char *mediaType, int actorId, const std::string &role, int order);
+  std::string PrepareAddToLinkTableQuery(int mediaId,
+                                         const std::string& mediaType,
+                                         const std::string& table,
+                                         int valueId,
+                                         const char* foreignKey = NULL);
   void AddToLinkTable(int mediaId, const std::string& mediaType, const std::string& table, int valueId, const char *foreignKey = NULL);
   void RemoveFromLinkTable(int mediaId, const std::string& mediaType, const std::string& table, int valueId, const char *foreignKey = NULL);
 
