@@ -1931,66 +1931,168 @@ int CVideoDatabase::AddTag(const std::string& name)
   return AddToTable("tag", "tag_id", "name", name);
 }
 
-int CVideoDatabase::AddActor(const std::string& name, const std::string& thumbURLs, const std::string &thumb)
+int CVideoDatabase::GetActorId(const std::string& name)
 {
+  return GetSingleValueInt(PrepareSQL("SELECT actor_id FROM actor WHERE name='%s'", name.c_str()));
+}
+
+int CVideoDatabase::GetMaxActorId()
+{
+  return std::max(0, GetSingleValueInt("SELECT MAX(actor_id) FROM actor"));
+}
+
+std::string CVideoDatabase::PrepareAddActorQuery(const std::string& name,
+                                                 const std::string& thumbUrls)
+{
+  return PrepareSQL("INSERT INTO actor (name, art_urls) VALUES ('%s', '%s')", name.c_str(),
+                    thumbUrls.c_str());
+}
+
+void CVideoDatabase::UpdateActor(int actorId,
+                                 const std::string& thumbUrls,
+                                 const std::string& thumb /* = "" */)
+{
+  if (actorId <= 0)
+    return;
   try
   {
-    if (nullptr == m_pDB)
-      return -1;
-    if (nullptr == m_pDS)
-      return -1;
-    int idActor = -1;
+    if (m_pDB == nullptr || m_pDS == nullptr)
+      return;
 
-    // ATTENTION: the trimming of actor names should really not be done here but after the scraping / NFO-parsing
-    std::string trimmedName = name.c_str();
-    StringUtils::Trim(trimmedName);
+    // update the thumb url's
+    if (!thumbUrls.empty())
+    {
+      auto sql = PrepareSQL("UPDATE actor SET art_urls = '%s' WHERE actor_id = %i",
+                            thumbUrls.c_str(), actorId);
+      m_pDS->exec(sql);
 
-    std::string strSQL=PrepareSQL("select actor_id from actor where name like '%s'", trimmedName.substr(0, 255).c_str());
-    m_pDS->query(strSQL);
-    if (m_pDS->num_rows() == 0)
-    {
-      m_pDS->close();
-      // doesn't exists, add it
-      strSQL=PrepareSQL("insert into actor (actor_id, name, art_urls) values(NULL, '%s', '%s')", trimmedName.substr(0,255).c_str(), thumbURLs.c_str());
-      m_pDS->exec(strSQL);
-      idActor = (int)m_pDS->lastinsertid();
+      // add artwork
+      if (!thumb.empty())
+        SetArtForItem(actorId, "actor", "thumb", thumb);
     }
-    else
-    {
-      idActor = m_pDS->fv(0).get_asInt();
-      m_pDS->close();
-      // update the thumb url's
-      if (!thumbURLs.empty())
-      {
-        strSQL=PrepareSQL("update actor set art_urls = '%s' where actor_id = %i", thumbURLs.c_str(), idActor);
-        m_pDS->exec(strSQL);
-      }
-    }
-    // add artwork
-    if (!thumb.empty())
-      SetArtForItem(idActor, "actor", "thumb", thumb);
-    return idActor;
   }
   catch (...)
   {
-    CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, name.c_str() );
+    CLog::Log(LOGERROR, "{}({}) failed", __FUNCTION__, actorId);
   }
-  return -1;
 }
 
+std::string CVideoDatabase::PrepareAddLinkToActorQuery(
+    int mediaId, const std::string& mediaType, int actorId, const std::string& role, int order)
+{
+  return PrepareSQL("INSERT INTO actor_link (actor_id, media_id, media_type, role, cast_order) "
+                    "VALUES (%i, %i, '%s', '%s', %i)",
+                    actorId, mediaId, mediaType.c_str(), role.c_str(), order);
+}
 
-
-void CVideoDatabase::AddLinkToActor(int mediaId, const char *mediaType, int actorId, const std::string &role, int order)
+void CVideoDatabase::AddLinkToActor(
+    int mediaId, const std::string& mediaType, int actorId, const std::string& role, int order)
 {
   std::string sql = PrepareSQL("SELECT 1 FROM actor_link WHERE actor_id=%i AND "
                                "media_id=%i AND media_type='%s' AND role='%s'",
-                               actorId, mediaId, mediaType, role.c_str());
+                               actorId, mediaId, mediaType.c_str(), role.c_str());
 
   if (GetSingleValue(sql).empty())
   { // doesn't exists, add it
-    sql = PrepareSQL("INSERT INTO actor_link (actor_id, media_id, media_type, role, cast_order) VALUES(%i,%i,'%s','%s',%i)", actorId, mediaId, mediaType, role.c_str(), order);
+    sql = PrepareAddLinkToActorQuery(mediaId, mediaType, actorId, role, order);
     ExecuteQuery(sql);
   }
+}
+
+void CVideoDatabase::AddCast(int mediaId,
+                             const char* mediaType,
+                             const std::vector<SActorInfo>& cast)
+{
+  if (cast.empty())
+    return;
+
+  // get the biggest actor ID
+  int maxActorId = GetMaxActorId();
+
+  // determine the largest specified order as a starting point for non-specified orders
+  int order = std::max_element(cast.begin(), cast.end())->order;
+
+  // keep track of actors (and their IDs) which are added in batch to avoid duplicates
+  typedef struct AddedActor
+  {
+    int dbId;
+    std::set<std::string> roles;
+    bool hasThumb;
+  } AddedActor;
+  std::unordered_map<std::string, AddedActor> batchActors;
+
+  // go through the actors and check if they already exist
+  // if an actor exists, update it and make sure the link exists as well
+  // if an actor doesn't exist yet prepare the insert queries to add it, the link and the artwork
+  for (const auto& i : cast)
+  {
+    // ATTENTION: the trimming of actor names should really not be done here but after the scraping / NFO-parsing
+    std::string name = i.strName;
+    StringUtils::Trim(name);
+    name = name.substr(0, 255);
+
+    int actorId = GetActorId(name);
+    if (actorId > 0)
+    {
+      UpdateActor(actorId, i.thumbUrl.GetData(), i.thumb);
+      AddLinkToActor(mediaId, mediaType, actorId, i.strRole, i.order >= 0 ? i.order : ++order);
+    }
+    else
+    {
+      // sanity check if the same actor has already been added to the batch INSERT
+      auto batchActor = batchActors.find(name);
+      if (batchActor == batchActors.end())
+      {
+        // manually increase the actor id for each INSERT that the entries in the link table match
+        maxActorId += 1;
+        actorId = maxActorId;
+
+        // queue the insert query for the actor himself
+        QueueInsertQuery(PrepareAddActorQuery(name, i.thumbUrl.GetData()));
+
+        // remember that the actor has already been inserted with the current id
+        batchActor = batchActors.emplace(name, AddedActor{actorId, {}, false}).first;
+      }
+      else
+      {
+        // take the previously assigned actor id
+        actorId = batchActor->second.dbId;
+      }
+
+      // sanity check if the actor has already been linked with the same role
+      if (batchActor->second.roles.find(i.strRole) == batchActor->second.roles.end())
+      {
+        QueueInsertQuery(PrepareAddLinkToActorQuery(mediaId, mediaType, actorId, i.strRole,
+                                                    i.order >= 0 ? i.order : ++order));
+
+        // remember the added role to avoid duplicates
+        batchActor->second.roles.insert(i.strRole);
+      }
+
+      // sanity check if we have already stored artwork for the actor
+      if (!batchActor->second.hasThumb && !i.thumb.empty())
+      {
+        QueueInsertQuery(PrepareInsertArtForItemQuery(actorId, "actor", "thumb", i.thumb));
+
+        // remember that artwort has been stored for the actor
+        batchActor->second.hasThumb = true;
+      }
+    }
+  }
+
+  if (GetInsertQueriesCount() > 0)
+    CommitInsertQueries(false);
+}
+
+std::string CVideoDatabase::PrepareAddToLinkTableQuery(int mediaId,
+                                                       const std::string& mediaType,
+                                                       const std::string& table,
+                                                       int valueId,
+                                                       const char* foreignKey)
+{
+  const auto key = foreignKey ? foreignKey : table.c_str();
+  return PrepareSQL("INSERT INTO %s_link (%s_id,media_id,media_type) VALUES (%i,%i,'%s')",
+                    table.c_str(), key, valueId, mediaId, mediaType.c_str());
 }
 
 void CVideoDatabase::AddToLinkTable(int mediaId, const std::string& mediaType, const std::string& table, int valueId, const char *foreignKey)
@@ -2000,7 +2102,7 @@ void CVideoDatabase::AddToLinkTable(int mediaId, const std::string& mediaType, c
 
   if (GetSingleValue(sql).empty())
   { // doesn't exists, add it
-    sql = PrepareSQL("INSERT INTO %s_link (%s_id,media_id,media_type) VALUES(%i,%i,'%s')", table.c_str(), key, valueId, mediaId, mediaType.c_str());
+    sql = PrepareAddToLinkTableQuery(mediaId, mediaType, table, valueId, foreignKey);
     ExecuteQuery(sql);
   }
 }
@@ -2036,15 +2138,52 @@ void CVideoDatabase::UpdateLinksToItem(int mediaId, const std::string& mediaType
 
 void CVideoDatabase::AddActorLinksToItem(int mediaId, const std::string& mediaType, const std::string& field, const std::vector<std::string>& values)
 {
-  for (const auto &i : values)
+  if (values.empty())
+    return;
+
+  // get the biggest actor ID
+  int maxActorId = GetMaxActorId();
+
+  // keep track of actors (and their IDs) which are added in batch to avoid duplicates
+  std::unordered_map<std::string, int> batchActors;
+
+  // go through the actors and check if they already exist
+  // if an actor exists make sure the link exists as well
+  // if an actor doesn't exist yet prepare the insert queries to add it and the link
+  for (const auto& actorName : values)
   {
-    if (!i.empty())
+    if (actorName.empty())
+      continue;
+
+    // ATTENTION: the trimming of actor names should really not be done here but after the scraping / NFO-parsing
+    std::string name = actorName;
+    StringUtils::Trim(name);
+    name = name.substr(0, 255);
+
+    int actorId = GetActorId(name);
+    if (actorId > 0)
+      AddToLinkTable(mediaId, mediaType, field, actorId, "actor");
+    else
     {
-      int idValue = AddActor(i, "");
-      if (idValue > -1)
-        AddToLinkTable(mediaId, mediaType, field, idValue, "actor");
+      // check if the same actor has already been added to the batch INSERT
+      const auto batchActor = batchActors.find(name);
+      if (batchActor == batchActors.end())
+      {
+        // manually increase the actor id for each INSERT that the entries in the link table match
+        maxActorId += 1;
+        actorId = maxActorId;
+
+        // queue the insert query
+        QueueInsertQuery(PrepareAddActorQuery(name, ""));
+        QueueInsertQuery(PrepareAddToLinkTableQuery(mediaId, mediaType, field, actorId, "actor"));
+
+        batchActors.emplace(name, actorId);
+      }
     }
   }
+
+  if (GetInsertQueriesCount() > 0)
+    CommitInsertQueries(false);
 }
 
 void CVideoDatabase::UpdateActorLinksToItem(int mediaId, const std::string& mediaType, const std::string& field, const std::vector<std::string>& values)
@@ -2078,20 +2217,6 @@ void CVideoDatabase::RemoveTagsFromItem(int media_id, const std::string &type)
     return;
 
   m_pDS2->exec(PrepareSQL("DELETE FROM tag_link WHERE media_id=%d AND media_type='%s'", media_id, type.c_str()));
-}
-
-//****Actors****
-void CVideoDatabase::AddCast(int mediaId, const char *mediaType, const std::vector< SActorInfo > &cast)
-{
-  if (cast.empty())
-    return;
-
-  int order = std::max_element(cast.begin(), cast.end())->order;
-  for (const auto &i : cast)
-  {
-    int idActor = AddActor(i.strName, i.thumbUrl.GetData(), i.thumb);
-    AddLinkToActor(mediaId, mediaType, idActor, i.strRole, i.order >= 0 ? i.order : ++order);
-  }
 }
 
 //********************************************************************************************************************************
@@ -4844,6 +4969,16 @@ void CVideoDatabase::SetVideoSettings(int idFile, const CVideoSettings &setting)
   }
 }
 
+std::string CVideoDatabase::PrepareInsertArtForItemQuery(int mediaId,
+                                                         const MediaType& mediaType,
+                                                         const std::string& artType,
+                                                         const std::string& url)
+{
+  return PrepareSQL("INSERT INTO art (media_id, media_type, type, url) "
+                    "VALUES (%d, '%s', '%s', '%s')",
+                    mediaId, mediaType.c_str(), artType.c_str(), url.c_str());
+}
+
 void CVideoDatabase::SetArtForItem(int mediaId, const MediaType &mediaType, const std::map<std::string, std::string> &art)
 {
   for (const auto &i : art)
@@ -4879,7 +5014,7 @@ void CVideoDatabase::SetArtForItem(int mediaId, const MediaType &mediaType, cons
     else
     { // insert
       m_pDS->close();
-      sql = PrepareSQL("INSERT INTO art(media_id, media_type, type, url) VALUES (%d, '%s', '%s', '%s')", mediaId, mediaType.c_str(), artType.c_str(), url.c_str());
+      sql = PrepareInsertArtForItemQuery(mediaId, mediaType, artType, url);
       m_pDS->exec(sql);
     }
   }
