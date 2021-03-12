@@ -459,6 +459,23 @@ bool CDatabase::CommitInsertQueries()
   return bReturn;
 }
 
+bool CDatabase::CommitInsertQueries(bool autocommit)
+{
+  const auto currentAutoCommit = m_pDS2->get_autocommit();
+
+  // overwrite autocommit if necessary
+  if (currentAutoCommit != autocommit)
+    m_pDS2->set_autocommit(autocommit);
+
+  auto result = CommitInsertQueries();
+
+  // restore autocommit if necessary
+  if (currentAutoCommit != autocommit)
+    m_pDS2->set_autocommit(currentAutoCommit);
+
+  return result;
+}
+
 size_t CDatabase::GetInsertQueriesCount()
 {
   return m_pDS2->insert_sql_count();

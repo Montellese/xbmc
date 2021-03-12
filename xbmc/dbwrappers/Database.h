@@ -211,6 +211,13 @@ public:
   bool CommitInsertQueries();
 
   /*!
+   * @brief Commit all queries in the queue.
+   * @param autocommit Whether to use autocommit.
+   * @return True if all queries were executed successfully, false otherwise.
+   */
+  bool CommitInsertQueries(bool autocommit);
+
+  /*!
    * @brief Get the number of INSERT queries in the queue.
    * @return The number of queries.
    */
