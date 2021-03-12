@@ -30,6 +30,6 @@
                                    'ltype' : swigTypeParser.SwigType_ltype(settype),
                                    'sequence' : sequence
                                    ])}
-        ${api}${accessor}insert(entry${seq});
+        ${api}${accessor}insert(std::move(entry${seq}));
       }
     }
