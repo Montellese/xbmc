@@ -38,6 +38,16 @@ class LanguageHook;
 
 namespace XBMCAddonUtils
 {
+  class GuiOnlyLock
+  {
+  public:
+    explicit GuiOnlyLock(bool offScreen);
+    ~GuiOnlyLock();
+
+  protected:
+    bool m_offScreen = false;
+  };
+
   class GuiLock
   {
   public:

@@ -590,6 +590,7 @@ namespace XBMCAddon
       ///
       getVotes(key);
 #else
+      // TODO(Montellese)
       int getVotes(const char* key);
 #endif
 
@@ -646,11 +647,12 @@ namespace XBMCAddon
 #ifdef DOXYGEN_SHOULD_USE_THIS
       ///
       /// \ingroup python_xbmcgui_listitem
-      /// @brief \python_func{ setInfo(type, infoLabels) }
+      /// @brief \python_func{ setInfo(type, infoLabels, info) }
       /// Sets the listitem's infoLabels.
       ///
-      /// @param type               string - type of
-      /// @param infoLabels         dictionary - pairs of `{ label: value }`
+      /// @param type               [opt] string - type of info labels
+      /// @param infoLabels         [opt] dictionary - pairs of `{ label: value }
+      /// @param info               [opt] dictionary - collection of data
       ///
       /// __Available types__
       /// | Command name | Description           |
@@ -782,6 +784,7 @@ namespace XBMCAddon
       /// @python_v18 Added new **game** type and associated infolabels.
       /// Added labels **dbid** (music), **setoverview**, **tag**, **sortepisode**, **sortseason**, **episodeguide**, **showlink**.
       /// Extended labels **genre**, **country**, **director**, **studio**, **writer**, **tag**, **credits** to also use a list of strings.
+      /// @python_v20 Deprecated. Use **InfoTagVideo.setInfo()**, **InfoTagMusic.setInfo()**, **InfoTagPicture.setInfo()** or **InfoTagGame.setInfo()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -792,7 +795,9 @@ namespace XBMCAddon
       ///
       setInfo(...);
 #else
-      void setInfo(const char* type, const InfoLabelDict& infoLabels);
+      void setInfo(const String& type = "",
+                   const InfoLabelDict& infoLabels = {},
+                   const CVariant& info = {});
 #endif
 
 #ifdef DOXYGEN_SHOULD_USE_THIS
@@ -1221,6 +1226,18 @@ private:
 
       CVideoInfoTag* GetVideoInfoTag();
       const CVideoInfoTag* GetVideoInfoTag() const;
+
+      void setCountRaw(int count);
+      void setSizeRaw(int64_t size);
+      void setDateTimeRaw(const std::string& dateTime);
+      void setIsFolderRaw(bool isFolder);
+      void setStartOffsetRaw(float startOffset);
+      void setMimeTypeRaw(const std::string& mimetype);
+      void setSpecialSortRaw(std::string specialSort);
+      void setContentLookupRaw(bool enable);
+      void addArtRaw(std::string type, std::string url);
+      void addPropertyRaw(std::string type, CVariant value);
+      void addSubtitlesRaw(const std::vector<std::string>& subtitles);
     };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

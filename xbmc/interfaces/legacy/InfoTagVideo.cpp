@@ -195,11 +195,13 @@ namespace XBMCAddon
 
     String InfoTagVideo::getVotes()
     {
+      // TODO(Montellese)
       return StringUtils::Format("%i", infoTag->GetRating().votes);
     }
 
     String InfoTagVideo::getCast()
     {
+      // TODO(Montellese)
       return infoTag->GetCast(true);
     }
 
@@ -255,6 +257,7 @@ namespace XBMCAddon
 
     String InfoTagVideo::getLastPlayed()
     {
+      // TODO(Montellese)
       return infoTag->m_lastPlayed.GetAsLocalizedDateTime();
     }
 
@@ -265,11 +268,13 @@ namespace XBMCAddon
 
     String InfoTagVideo::getPremiered()
     {
+      // TODO(Montellese)
       return infoTag->GetPremiered().GetAsLocalizedDate();
     }
 
     String InfoTagVideo::getFirstAired()
     {
+      // TODO(Montellese)
       return infoTag->m_firstAired.GetAsLocalizedDate();
     }
 

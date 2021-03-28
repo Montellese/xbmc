@@ -8,15 +8,17 @@
 
 #include "ListItem.h"
 
-#include "AddonUtils.h"
 #include "ServiceBroker.h"
 #include "Util.h"
 #include "games/GameTypes.h"
 #include "games/tags/GameInfoTag.h"
+#include "interfaces/legacy/AddonUtils.h"
+#include "interfaces/legacy/DictUtils.h"
 #include "music/tags/MusicInfoTag.h"
 #include "pictures/PictureInfoTag.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
+#include "utils/JSONVariantParser.h"
 #include "utils/StringUtils.h"
 #include "utils/Variant.h"
 #include "utils/log.h"
@@ -25,6 +27,8 @@
 #include <cstdlib>
 #include <sstream>
 #include <utility>
+
+using namespace XBMCAddonUtils;
 
 namespace XBMCAddon
 {
@@ -128,7 +132,7 @@ namespace XBMCAddon
       // set datetime
       {
         XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-        item->m_dateTime.SetFromW3CDateTime(dateTime);
+        setDateTimeRaw(dateTime);
       }
     }
 
@@ -137,12 +141,8 @@ namespace XBMCAddon
       if (!item) return;
       {
         XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-        for (const auto& it: dictionary)
-        {
-          std::string artName = it.first;
-          StringUtils::ToLower(artName);
-          item->SetArt(artName, it.second);
-        }
+        for (const auto& it : dictionary)
+          addArtRaw(it.first, it.second);
       }
     }
 
@@ -150,9 +150,10 @@ namespace XBMCAddon
     {
       if (!item)
         return;
+
       {
         XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-        item->m_bIsFolder = isFolder;
+        setIsFolderRaw(isFolder);
       }
     }
 
@@ -232,9 +233,8 @@ namespace XBMCAddon
       String lowerKey = key;
       StringUtils::ToLower(lowerKey);
       if (lowerKey == "startoffset")
-      { // special case for start offset - don't actually store in a property,
-        // we store it in item.m_lStartOffset instead
-        item->m_lStartOffset = CUtil::ConvertSecsToMilliSecs(atof(value.c_str())); // we store the offset in frames, or 1/75th of a second
+      { // special case for start offset - don't actually store in a property
+        setStartOffsetRaw(strtof(value.c_str(), nullptr));
       }
       else if (lowerKey == "mimetype")
       { // special case for mime type - don't actually stored in a property,
@@ -264,16 +264,11 @@ namespace XBMCAddon
                                               static_cast<float>(atof(value.c_str())));
       }
       else if (lowerKey == "specialsort")
-      {
-        if (value == "bottom")
-          item->SetSpecialSort(SortSpecialOnBottom);
-        else if (value == "top")
-          item->SetSpecialSort(SortSpecialOnTop);
-      }
+        setSpecialSortRaw(value);
       else if (lowerKey == "fanart_image")
         item->SetArt("fanart", value);
       else
-        item->SetProperty(lowerKey, value);
+        addPropertyRaw(lowerKey, value);
     }
 
     void ListItem::setProperties(const Properties& dictionary)
@@ -356,6 +351,7 @@ namespace XBMCAddon
 
     int ListItem::getVotes(const char* key)
     {
+      // TODO(Montellese)
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
       return GetVideoInfoTag()->GetRating(key).votes;
     }
@@ -369,13 +365,13 @@ namespace XBMCAddon
     void ListItem::setMimeType(const String& mimetype)
     {
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-      item->SetMimeType(mimetype);
+      setMimeTypeRaw(mimetype);
     }
 
     void ListItem::setContentLookup(bool enable)
     {
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-      item->SetContentLookup(enable);
+      setContentLookupRaw(enable);
     }
 
     String ListItem::getPath()
@@ -384,348 +380,471 @@ namespace XBMCAddon
       return item->GetPath();
     }
 
-    void ListItem::setInfo(const char* type, const InfoLabelDict& infoLabels)
+    void ListItem::setInfo(const String& type /* = "" */,
+                           const InfoLabelDict& infoLabels /* = {} */,
+                           const CVariant& info /* = {} */)
     {
-      XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-
-      if (StringUtils::CompareNoCase(type, "video") == 0)
+      if (!infoLabels.empty())
       {
-        using InfoTagVideo = xbmc::InfoTagVideo;
-        auto videotag = GetVideoInfoTag();
-        for (const auto& it: infoLabels)
+        if (type.empty())
         {
-          String key = it.first;
-          StringUtils::ToLower(key);
+          CLog::Log(LOGWARNING, "Using ListItem.setInfo() with infoLabels but without a specific "
+                                "type is not supported");
+          return;
+        }
 
-          const InfoLabelValue& alt = it.second;
-          const String value(alt.which() == first ? alt.former() : emptyString);
+        if (!info.empty())
+        {
+          CLog::Log(
+              LOGWARNING,
+              "Using ListItem.setInfo() with specific type \"{}\" disables the info parameter",
+              type);
+        }
 
-          if (key == "dbid")
-            InfoTagVideo::setDbIdRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "year")
-            InfoTagVideo::setYearRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "episode")
-            InfoTagVideo::setEpisodeRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "season")
-            InfoTagVideo::setSeasonRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "sortepisode")
-            InfoTagVideo::setSortEpisodeRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "sortseason")
-            InfoTagVideo::setSortSeasonRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "episodeguide")
-            InfoTagVideo::setEpisodeGuideRaw(videotag, value);
-          else if (key == "showlink")
-            InfoTagVideo::setShowLinksRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "top250")
-            InfoTagVideo::setTop250Raw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "setid")
-            InfoTagVideo::setSetIdRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "tracknumber")
-            InfoTagVideo::setTrackNumberRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "count")
-            item->m_iprogramCount = strtol(value.c_str(), nullptr, 10);
-          else if (key == "rating")
-            InfoTagVideo::setRatingRaw(videotag,
-                                       static_cast<float>(strtod(value.c_str(), nullptr)));
-          else if (key == "userrating")
-            InfoTagVideo::setUserRatingRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "size")
-            item->m_dwSize = (int64_t)strtoll(value.c_str(), nullptr, 10);
-          else if (key == "watched") // backward compat - do we need it?
-            InfoTagVideo::setPlaycountRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "playcount")
-            InfoTagVideo::setPlaycountRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "overlay")
+        CLog::Log(LOGWARNING,
+                  "ListItem.setInfo() is deprecated and might be removed in future Kodi versions."
+                  "Please use InfoTagVideo.setInfo(), InfoTagMusic.setInfo(), "
+                  "InfoTagPicture.setInfo() or "
+                  "InfoTagGame.setInfo().");
+
+        XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
+
+        if (StringUtils::CompareNoCase(type, "video") == 0)
+        {
+          using InfoTagVideo = xbmc::InfoTagVideo;
+          auto videotag = GetVideoInfoTag();
+          for (const auto& it : infoLabels)
           {
-            long overlay = strtol(value.c_str(), nullptr, 10);
-            if (overlay >= 0 && overlay <= 8)
-              item->SetOverlayImage(static_cast<CGUIListItem::GUIIconOverlay>(overlay));
-          }
-          else if (key == "cast" || key == "castandrole")
-          {
-            if (alt.which() != second)
-              throw WrongTypeException("When using \"cast\" or \"castandrole\" you need to supply a list of tuples for the value in the dictionary");
+            const auto key = StringUtils::ToLower(it.first);
+            const InfoLabelValue& alt = it.second;
+            const String value(alt.which() == first ? alt.former() : emptyString);
 
-            std::vector<SActorInfo> cast;
-            cast.reserve(alt.later().size());
-            for (const auto& castEntry: alt.later())
+            if (key == "dbid")
+              InfoTagVideo::setDbIdRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "year")
+              InfoTagVideo::setYearRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "episode")
+              InfoTagVideo::setEpisodeRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "season")
+              InfoTagVideo::setSeasonRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "sortepisode")
+              InfoTagVideo::setSortEpisodeRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "sortseason")
+              InfoTagVideo::setSortSeasonRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "episodeguide")
+              InfoTagVideo::setEpisodeGuideRaw(videotag, value);
+            else if (key == "showlink")
+              InfoTagVideo::setShowLinksRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "top250")
+              InfoTagVideo::setTop250Raw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "setid")
+              InfoTagVideo::setSetIdRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "tracknumber")
+              InfoTagVideo::setTrackNumberRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "count")
+              setCountRaw(strtol(value.c_str(), nullptr, 10));
+            else if (key == "rating")
+              InfoTagVideo::setRatingRaw(videotag,
+                                         static_cast<float>(strtod(value.c_str(), nullptr)));
+            else if (key == "userrating")
+              InfoTagVideo::setUserRatingRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "size")
+              setSizeRaw(static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10)));
+            else if (key == "watched") // backward compat - do we need it?
+              InfoTagVideo::setPlaycountRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "playcount")
+              InfoTagVideo::setPlaycountRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "overlay")
             {
-              // castEntry can be a string meaning it's the actor or it can be a tuple meaning it's the
-              //  actor and the role.
-              const String& actor = castEntry.which() == first ? castEntry.former() : castEntry.later().first();
-              SActorInfo info;
-              info.strName = actor;
-              if (castEntry.which() == second)
-                info.strRole = static_cast<const String&>(castEntry.later().second());
-              cast.push_back(std::move(info));
+              long overlay = strtol(value.c_str(), nullptr, 10);
+              if (overlay >= 0 && overlay <= 8)
+                item->SetOverlayImage(static_cast<CGUIListItem::GUIIconOverlay>(overlay));
             }
-            InfoTagVideo::setCastRaw(videotag, std::move(cast));
-          }
-          else if (key == "artist")
-          {
-            if (alt.which() != second)
-              throw WrongTypeException("When using \"artist\" you need to supply a list of strings for the value in the dictionary");
+            else if (key == "cast" || key == "castandrole")
+            {
+              if (alt.which() != second)
+                throw WrongTypeException("When using \"cast\" or \"castandrole\" you need to "
+                                         "supply a list of tuples for the value in the dictionary");
 
-            std::vector<String> artists;
-            artists.reserve(alt.later().size());
-            for (const auto& castEntry: alt.later())
-            {
-              auto actor =
-                  castEntry.which() == first ? castEntry.former() : castEntry.later().first();
-              artists.push_back(std::move(actor));
+              std::vector<SActorInfo> cast;
+              cast.reserve(alt.later().size());
+              for (const auto& castEntry : alt.later())
+              {
+                // castEntry can be a string meaning it's the actor or it can be a tuple meaning it's the
+                //  actor and the role.
+                const String& actor =
+                    castEntry.which() == first ? castEntry.former() : castEntry.later().first();
+                SActorInfo info;
+                info.strName = actor;
+                if (castEntry.which() == second)
+                  info.strRole = static_cast<const String&>(castEntry.later().second());
+                cast.push_back(std::move(info));
+              }
+              InfoTagVideo::setCastRaw(videotag, std::move(cast));
             }
-            InfoTagVideo::setArtistsRaw(videotag, artists);
-          }
-          else if (key == "genre")
-            InfoTagVideo::setGenreRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "country")
-            InfoTagVideo::setCountriesRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "director")
-            InfoTagVideo::setDirectorsRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "mpaa")
-            InfoTagVideo::setMpaaRaw(videotag, value);
-          else if (key == "plot")
-            InfoTagVideo::setPlotRaw(videotag, value);
-          else if (key == "plotoutline")
-            InfoTagVideo::setPlotOutlineRaw(videotag, value);
-          else if (key == "title")
-            InfoTagVideo::setTitleRaw(videotag, value);
-          else if (key == "originaltitle")
-            InfoTagVideo::setOriginalTitleRaw(videotag, value);
-          else if (key == "sorttitle")
-            InfoTagVideo::setSortTitleRaw(videotag, value);
-          else if (key == "duration")
-            InfoTagVideo::setDurationRaw(videotag, strtol(value.c_str(), nullptr, 10));
-          else if (key == "studio")
-            InfoTagVideo::setStudiosRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "tagline")
-            InfoTagVideo::setTagLineRaw(videotag, value);
-          else if (key == "writer" || key == "credits")
-            InfoTagVideo::setWritersRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "tvshowtitle")
-            InfoTagVideo::setTvShowTitleRaw(videotag, value);
-          else if (key == "premiered")
-            InfoTagVideo::setPremieredRaw(videotag, value);
-          else if (key == "status")
-            InfoTagVideo::setTvShowStatusRaw(videotag, value);
-          else if (key == "set")
-            InfoTagVideo::setSetRaw(videotag, value);
-          else if (key == "setoverview")
-            InfoTagVideo::setSetOverviewRaw(videotag, value);
-          else if (key == "tag")
-            InfoTagVideo::setTagsRaw(videotag, getStringArray(alt, key, value));
-          else if (key == "imdbnumber")
-            InfoTagVideo::setIMDBNumberRaw(videotag, value);
-          else if (key == "code")
-            InfoTagVideo::setProductionCodeRaw(videotag, value);
-          else if (key == "aired")
-            InfoTagVideo::setFirstAiredRaw(videotag, value);
-          else if (key == "lastplayed")
-            InfoTagVideo::setLastPlayedRaw(videotag, value);
-          else if (key == "album")
-            InfoTagVideo::setAlbumRaw(videotag, value);
-          else if (key == "votes")
-            InfoTagVideo::setVotesRaw(videotag, StringUtils::ReturnDigits(value));
-          else if (key == "trailer")
-            InfoTagVideo::setTrailerRaw(videotag, value);
-          else if (key == "path")
-            InfoTagVideo::setPathRaw(videotag, value);
-          else if (key == "filenameandpath")
-            InfoTagVideo::setFilenameAndPathRaw(videotag, value);
-          else if (key == "date")
-          {
-            if (value.length() == 10)
+            else if (key == "artist")
             {
-              int year = atoi(value.substr(value.size() - 4).c_str());
-              int month = atoi(value.substr(3, 4).c_str());
-              int day = atoi(value.substr(0, 2).c_str());
-              item->m_dateTime.SetDate(year, month, day);
+              if (alt.which() != second)
+                throw WrongTypeException("When using \"artist\" you need to supply a list of "
+                                         "strings for the value in the dictionary");
+
+              std::vector<String> artists;
+              artists.reserve(alt.later().size());
+              for (const auto& castEntry : alt.later())
+              {
+                auto actor =
+                    castEntry.which() == first ? castEntry.former() : castEntry.later().first();
+                artists.push_back(std::move(actor));
+              }
+              InfoTagVideo::setArtistsRaw(videotag, artists);
             }
+            else if (key == "genre")
+              InfoTagVideo::setGenreRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "country")
+              InfoTagVideo::setCountriesRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "director")
+              InfoTagVideo::setDirectorsRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "mpaa")
+              InfoTagVideo::setMpaaRaw(videotag, value);
+            else if (key == "plot")
+              InfoTagVideo::setPlotRaw(videotag, value);
+            else if (key == "plotoutline")
+              InfoTagVideo::setPlotOutlineRaw(videotag, value);
+            else if (key == "title")
+              InfoTagVideo::setTitleRaw(videotag, value);
+            else if (key == "originaltitle")
+              InfoTagVideo::setOriginalTitleRaw(videotag, value);
+            else if (key == "sorttitle")
+              InfoTagVideo::setSortTitleRaw(videotag, value);
+            else if (key == "duration")
+              InfoTagVideo::setDurationRaw(videotag, strtol(value.c_str(), nullptr, 10));
+            else if (key == "studio")
+              InfoTagVideo::setStudiosRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "tagline")
+              InfoTagVideo::setTagLineRaw(videotag, value);
+            else if (key == "writer" || key == "credits")
+              InfoTagVideo::setWritersRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "tvshowtitle")
+              InfoTagVideo::setTvShowTitleRaw(videotag, value);
+            else if (key == "premiered")
+              InfoTagVideo::setPremieredRaw(videotag, value);
+            else if (key == "status")
+              InfoTagVideo::setTvShowStatusRaw(videotag, value);
+            else if (key == "set")
+              InfoTagVideo::setSetRaw(videotag, value);
+            else if (key == "setoverview")
+              InfoTagVideo::setSetOverviewRaw(videotag, value);
+            else if (key == "tag")
+              InfoTagVideo::setTagsRaw(videotag, getStringArray(alt, key, value));
+            else if (key == "imdbnumber")
+              InfoTagVideo::setIMDBNumberRaw(videotag, value);
+            else if (key == "code")
+              InfoTagVideo::setProductionCodeRaw(videotag, value);
+            else if (key == "aired")
+              InfoTagVideo::setFirstAiredRaw(videotag, value);
+            else if (key == "lastplayed")
+              InfoTagVideo::setLastPlayedRaw(videotag, value);
+            else if (key == "album")
+              InfoTagVideo::setAlbumRaw(videotag, value);
+            else if (key == "votes")
+              InfoTagVideo::setVotesRaw(videotag, StringUtils::ReturnDigits(value));
+            else if (key == "trailer")
+              InfoTagVideo::setTrailerRaw(videotag, value);
+            else if (key == "path")
+              InfoTagVideo::setPathRaw(videotag, value);
+            else if (key == "filenameandpath")
+              InfoTagVideo::setFilenameAndPathRaw(videotag, value);
+            else if (key == "date")
+              setDateTimeRaw(value);
+            else if (key == "dateadded")
+              InfoTagVideo::setDateAddedRaw(videotag, value);
+            else if (key == "mediatype")
+              InfoTagVideo::setMediaTypeRaw(videotag, value);
             else
-              CLog::Log(LOGERROR,"NEWADDON Invalid Date Format \"%s\"",value.c_str());
+              CLog::Log(LOGERROR, "NEWADDON Unknown Video Info Key \"%s\"", key.c_str());
           }
-          else if (key == "dateadded")
-            InfoTagVideo::setDateAddedRaw(videotag, value);
-          else if (key == "mediatype")
-            InfoTagVideo::setMediaTypeRaw(videotag, value);
-          else
-            CLog::Log(LOGERROR,"NEWADDON Unknown Video Info Key \"%s\"", key.c_str());
         }
-      }
-      else if (StringUtils::CompareNoCase(type, "music") == 0)
-      {
-        std::string type;
-        for (auto it = infoLabels.begin(); it != infoLabels.end(); ++it)
+        else if (StringUtils::CompareNoCase(type, "music") == 0)
         {
-          String key = it->first;
-          StringUtils::ToLower(key);
-          const InfoLabelValue& alt = it->second;
-          const String value(alt.which() == first ? alt.former() : emptyString);
-
-          if (key == "mediatype")
+          std::string type;
+          for (auto it = infoLabels.begin(); it != infoLabels.end(); ++it)
           {
-            if (CMediaTypes::IsValidMediaType(value))
+            const auto key = StringUtils::ToLower(it->first);
+            const auto& alt = it->second;
+            const String value(alt.which() == first ? alt.former() : emptyString);
+
+            if (key == "mediatype")
             {
-              type = value;
-              item->GetMusicInfoTag()->SetType(value);
+              if (CMediaTypes::IsValidMediaType(value))
+              {
+                type = value;
+                item->GetMusicInfoTag()->SetType(value);
+              }
+              else
+                CLog::Log(LOGWARNING, "Invalid media type \"%s\"", value.c_str());
             }
+          }
+          auto& musictag = *item->GetMusicInfoTag();
+          for (const auto& it : infoLabels)
+          {
+            const auto key = StringUtils::ToLower(it.first);
+            const auto& alt = it.second;
+            const String value(alt.which() == first ? alt.former() : emptyString);
+
+            //! @todo add the rest of the infolabels
+            if (key == "dbid" && !type.empty())
+              musictag.SetDatabaseId(static_cast<int>(strtol(value.c_str(), NULL, 10)), type);
+            else if (key == "tracknumber")
+              musictag.SetTrackNumber(strtol(value.c_str(), NULL, 10));
+            else if (key == "discnumber")
+              musictag.SetDiscNumber(strtol(value.c_str(), nullptr, 10));
+            else if (key == "count")
+              setCountRaw(strtol(value.c_str(), nullptr, 10));
+            else if (key == "size")
+              setSizeRaw(static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10)));
+            else if (key == "duration")
+              musictag.SetDuration(strtol(value.c_str(), nullptr, 10));
+            else if (key == "year")
+              musictag.SetYear(strtol(value.c_str(), nullptr, 10));
+            else if (key == "listeners")
+              musictag.SetListeners(strtol(value.c_str(), nullptr, 10));
+            else if (key == "playcount")
+              musictag.SetPlayCount(strtol(value.c_str(), nullptr, 10));
+            else if (key == "genre")
+              musictag.SetGenre(value);
+            else if (key == "album")
+              musictag.SetAlbum(value);
+            else if (key == "artist")
+              musictag.SetArtist(value);
+            else if (key == "title")
+              musictag.SetTitle(value);
+            else if (key == "rating")
+              musictag.SetRating(static_cast<float>(strtod(value.c_str(), nullptr)));
+            else if (key == "userrating")
+              musictag.SetUserrating(strtol(value.c_str(), nullptr, 10));
+            else if (key == "lyrics")
+              musictag.SetLyrics(value);
+            else if (key == "lastplayed")
+              musictag.SetLastPlayed(value);
+            else if (key == "musicbrainztrackid")
+              musictag.SetMusicBrainzTrackID(value);
+            else if (key == "musicbrainzartistid")
+              musictag.SetMusicBrainzArtistID(
+                  StringUtils::Split(value, CServiceBroker::GetSettingsComponent()
+                                                ->GetAdvancedSettings()
+                                                ->m_musicItemSeparator));
+            else if (key == "musicbrainzalbumid")
+              musictag.SetMusicBrainzAlbumID(value);
+            else if (key == "musicbrainzalbumartistid")
+              musictag.SetMusicBrainzAlbumArtistID(
+                  StringUtils::Split(value, CServiceBroker::GetSettingsComponent()
+                                                ->GetAdvancedSettings()
+                                                ->m_musicItemSeparator));
+            else if (key == "comment")
+              musictag.SetComment(value);
+            else if (key == "date")
+              setDateTimeRaw(value);
+            else if (key != "mediatype")
+              CLog::Log(LOGERROR, "NEWADDON Unknown Music Info Key \"%s\"", key.c_str());
+
+            // This should probably be set outside of the loop but since the original
+            //  implementation set it inside of the loop, I'll leave it that way. - Jim C.
+            musictag.SetLoaded(true);
+          }
+        }
+        else if (StringUtils::CompareNoCase(type, "pictures") == 0)
+        {
+          for (const auto& it : infoLabels)
+          {
+            const auto key = StringUtils::ToLower(it.first);
+            const auto& alt = it.second;
+            const String value(alt.which() == first ? alt.former() : emptyString);
+
+            if (key == "count")
+              setCountRaw(strtol(value.c_str(), nullptr, 10));
+            else if (key == "size")
+              setSizeRaw(static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10)));
+            else if (key == "title")
+              item->m_strTitle = value;
+            else if (key == "picturepath")
+              item->SetPath(value);
+            else if (key == "date")
+              setDateTimeRaw(value);
             else
-              CLog::Log(LOGWARNING, "Invalid media type \"%s\"", value.c_str());
-          }
-        }
-        auto& musictag = *item->GetMusicInfoTag();
-        for (const auto& it : infoLabels)
-        {
-          String key = it.first;
-          StringUtils::ToLower(key);
-
-          const InfoLabelValue& alt = it.second;
-          const String value(alt.which() == first ? alt.former() : emptyString);
-
-          //! @todo add the rest of the infolabels
-          if (key == "dbid" && !type.empty())
-            musictag.SetDatabaseId(static_cast<int>(strtol(value.c_str(), NULL, 10)), type);
-          else if (key == "tracknumber")
-            musictag.SetTrackNumber(strtol(value.c_str(), NULL, 10));
-          else if (key == "discnumber")
-            musictag.SetDiscNumber(strtol(value.c_str(), nullptr, 10));
-          else if (key == "count")
-            item->m_iprogramCount = strtol(value.c_str(), nullptr, 10);
-          else if (key == "size")
-            item->m_dwSize = static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10));
-          else if (key == "duration")
-            musictag.SetDuration(strtol(value.c_str(), nullptr, 10));
-          else if (key == "year")
-            musictag.SetYear(strtol(value.c_str(), nullptr, 10));
-          else if (key == "listeners")
-            musictag.SetListeners(strtol(value.c_str(), nullptr, 10));
-          else if (key == "playcount")
-            musictag.SetPlayCount(strtol(value.c_str(), nullptr, 10));
-          else if (key == "genre")
-            musictag.SetGenre(value);
-          else if (key == "album")
-            musictag.SetAlbum(value);
-          else if (key == "artist")
-            musictag.SetArtist(value);
-          else if (key == "title")
-            musictag.SetTitle(value);
-          else if (key == "rating")
-            musictag.SetRating(static_cast<float>(strtod(value.c_str(), nullptr)));
-          else if (key == "userrating")
-            musictag.SetUserrating(strtol(value.c_str(), nullptr, 10));
-          else if (key == "lyrics")
-            musictag.SetLyrics(value);
-          else if (key == "lastplayed")
-            musictag.SetLastPlayed(value);
-          else if (key == "musicbrainztrackid")
-            musictag.SetMusicBrainzTrackID(value);
-          else if (key == "musicbrainzartistid")
-            musictag.SetMusicBrainzArtistID(StringUtils::Split(value, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
-          else if (key == "musicbrainzalbumid")
-            musictag.SetMusicBrainzAlbumID(value);
-          else if (key == "musicbrainzalbumartistid")
-            musictag.SetMusicBrainzAlbumArtistID(StringUtils::Split(value, CServiceBroker::GetSettingsComponent()->GetAdvancedSettings()->m_musicItemSeparator));
-          else if (key == "comment")
-            musictag.SetComment(value);
-          else if (key == "date")
-          {
-            if (strlen(value.c_str()) == 10)
             {
-              int year = atoi(value.substr(value.size() - 4).c_str());
-              int month = atoi(value.substr(3, 4).c_str());
-              int day = atoi(value.substr(0, 2).c_str());
-              item->m_dateTime.SetDate(year, month, day);
+              const String& exifkey = key;
+              if (!StringUtils::StartsWithNoCase(exifkey, "exif:") || exifkey.length() < 6)
+                continue;
+
+              item->GetPictureInfoTag()->SetInfo(StringUtils::Mid(exifkey, 5), value);
             }
           }
-          else if (key != "mediatype")
-            CLog::Log(LOGERROR,"NEWADDON Unknown Music Info Key \"%s\"", key.c_str());
-
-          // This should probably be set outside of the loop but since the original
-          //  implementation set it inside of the loop, I'll leave it that way. - Jim C.
-          musictag.SetLoaded(true);
         }
-      }
-      else if (StringUtils::CompareNoCase(type, "pictures") == 0)
-      {
-        for (const auto& it: infoLabels)
+        else if (StringUtils::EqualsNoCase(type, "game"))
         {
-          String key = it.first;
-          StringUtils::ToLower(key);
+          auto& gametag = *item->GetGameInfoTag();
+          for (const auto& it : infoLabels)
+          {
+            const auto key = StringUtils::ToLower(it.first);
+            const auto& alt = it.second;
+            const String value(alt.which() == first ? alt.former() : emptyString);
 
-          const InfoLabelValue& alt = it.second;
-          const String value(alt.which() == first ? alt.former() : emptyString);
+            if (key == "title")
+            {
+              item->m_strTitle = value;
+              gametag.SetTitle(value);
+            }
+            else if (key == "platform")
+              gametag.SetPlatform(value);
+            else if (key == "genres")
+            {
+              if (alt.which() != second)
+                throw WrongTypeException("When using \"genres\" you need to supply a list of "
+                                         "strings for the value in the dictionary");
 
+              std::vector<std::string> genres;
+
+              for (const auto& genreEntry : alt.later())
+              {
+                const String& genre =
+                    genreEntry.which() == first ? genreEntry.former() : genreEntry.later().first();
+                genres.emplace_back(genre);
+              }
+
+              gametag.SetGenres(genres);
+            }
+            else if (key == "publisher")
+              gametag.SetPublisher(value);
+            else if (key == "developer")
+              gametag.SetDeveloper(value);
+            else if (key == "overview")
+              gametag.SetOverview(value);
+            else if (key == "year")
+              gametag.SetYear(strtol(value.c_str(), nullptr, 10));
+            else if (key == "gameclient")
+              gametag.SetGameClient(value);
+          }
+        }
+        else
+          CLog::Log(LOGWARNING, "ListItem.setInfo: unknown \"type\" parameter value: {}", type);
+      }
+      else if (!info.empty())
+      {
+        if (!info.isObject())
+          throw WrongTypeException("ListItem.setInfo: info parameter must be a dict");
+
+        // if the type parameter is specified pass the info dict directly to the proper InfoTag class
+        if (StringUtils::CompareNoCase(type, "video") == 0)
+          xbmc::InfoTagVideo::setInfoRaw(GetVideoInfoTag(), info);
+        else if (StringUtils::CompareNoCase(type, "music") == 0)
+        {
+          // TODO(Montellese)
+        }
+        else if (StringUtils::CompareNoCase(type, "pictures") == 0)
+        {
+          // TODO(Montellese)
+        }
+        else if (StringUtils::CompareNoCase(type, "game") == 0)
+        {
+          // TODO(Montellese)
+        }
+        else if (!type.empty())
+          CLog::Log(LOGWARNING, "ListItem.setInfo: unknown \"type\" parameter value: {}", type);
+
+        const auto processGeneralProperties = [this](const String& key, const CVariant& value) {
           if (key == "count")
-            item->m_iprogramCount = strtol(value.c_str(), nullptr, 10);
+            setCountRaw(DictUtils::CheckAndGetIntegerProperty(key, value));
           else if (key == "size")
-            item->m_dwSize = static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10));
-          else if (key == "title")
-            item->m_strTitle = value;
-          else if (key == "picturepath")
-            item->SetPath(value);
+            setSizeRaw(DictUtils::CheckAndGetInteger64Property(key, value));
           else if (key == "date")
+            setDateTimeRaw(DictUtils::CheckAndGetStringProperty(key, value));
+          else
+            return false;
+
+          return true;
+        };
+
+        // loop over all properties of the info dict
+        for (auto& prop = info.begin_map(); prop != info.end_map(); ++prop)
+        {
+          const auto key = StringUtils::ToLower(prop->first);
+          auto value = prop->second;
+
+          // if no type has been specified try to handle general properties at the first sub-level
+          if (type.empty())
           {
-            if (strlen(value.c_str()) == 10)
+            std::set<std::string> processedProperties;
+            for (auto& val = value.begin_map(); val != value.end_map(); ++val)
             {
-              int year = atoi(value.substr(value.size() - 4).c_str());
-              int month = atoi(value.substr(3, 4).c_str());
-              int day = atoi(value.substr(0, 2).c_str());
-              item->m_dateTime.SetDate(year, month, day);
+              const auto subKey = StringUtils::ToLower(val->first);
+
+              if (processGeneralProperties(subKey, val->second))
+                processedProperties.insert(val->first);
             }
+
+            // remove any processed properties
+            for (const auto& processedProperty : processedProperties)
+              value.erase(processedProperty);
+          }
+
+          if (key == "video")
+            xbmc::InfoTagVideo::setInfoRaw(GetVideoInfoTag(), value);
+          else if (key == "music")
+          {
+            // TODO(Montellese)
+          }
+          else if (key == "pictures")
+          {
+            // TODO(Montellese)
+          }
+          else if (key == "game")
+          {
+            // TODO(Montellese)
+          }
+          else if (!type.empty())
+          {
+            // if a type has been specified try to handle general properties at the top level
+            processGeneralProperties(key, value);
+
+            if (key == "isfolder")
+              setIsFolderRaw(DictUtils::CheckAndGetBoolProperty(key, value));
+            else if (key == "startoffset")
+              setStartOffsetRaw(DictUtils::CheckAndGetFloatProperty(key, value));
+            else if (key == "mimetype")
+              setMimeTypeRaw(DictUtils::CheckAndGetStringProperty(key, value));
+            else if (key == "specialsort")
+              setSpecialSortRaw(DictUtils::CheckAndGetStringProperty(key, value));
+            else if (key == "contentlookup")
+              setContentLookupRaw(DictUtils::CheckAndGetBoolProperty(key, value));
+            else if (key == "art")
+            {
+              if (value.isObject())
+              {
+                const auto& artwork = value;
+                for (const auto& art : artwork.asMap())
+                  addArtRaw(art.first, DictUtils::CheckAndGetStringProperty(art.first, art.second));
+              }
+              else
+                throw WrongTypeException("ListItem.setInfo: \"%s\" property must be a dict", key);
+            }
+            else if (key == "fanart_image" || key == "fanart")
+              addArtRaw("fanart", DictUtils::CheckAndGetStringProperty(key, value));
+            else if (key == "properties")
+            {
+              if (value.isObject())
+              {
+                const auto& properties = value;
+                for (const auto& prop : properties.asMap())
+                  addPropertyRaw(prop.first, prop.second);
+              }
+              else
+                throw WrongTypeException("ListItem.setInfo: \"%s\" property must be a dict", key);
+            }
+            else if (key == "subtitles")
+              addSubtitlesRaw(DictUtils::CheckAndGetStringArrayProperty(key, value));
           }
           else
-          {
-            const String& exifkey = key;
-            if (!StringUtils::StartsWithNoCase(exifkey, "exif:") || exifkey.length() < 6)
-              continue;
-
-            item->GetPictureInfoTag()->SetInfo(StringUtils::Mid(exifkey, 5), value);
-          }
-        }
-      }
-      else if (StringUtils::EqualsNoCase(type, "game"))
-      {
-        auto& gametag = *item->GetGameInfoTag();
-        for (const auto& it: infoLabels)
-        {
-          String key = it.first;
-          StringUtils::ToLower(key);
-
-          const InfoLabelValue& alt = it.second;
-          const String value(alt.which() == first ? alt.former() : emptyString);
-
-          if (key == "title")
-          {
-            item->m_strTitle = value;
-            gametag.SetTitle(value);
-          }
-          else if (key == "platform")
-            gametag.SetPlatform(value);
-          else if (key == "genres")
-          {
-            if (alt.which() != second)
-              throw WrongTypeException("When using \"genres\" you need to supply a list of strings for the value in the dictionary");
-
-            std::vector<std::string> genres;
-
-            for (const auto& genreEntry: alt.later())
-            {
-              const String& genre = genreEntry.which() == first ? genreEntry.former() : genreEntry.later().first();
-              genres.emplace_back(genre);
-            }
-
-            gametag.SetGenres(genres);
-          }
-          else if (key == "publisher")
-            gametag.SetPublisher(value);
-          else if (key == "developer")
-            gametag.SetDeveloper(value);
-          else if (key == "overview")
-            gametag.SetOverview(value);
-          else if (key == "year")
-            gametag.SetYear(strtol(value.c_str(), nullptr, 10));
-          else if (key == "gameclient")
-            gametag.SetGameClient(value);
+            CLog::Log(LOGWARNING, "ListItem.setInfo: unknown property \"{}\" in info dict", type);
         }
       }
     } // end ListItem::setInfo
@@ -898,12 +1017,7 @@ namespace XBMCAddon
     void ListItem::setSubtitles(const std::vector<String>& paths)
     {
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-      unsigned int i = 1;
-      for (const auto& it: paths)
-      {
-        String property = StringUtils::Format("subtitle:%u", i++);
-        item->SetProperty(property, it);
-      }
+      addSubtitlesRaw(paths);
     }
 
     xbmc::InfoTagVideo* ListItem::getVideoInfoTag()
@@ -947,6 +1061,78 @@ namespace XBMCAddon
     const CVideoInfoTag* ListItem::GetVideoInfoTag() const
     {
       return item->GetVideoInfoTag();
+    }
+
+    void ListItem::setCountRaw(int count)
+    {
+      item->m_iprogramCount = count;
+    }
+
+    void ListItem::setSizeRaw(int64_t size)
+    {
+      item->m_dwSize = size;
+    }
+
+    void ListItem::setDateTimeRaw(const std::string& dateTime)
+    {
+      if (dateTime.length() == 10)
+      {
+        int year = strtol(dateTime.substr(dateTime.size() - 4).c_str(), nullptr, 10);
+        int month = strtol(dateTime.substr(3, 4).c_str(), nullptr, 10);
+        int day = strtol(dateTime.substr(0, 2).c_str(), nullptr, 10);
+        item->m_dateTime.SetDate(year, month, day);
+      }
+      else
+        item->m_dateTime.SetFromW3CDateTime(dateTime);
+    }
+
+    void ListItem::setIsFolderRaw(bool isFolder)
+    {
+      item->m_bIsFolder = isFolder;
+    }
+
+    void ListItem::setStartOffsetRaw(float startOffset)
+    {
+      // we store the offset in frames, or 1/75th of a second
+      item->m_lStartOffset = CUtil::ConvertSecsToMilliSecs(startOffset);
+    }
+
+    void ListItem::setMimeTypeRaw(const std::string& mimetype)
+    {
+      item->SetMimeType(mimetype);
+    }
+
+    void ListItem::setSpecialSortRaw(std::string specialSort)
+    {
+      StringUtils::ToLower(specialSort);
+
+      if (specialSort == "bottom")
+        item->SetSpecialSort(SortSpecialOnBottom);
+      else if (specialSort == "top")
+        item->SetSpecialSort(SortSpecialOnTop);
+    }
+
+    void ListItem::setContentLookupRaw(bool enable)
+    {
+      item->SetContentLookup(enable);
+    }
+
+    void ListItem::addArtRaw(std::string type, std::string url)
+    {
+      StringUtils::ToLower(type);
+      item->SetArt(type, url);
+    }
+
+    void ListItem::addPropertyRaw(std::string type, CVariant value)
+    {
+      StringUtils::ToLower(type);
+      item->SetProperty(std::move(type), std::move(value));
+    }
+
+    void ListItem::addSubtitlesRaw(const std::vector<std::string>& subtitles)
+    {
+      for (size_t i = 0; i < subtitles.size(); ++i)
+        addPropertyRaw(StringUtils::Format("subtitle:{}", i), subtitles[i]);
     }
   }
 }

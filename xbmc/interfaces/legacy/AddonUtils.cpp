@@ -17,6 +17,19 @@
 
 namespace XBMCAddonUtils
 {
+  GuiOnlyLock::GuiOnlyLock(bool offScreen)
+    : m_offScreen(offScreen)
+  {
+    if (!m_offScreen)
+      g_application.LockFrameMoveGuard();
+  }
+
+  GuiOnlyLock::~GuiOnlyLock()
+  {
+    if (!m_offScreen)
+      g_application.UnlockFrameMoveGuard();
+  }
+
   GuiLock::GuiLock(XBMCAddon::LanguageHook* languageHook, bool offScreen)
     : m_languageHook(languageHook), m_offScreen(offScreen)
   {

@@ -1500,22 +1500,23 @@ int CVideoDatabase::AddToTable(const std::string& table, const std::string& firs
     if (nullptr == m_pDS)
       return -1;
 
-    std::string strSQL = PrepareSQL("select %s from %s where %s like '%s'", firstField.c_str(), table.c_str(), secondField.c_str(), value.substr(0, 255).c_str());
+    const auto trimmedValue = value.substr(0, 255);
+
+    std::string strSQL = PrepareSQL("select %s from %s where %s like '%s'", firstField.c_str(),
+                                    table.c_str(), secondField.c_str(), trimmedValue.c_str());
     m_pDS->query(strSQL);
     if (m_pDS->num_rows() == 0)
     {
       m_pDS->close();
       // doesn't exists, add it
-      strSQL = PrepareSQL("insert into %s (%s, %s) values(NULL, '%s')", table.c_str(), firstField.c_str(), secondField.c_str(), value.substr(0, 255).c_str());
+      strSQL = PrepareSQL("insert into %s (%s, %s) values(NULL, '%s')", table.c_str(),
+                          firstField.c_str(), secondField.c_str(), trimmedValue.c_str());
       m_pDS->exec(strSQL);
-      int id = (int)m_pDS->lastinsertid();
-      return id;
+      return static_cast<int>(m_pDS->lastinsertid());
     }
     else
     {
-      int id = m_pDS->fv(firstField.c_str()).get_asInt();
-      m_pDS->close();
-      return id;
+      return m_pDS->fv(0).get_asInt();
     }
   }
   catch (...)

@@ -229,6 +229,7 @@ namespace XBMCAddon
       ///
       getDirector();
 #else
+      // TODO(Montellese)
       String getDirector();
 #endif
 
@@ -246,6 +247,7 @@ namespace XBMCAddon
       ///
       getWritingCredits();
 #else
+      // TODO(Montellese)
       String getWritingCredits();
 #endif
 
@@ -264,6 +266,7 @@ namespace XBMCAddon
       ///
       getGenre();
 #else
+      // TODO(Montellese)
       String getGenre();
 #endif
 
@@ -410,6 +413,7 @@ namespace XBMCAddon
       ///
       getVotes();
 #else
+      // TODO(Montellese)
       String getVotes();
 #endif
 
@@ -427,6 +431,7 @@ namespace XBMCAddon
       ///
       getCast();
 #else
+      // TODO(Montellese)
       String getCast();
 #endif
 
