@@ -1,0 +1,74 @@
+<%
+/*
+ *  Copyright (C) 2021 Team Kodi
+ *  This file is part of Kodi - https://kodi.tv
+ *
+ *  SPDX-License-Identifier: GPL-2.0-or-later
+ *  See LICENSES/README.md for more information.
+ */
+%>
+    if (${slarg})
+    {
+      std::function<CVariant(PyObject*)> parseDict;
+      std::function<CVariant(PyObject*)> parseList;
+
+      std::function<CVariant(PyObject*)> parseValue = [&](PyObject* pyvalue)
+      {
+        CVariant value;
+        if (PyBool_Check(pyvalue))
+          ${helper.getInConversion('bool', 'value', 'pyvalue', method)}
+        else if (PyLong_Check(pyvalue))
+          ${helper.getInConversion('long long', 'value', 'pyvalue', method)}
+        else if (PyFloat_Check(pyvalue))
+          ${helper.getInConversion('double', 'value', 'pyvalue', method)}
+        else if (PyUnicode_Check(pyvalue) || PyBytes_Check(pyvalue))
+        {
+          std::string strValue;
+          PyXBMCGetUnicodeString(strValue, pyvalue, false, "value", "${method.@name}");
+          value = std::move(strValue);
+        }
+        else if (PyList_Check(pyvalue))
+          value = parseList(pyvalue);
+        else if (PyDict_Check(pyvalue))
+          value = parseDict(pyvalue);
+        else if (pyvalue != Py_None)
+          throw WrongTypeException("Unsupported value type in dict of ${method.@name}.");
+
+        return value;
+      };
+
+      parseList = [&](PyObject* pylist)
+      {
+        PyObject *pyentry = nullptr;
+        Py_ssize_t vecSize = PyList_Size(pylist);
+
+        CVariant vec(CVariant::VariantTypeArray);
+        vec.reserve(vecSize);
+        for(Py_ssize_t i = 0; i < vecSize; ++i)
+        {
+          pyentry = PyList_GetItem(pylist, i);
+          vec.push_back(parseValue(pyentry));
+        }
+
+        return vec;
+      };
+
+      parseDict = [&](PyObject* pyobj)
+      {
+        CVariant dict(CVariant::VariantTypeObject);
+
+        PyObject *pykey, *pyvalue;
+        Py_ssize_t pos = 0;
+        while(PyDict_Next(pyobj, &pos, &pykey, &pyvalue))
+        {
+            std::string key;
+            PyXBMCGetUnicodeString(key, pykey, false, "key", "${method.@name}");
+
+            dict[key] = parseValue(pyvalue);
+        }
+
+        return dict;
+      };
+
+      ${api} = parseDict(${slarg});
+    }
