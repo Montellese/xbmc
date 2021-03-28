@@ -359,6 +359,7 @@ namespace XBMCAddon
       ///
       ///
       ///-----------------------------------------------------------------------
+      /// @python_v20 Deprecated. Use **InfoTagVideo.setUniqueIDs()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -394,6 +395,7 @@ namespace XBMCAddon
       ///
       ///
       ///-----------------------------------------------------------------------
+      /// @python_v20 Deprecated. Use **InfoTagVideo.setRating()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -421,6 +423,7 @@ namespace XBMCAddon
       ///-----------------------------------------------------------------------
       ///
       /// @python_v18 New function added.
+      /// @python_v20 Deprecated. Use **InfoTagVideo.addSeason()** or **InfoTagVideo.addSeasons()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -808,6 +811,7 @@ namespace XBMCAddon
       ///
       ///-----------------------------------------------------------------------
       /// @python_v17 New function added.
+      /// @python_v20 Deprecated. Use **InfoTagVideo.setCast()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -840,6 +844,7 @@ namespace XBMCAddon
       ///
       ///-----------------------------------------------------------------------
       /// @python_v18 New function added.
+      /// @python_v20 Deprecated. Use **InfoTagVideo.setAvailableFanart()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -873,6 +878,7 @@ namespace XBMCAddon
       ///-----------------------------------------------------------------------
       /// @python_v18 New function added.
       /// @python_v19 New param added (preview).
+      /// @python_v20 Deprecated. Use **InfoTagVideo.addAvailableArtwork()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -926,6 +932,7 @@ namespace XBMCAddon
       ///
       ///
       ///-----------------------------------------------------------------------
+      /// @python_v20 Deprecated. Use **InfoTagVideo.addVideoStream()**, **InfoTagVideo.addAudioStream()** or **InfoTagVideo.addSubtitleStream()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}
@@ -1001,6 +1008,7 @@ namespace XBMCAddon
       ///
       ///-----------------------------------------------------------------------
       /// @python_v20 OverrideInfotag property added
+      /// @python_v20 **ResumeTime** and **TotalTime** deprecated. Use **InfoTagVideo.setResumePoint()** or **InfoTagVideo.setInfo()** instead.
       ///
       /// **Example:**
       /// ~~~~~~~~~~~~~{.py}

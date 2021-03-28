@@ -9,12 +9,153 @@
 #pragma once
 
 #include "AddonClass.h"
+#include "Dictionary.h"
+#include "Tuple.h"
+#include "utils/StreamDetails.h"
+#include "utils/Variant.h"
 #include "video/VideoInfoTag.h"
 
 namespace XBMCAddon
 {
   namespace xbmc
   {
+    // TODO(Montellese)
+    class Actor : public AddonClass
+    {
+    public:
+      explicit Actor(const String& name = emptyString,
+                     const String& role = emptyString,
+                     int order = -1,
+                     const String& thumbnail = emptyString);
+
+      String getName() const { return m_name; }
+      String getRole() const { return m_role; }
+      int getOrder() const { return m_order; }
+      String getThumbnail() const { return m_thumbnail; }
+
+      void setName(const String& name) { m_name = name; }
+      void setRole(const String& role) { m_role = role; }
+      void setOrder(int order) { m_order = order; }
+      void setThumbnail(const String& thumbnail) { m_thumbnail = thumbnail; }
+
+#ifndef SWIG
+      SActorInfo ToActorInfo() const;
+#endif
+
+    private:
+      String m_name;
+      String m_role;
+      int m_order;
+      String m_thumbnail;
+    };
+
+    // TODO(Montellese)
+    class VideoStreamDetail : public AddonClass
+    {
+    public:
+      explicit VideoStreamDetail(int width = 0,
+                                 int height = 0,
+                                 float aspect = 0.0f,
+                                 int duration = 0,
+                                 const String& codec = emptyString,
+                                 const String& stereoMode = emptyString,
+                                 const String& language = emptyString);
+
+      int getWidth() const { return m_width; }
+      int getHeight() const { return m_height; }
+      float getAspect() const { return m_aspect; }
+      int getDuration() const { return m_duration; }
+      String getCodec() const { return m_codec; }
+      String getStereoMode() const { return m_stereoMode; }
+      String getLanguage() const { return m_language; }
+
+      void setWidth(int width) { m_width = width; }
+      void setHeight(int height) { m_height = height; }
+      void setAspect(float aspect) { m_aspect = aspect; }
+      void setDuration(int duration) { m_duration = duration; }
+      void setCodec(const String& codec) { m_codec = codec; }
+      void setStereoMode(const String& stereoMode) { m_stereoMode = stereoMode; }
+      void setLanguage(const String& language) { m_language = language; }
+
+#ifndef SWIG
+      CStreamDetailVideo* ToStreamDetailVideo() const;
+#endif
+
+    private:
+      int m_width;
+      int m_height;
+      float m_aspect;
+      int m_duration;
+      String m_codec;
+      String m_stereoMode;
+      String m_language;
+    };
+
+    // TODO(Montellese)
+    class AudioStreamDetail : public AddonClass
+    {
+    public:
+      explicit AudioStreamDetail(int channels = -1,
+                                 const String& codec = emptyString,
+                                 const String& language = emptyString);
+
+      int getChannels() const { return m_channels; }
+      String getCodec() const { return m_codec; }
+      String getLanguage() const { return m_language; }
+
+      void setChannels(int channels) { m_channels = channels; }
+      void setCodec(const String& codec) { m_codec = codec; }
+      void setLanguage(const String& language) { m_language = language; }
+
+#ifndef SWIG
+      CStreamDetailAudio* ToStreamDetailAudio() const;
+#endif
+
+    private:
+      int m_channels;
+      String m_codec;
+      String m_language;
+    };
+
+    // TODO(Montellese)
+    class SubtitleStreamDetail : public AddonClass
+    {
+    public:
+      explicit SubtitleStreamDetail(const String& language = emptyString);
+
+      String getLanguage() const { return m_language; }
+
+      void setLanguage(const String& language) { m_language = language; }
+
+#ifndef SWIG
+      CStreamDetailSubtitle* ToStreamDetailSubtitle() const;
+#endif
+
+    private:
+      String m_language;
+    };
+
+    // TODO(Montellese)
+    class Fanart : public AddonClass
+    {
+    public:
+      explicit Fanart(const String& image = emptyString,
+                      const String& preview = emptyString,
+                      const String& colors = emptyString);
+
+      String getImage() const { return m_image; }
+      String getPreview() const { return m_preview; }
+      String getColors() const { return m_colors; }
+
+      void setImage(const String& image) { m_image = image; }
+      void setPreview(const String& preview) { m_preview = preview; }
+      void setColors(const String& colors) { m_colors = colors; }
+
+    private:
+      String m_image;
+      String m_preview;
+      String m_colors;
+    };
 
     ///
     /// \defgroup python_InfoTagVideo InfoTagVideo
@@ -653,6 +794,279 @@ namespace XBMCAddon
       getUniqueID(key);
 #else
       String getUniqueID(const char* key);
+#endif
+
+      // TODO(Montellese)
+      void setUniqueID(const String& uniqueID, const String& type = "", bool isDefault = false);
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_InfoTagVideo
+      /// @brief \python_func{ setUniqueIDs(values, defaultUniqueID) }
+      ///-----------------------------------------------------------------------
+      /// Set the given unique IDs.
+      /// A unique ID is an identifier used by a (online) video database used to
+      /// identify a video in its database.
+      ///
+      /// @param values             dictionary - pairs of `{ 'label': 'value' }`.
+      /// @param defaultUniqueID    [opt] string - the name of default uniqueID.
+      ///
+      ///  - Some example values (any string possible):
+      ///  | Label         | Type                                              |
+      ///  |:-------------:|:--------------------------------------------------|
+      ///  | imdb          | string - uniqueid name
+      ///  | tvdb          | string - uniqueid name
+      ///  | tmdb          | string - uniqueid name
+      ///  | anidb         | string - uniqueid name
+      ///
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      /// @python_v20 New function added.
+      ///
+      setUniqueIDs(...);
+#else
+      void setUniqueIDs(const std::map<String, String>& uniqueIDs,
+                        const String& defaultUniqueID = "");
+#endif
+
+      // TODO(Montellese)
+      void setDbId(int dbId);
+      void setYear(int year);
+      void setEpisode(int episode);
+      void setSeason(int season);
+      void setSortEpisode(int sortEpisode);
+      void setSortSeason(int sortSeason);
+      void setEpisodeGuide(const String& episodeGuide);
+      void setTop250(int top250);
+      void setSetId(int setId);
+      void setTrackNumber(int trackNumber);
+      void setRating(float rating, int votes = 0, const String& type = "", bool isDefault = false);
+      void setRatings(const std::map<String, Tuple<float, int>>& ratings,
+                      const String& defaultRating = "");
+      void setUserRating(int userRating);
+      void setPlaycount(int playcount);
+      void setMpaa(const String& mpaa);
+      void setPlot(const String& plot);
+      void setPlotOutline(const String& plotOutline);
+      void setTitle(const String& title);
+      void setOriginalTitle(const String& originalTitle);
+      void setSortTitle(const String& sortTitle);
+      void setTagLine(const String& tagLine);
+      void setTvShowTitle(const String& tvshowTitle);
+      void setTvShowStatus(const String& tvshowStatus);
+      void setGenre(std::vector<String> genre);
+      void setCountries(std::vector<String> countries);
+      void setDirectors(std::vector<String> directors);
+      void setStudios(std::vector<String> studios);
+      void setWriters(std::vector<String> writers);
+      void setDuration(int duration);
+      void setPremiered(const String& premiered);
+      void setSet(const String& set);
+      void setSetOverview(const String& setOverview);
+      void setTags(std::vector<String> tags);
+      void setProductionCode(const String& productionCode);
+      void setFirstAired(const String& firstAired);
+      void setLastPlayed(const String& lastPlayed);
+      void setAlbum(const String& album);
+      void setVotes(int votes);
+      void setTrailer(const String& trailer);
+      void setPath(const String& path);
+      void setFilenameAndPath(const String& filenameAndPath);
+      void setIMDBNumber(const String& imdbNumber);
+      void setDateAdded(const String& dateAdded);
+      void setMediaType(const String& mediaType);
+      void setShowLinks(std::vector<String> showLinks);
+      void setArtists(std::vector<String> artists);
+      void setCast(std::vector<const Actor*> actors);
+      void setResumePoint(double time, double totalTime = 0.0);
+
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_InfoTagVideo
+      /// @brief \python_func{ addSeason(number, name = "") }
+      /// Add a season with name. It needs at least the season number.
+      ///
+      /// @param number     int - the number of the season.
+      /// @param name       string - the name of the season. Default "".
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      ///
+      /// @python_v20 New function added.
+      ///
+      /// **Example:**
+      /// ~~~~~~~~~~~~~{.py}
+      /// ...
+      /// # addSeason(number, name))
+      /// infotagvideo.addSeason(1, "Murder House")
+      /// ...
+      /// ~~~~~~~~~~~~~
+      ///
+      addSeason(...);
+#else
+      void addSeason(int number, std::string name = "");
+#endif
+
+      // TODO(Montellese)
+      void addSeasons(std::vector<Tuple<int, std::string>> namedSeasons);
+
+      void addVideoStream(const VideoStreamDetail* stream);
+      void addAudioStream(const AudioStreamDetail* stream);
+      void addSubtitleStream(const SubtitleStreamDetail* stream);
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_InfoTagVideo
+      /// @brief \python_func{ setAvailableFanart(fanart) }
+      /// Set available images (needed for video scrapers)
+      ///
+      /// @param fanart            list of fanart
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      /// @python_v20 New function added.
+      ///
+      /// **Example:**
+      /// ~~~~~~~~~~~~~{.py}
+      /// ...
+      /// fanart = [
+      ///     xbmc.Fanart(image="http://www.someurl.com/someimage.png", preview="http://www.someurl.com/somepreviewimage.png", colors="FFFFFFFF,DDDDDDDD"),
+      ///     xbmc.Fanart(image=path_to_image_2, preview=path_to_preview_2, colors="|68,69,59|69,70,58|78,78,68|")
+      ///     ]
+      /// infotagvideo.setAvailableFanart(fanart)
+      /// ...
+      /// ~~~~~~~~~~~~~
+      ///
+      setAvailableFanart(...);
+#else
+      void setAvailableFanart(const std::vector<const Fanart*>& fanart);
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_InfoTagVideo
+      /// @brief \python_func{ addAvailableArtwork(images) }
+      /// Add an image to available artworks (needed for video scrapers)
+      ///
+      /// @param url            string - image path url
+      /// @param art_type       string - image type
+      /// @param preview        [opt] string - image preview path url
+      /// @param referrer       [opt] string - referrer url
+      /// @param cache          [opt] string - filename in cache
+      /// @param post           [opt] bool - use post to retrieve the image (default false)
+      /// @param isgz           [opt] bool - use gzip to retrieve the image (default false)
+      /// @param season         [opt] integer - number of season in case of season thumb
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      /// @python_v20 New function added.
+      ///
+      /// **Example:**
+      /// ~~~~~~~~~~~~~{.py}
+      /// ...
+      /// infotagvideo.addAvailableArtwork(path_to_image_1, "thumb")
+      /// ...
+      /// ~~~~~~~~~~~~~
+      ///
+      addAvailableArtwork(...);
+#else
+      void addAvailableArtwork(const std::string& url,
+        const std::string& art_type = "",
+        const std::string& preview = "",
+        const std::string& referrer = "",
+        const std::string& cache = "",
+        bool post = false,
+        bool isgz = false,
+        int season = -1);
+#endif
+
+#ifndef SWIG
+      static void setDbIdRaw(CVideoInfoTag* infoTag, int dbId);
+      static void setUniqueIDRaw(CVideoInfoTag* infoTag,
+                                 const String& uniqueID,
+                                 const String& type = "",
+                                 bool isDefault = false);
+      static void setUniqueIDsRaw(CVideoInfoTag* infoTag,
+                                  std::map<String, String> uniqueIDs,
+                                  const String& defaultUniqueID = "");
+      static void setYearRaw(CVideoInfoTag* infoTag, int year);
+      static void setEpisodeRaw(CVideoInfoTag* infoTag, int episode);
+      static void setSeasonRaw(CVideoInfoTag* infoTag, int season);
+      static void setSortEpisodeRaw(CVideoInfoTag* infoTag, int sortEpisode);
+      static void setSortSeasonRaw(CVideoInfoTag* infoTag, int sortSeason);
+      static void setEpisodeGuideRaw(CVideoInfoTag* infoTag, const String& episodeGuide);
+      static void setTop250Raw(CVideoInfoTag* infoTag, int top250);
+      static void setSetIdRaw(CVideoInfoTag* infoTag, int setId);
+      static void setTrackNumberRaw(CVideoInfoTag* infoTag, int trackNumber);
+      static void setRatingRaw(CVideoInfoTag* infoTag,
+                               float rating,
+                               int votes = 0,
+                               std::string type = "",
+                               bool isDefault = false);
+      static void setRatingsRaw(CVideoInfoTag* infoTag,
+                                const std::map<String, Tuple<float, int>>& ratings,
+                                const String& defaultRating = "");
+      static void setUserRatingRaw(CVideoInfoTag* infoTag, int userRating);
+      static void setPlaycountRaw(CVideoInfoTag* infoTag, int playcount);
+      static void setMpaaRaw(CVideoInfoTag* infoTag, const String& mpaa);
+      static void setPlotRaw(CVideoInfoTag* infoTag, const String& plot);
+      static void setPlotOutlineRaw(CVideoInfoTag* infoTag, const String& plotOutline);
+      static void setTitleRaw(CVideoInfoTag* infoTag, const String& title);
+      static void setOriginalTitleRaw(CVideoInfoTag* infoTag, const String& originalTitle);
+      static void setSortTitleRaw(CVideoInfoTag* infoTag, const String& sortTitle);
+      static void setTagLineRaw(CVideoInfoTag* infoTag, const String& tagLine);
+      static void setTvShowTitleRaw(CVideoInfoTag* infoTag, const String& tvshowTitle);
+      static void setTvShowStatusRaw(CVideoInfoTag* infoTag, const String& tvshowStatus);
+      static void setGenreRaw(CVideoInfoTag* infoTag, std::vector<String> genre);
+      static void setCountriesRaw(CVideoInfoTag* infoTag, std::vector<String> countries);
+      static void setDirectorsRaw(CVideoInfoTag* infoTag, std::vector<String> directors);
+      static void setStudiosRaw(CVideoInfoTag* infoTag, std::vector<String> studios);
+      static void setWritersRaw(CVideoInfoTag* infoTag, std::vector<String> writers);
+      static void setDurationRaw(CVideoInfoTag* infoTag, int duration);
+      static void setPremieredRaw(CVideoInfoTag* infoTag, const String& premiered);
+      static void setSetRaw(CVideoInfoTag* infoTag, const String& set);
+      static void setSetOverviewRaw(CVideoInfoTag* infoTag, const String& setOverview);
+      static void setTagsRaw(CVideoInfoTag* infoTag, std::vector<String> tags);
+      static void setProductionCodeRaw(CVideoInfoTag* infoTag, const String& productionCode);
+      static void setFirstAiredRaw(CVideoInfoTag* infoTag, const String& firstAired);
+      static void setLastPlayedRaw(CVideoInfoTag* infoTag, const String& lastPlayed);
+      static void setAlbumRaw(CVideoInfoTag* infoTag, const String& album);
+      static void setVotesRaw(CVideoInfoTag* infoTag, int votes);
+      static void setTrailerRaw(CVideoInfoTag* infoTag, const String& trailer);
+      static void setPathRaw(CVideoInfoTag* infoTag, const String& path);
+      static void setFilenameAndPathRaw(CVideoInfoTag* infoTag, const String& filenameAndPath);
+      static void setIMDBNumberRaw(CVideoInfoTag* infoTag, const String& imdbNumber);
+      static void setDateAddedRaw(CVideoInfoTag* infoTag, const String& dateAdded);
+      static void setMediaTypeRaw(CVideoInfoTag* infoTag, const String& mediaType);
+      static void setShowLinksRaw(CVideoInfoTag* infoTag, std::vector<String> showLinks);
+      static void setArtistsRaw(CVideoInfoTag* infoTag, std::vector<String> artists);
+      static void setCastRaw(CVideoInfoTag* infoTag, std::vector<SActorInfo> cast);
+      static void setResumePointRaw(CVideoInfoTag* infoTag, double time, double totalTime = 0.0);
+
+      static void addSeasonRaw(CVideoInfoTag* infoTag, int number, std::string name = "");
+      static void addSeasonsRaw(CVideoInfoTag* infoTag,
+                                std::vector<Tuple<int, std::string>> namedSeasons);
+
+      static void addStreamRaw(CVideoInfoTag* infoTag, CStreamDetail* stream);
+      static void finalizeStreamsRaw(CVideoInfoTag* infoTag);
+
+      static void addAvailableArtworkRaw(CVideoInfoTag* infoTag,
+                                         const std::string& url,
+                                         const std::string& art_type = "",
+                                         const std::string& preview = "",
+                                         const std::string& referrer = "",
+                                         const std::string& cache = "",
+                                         bool post = false,
+                                         bool isgz = false,
+                                         int season = -1);
+      static void prepareAvailableFanartRaw(CVideoInfoTag* infoTag);
+      static void addAvailableFanartRaw(CVideoInfoTag* infoTag,
+                                        const std::string& image,
+                                        const std::string& preview,
+                                        const std::string& colors);
+      static void finalizeAvailableFanartRaw(CVideoInfoTag* infoTag);
 #endif
     };
   }
