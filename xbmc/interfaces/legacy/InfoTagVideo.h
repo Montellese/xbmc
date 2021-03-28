@@ -407,8 +407,17 @@ namespace XBMCAddon
 #ifdef DOXYGEN_SHOULD_USE_THIS
       ///
       /// \ingroup python_InfoTagVideo
-      /// @brief \python_func{ getRating() }
+      /// @brief \python_func{ getRating(type) }
       /// Get the video rating if present as float (double where supported).
+      ///
+      /// @param type           [opt] string - the type of the rating.
+      /// - Some rating type values (any string possible):
+      ///  | Label         | Type                                             |
+      ///  |---------------|--------------------------------------------------|
+      ///  | imdb          | string - type name
+      ///  | tvdb          | string - type name
+      ///  | tmdb          | string - type name
+      ///  | anidb         | string - type name
       ///
       /// @return [float] The rating of the video
       ///
@@ -416,9 +425,9 @@ namespace XBMCAddon
       ///-----------------------------------------------------------------------
       ///
       ///
-      getRating();
+      getRating(type);
 #else
-      double getRating();
+      double getRating(const String& type = "");
 #endif
 
 #ifdef DOXYGEN_SHOULD_USE_THIS
