@@ -45,14 +45,15 @@ namespace XBMCAddon
     {
     private:
       CVideoInfoTag* infoTag;
+      bool offscreen;
       bool owned;
 
     public:
 #ifndef SWIG
       explicit InfoTagVideo(const CVideoInfoTag* tag);
-      explicit InfoTagVideo(CVideoInfoTag* tag);
+      explicit InfoTagVideo(CVideoInfoTag* tag, bool offscreen = false);
 #endif
-      InfoTagVideo();
+      explicit InfoTagVideo(bool offscreen = false);
       ~InfoTagVideo() override;
 
 #ifdef DOXYGEN_SHOULD_USE_THIS

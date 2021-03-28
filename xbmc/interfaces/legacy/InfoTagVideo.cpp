@@ -8,6 +8,7 @@
 
 #include "InfoTagVideo.h"
 
+#include "AddonUtils.h"
 #include "ServiceBroker.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/SettingsComponent.h"
@@ -17,16 +18,18 @@ namespace XBMCAddon
 {
   namespace xbmc
   {
-    InfoTagVideo::InfoTagVideo() : infoTag(new CVideoInfoTag), owned(true)
+    InfoTagVideo::InfoTagVideo(bool offscreen /* = false */)
+      : infoTag(new CVideoInfoTag), offscreen(offscreen), owned(true)
     {
     }
 
     InfoTagVideo::InfoTagVideo(const CVideoInfoTag* tag)
-      : infoTag(new CVideoInfoTag(*tag)), owned(true)
+      : infoTag(new CVideoInfoTag(*tag)), offscreen(true), owned(true)
     {
     }
 
-    InfoTagVideo::InfoTagVideo(CVideoInfoTag* tag) : infoTag(tag), owned(false)
+    InfoTagVideo::InfoTagVideo(CVideoInfoTag* tag, bool offscreen /* = false */)
+      : infoTag(tag), offscreen(offscreen), owned(false)
     {
     }
 
@@ -73,6 +76,7 @@ namespace XBMCAddon
 
     String InfoTagVideo::getPictureURL()
     {
+      XBMCAddonUtils::GuiLock lock(languageHook, offscreen);
       infoTag->m_strPictureURL.Parse();
       return infoTag->m_strPictureURL.GetFirstThumbUrl();
     }
