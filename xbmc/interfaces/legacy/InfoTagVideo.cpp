@@ -134,9 +134,9 @@ namespace XBMCAddon
       return infoTag->GetYear();
     }
 
-    double InfoTagVideo::getRating()
+    double InfoTagVideo::getRating(const String& type /* = "" */)
     {
-      return infoTag->GetRating().rating;
+      return infoTag->GetRating(type).rating;
     }
 
     int InfoTagVideo::getUserRating()
