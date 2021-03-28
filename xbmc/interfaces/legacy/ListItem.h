@@ -80,12 +80,14 @@ namespace XBMCAddon
     ///                                          WindowXML or WindowXMLDialog classes) subsquent
     ///                                          modifications to the item will require locking.
     ///                                          Thus, in such cases, use the default value (`False`).
+    /// @param videoInfo            [opt] dictionary (default `{}`) - dictionary with video details
     ///
     ///
     ///-----------------------------------------------------------------------
     /// @python_v16 **iconImage** and **thumbnailImage** are deprecated. Use **setArt()**.
     /// @python_v18 Added **offscreen** argument.
     /// @python_v19 Removed **iconImage** and **thumbnailImage**. Use **setArt()**.
+    /// @python_v20 Added **videoInfo** argument.
     ///
     /// **Example:**
     /// ~~~~~~~~~~~~~{.py}
@@ -99,7 +101,8 @@ namespace XBMCAddon
     ListItem(const String& label = emptyString,
              const String& label2 = emptyString,
              const String& path = emptyString,
-             bool offscreen = false);
+             bool offscreen = false,
+             const CVariant& videoInfo = CVariant());
 #endif
 
 #if !defined SWIG && !defined DOXYGEN_SHOULD_SKIP_THIS

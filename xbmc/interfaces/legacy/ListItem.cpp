@@ -33,8 +33,9 @@ namespace XBMCAddon
     ListItem::ListItem(const String& label,
                        const String& label2,
                        const String& path,
-                       bool offscreen) :
-      m_offscreen(offscreen)
+                       bool offscreen,
+                       const CVariant& videoInfo)
+      : m_offscreen(offscreen)
     {
       item.reset();
 
@@ -49,6 +50,9 @@ namespace XBMCAddon
         item->SetLabel2( label2 );
       if (!path.empty())
         item->SetPath(path);
+
+      if (!videoInfo.empty())
+        xbmc::InfoTagVideo::setInfoRaw(GetVideoInfoTag(), videoInfo);
     }
 
     ListItem::~ListItem()
