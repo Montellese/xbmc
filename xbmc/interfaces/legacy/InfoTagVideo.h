@@ -982,6 +982,8 @@ namespace XBMCAddon
         int season = -1);
 #endif
 
+      void setInfo(const CVariant& info);
+
 #ifndef SWIG
       static void setDbIdRaw(CVideoInfoTag* infoTag, int dbId);
       static void setUniqueIDRaw(CVideoInfoTag* infoTag,
@@ -1067,6 +1069,8 @@ namespace XBMCAddon
                                         const std::string& preview,
                                         const std::string& colors);
       static void finalizeAvailableFanartRaw(CVideoInfoTag* infoTag);
+
+      static void setInfoRaw(CVideoInfoTag* infoTag, const CVariant& info);
 #endif
     };
   }
