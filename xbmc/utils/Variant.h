@@ -43,6 +43,9 @@ public:
     VariantTypeConstNull
   };
 
+  typedef std::vector<CVariant> VariantArray;
+  typedef std::map<std::string, CVariant> VariantMap;
+
   CVariant();
   CVariant(VariantType type);
   CVariant(int integer);
@@ -91,6 +94,8 @@ public:
   std::wstring asWideString(const std::wstring &fallback = L"") const;
   double asDouble(double fallback = 0.0) const;
   float asFloat(float fallback = 0.0f) const;
+  const VariantArray& asArray() const;
+  const VariantMap& asMap() const;
 
   CVariant &operator[](const std::string &key);
   const CVariant &operator[](const std::string &key) const;
@@ -111,10 +116,6 @@ public:
   const char *c_str() const;
 
   void swap(CVariant &rhs);
-
-private:
-  typedef std::vector<CVariant> VariantArray;
-  typedef std::map<std::string, CVariant> VariantMap;
 
 public:
   typedef VariantArray::iterator        iterator_array;
@@ -144,7 +145,11 @@ public:
   static CVariant ConstNullVariant;
 
 private:
+  VariantArray& asArray();
+  VariantMap& asMap();
+
   void cleanup();
+
   union VariantUnion
   {
     int64_t integer;

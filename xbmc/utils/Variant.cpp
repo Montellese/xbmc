@@ -543,6 +543,22 @@ std::wstring CVariant::asWideString(const std::wstring &fallback /* = L"" */) co
   return fallback;
 }
 
+const CVariant::VariantArray& CVariant::asArray() const
+{
+  if (m_type == VariantTypeArray)
+    return *m_data.array;
+  else
+    return EMPTY_ARRAY;
+}
+
+const CVariant::VariantMap& CVariant::asMap() const
+{
+  if (m_type == VariantTypeObject)
+    return *m_data.map;
+  else
+    return EMPTY_MAP;
+}
+
 CVariant &CVariant::operator[](const std::string &key)
 {
   if (m_type == VariantTypeNull)
@@ -749,66 +765,42 @@ void CVariant::swap(CVariant &rhs)
 
 CVariant::iterator_array CVariant::begin_array()
 {
-  if (m_type == VariantTypeArray)
-    return m_data.array->begin();
-  else
-    return EMPTY_ARRAY.begin();
+  return asArray().begin();
 }
 
 CVariant::const_iterator_array CVariant::begin_array() const
 {
-  if (m_type == VariantTypeArray)
-    return m_data.array->begin();
-  else
-    return EMPTY_ARRAY.begin();
+  return asArray().begin();
 }
 
 CVariant::iterator_array CVariant::end_array()
 {
-  if (m_type == VariantTypeArray)
-    return m_data.array->end();
-  else
-    return EMPTY_ARRAY.end();
+  return asArray().end();
 }
 
 CVariant::const_iterator_array CVariant::end_array() const
 {
-  if (m_type == VariantTypeArray)
-    return m_data.array->end();
-  else
-    return EMPTY_ARRAY.end();
+  return asArray().end();
 }
 
 CVariant::iterator_map CVariant::begin_map()
 {
-  if (m_type == VariantTypeObject)
-    return m_data.map->begin();
-  else
-    return EMPTY_MAP.begin();
+  return asMap().begin();
 }
 
 CVariant::const_iterator_map CVariant::begin_map() const
 {
-  if (m_type == VariantTypeObject)
-    return m_data.map->begin();
-  else
-    return EMPTY_MAP.begin();
+  return asMap().begin();
 }
 
 CVariant::iterator_map CVariant::end_map()
 {
-  if (m_type == VariantTypeObject)
-    return m_data.map->end();
-  else
-    return EMPTY_MAP.end();
+  return asMap().end();
 }
 
 CVariant::const_iterator_map CVariant::end_map() const
 {
-  if (m_type == VariantTypeObject)
-    return m_data.map->end();
-  else
-    return EMPTY_MAP.end();
+  return asMap().end();
 }
 
 unsigned int CVariant::size() const
@@ -882,4 +874,20 @@ bool CVariant::isMember(const std::string &key) const
     return m_data.map->find(key) != m_data.map->end();
 
   return false;
+}
+
+CVariant::VariantArray& CVariant::asArray()
+{
+  if (m_type == VariantTypeArray)
+    return *m_data.array;
+  else
+    return EMPTY_ARRAY;
+}
+
+CVariant::VariantMap& CVariant::asMap()
+{
+  if (m_type == VariantTypeObject)
+    return *m_data.map;
+  else
+    return EMPTY_MAP;
 }
