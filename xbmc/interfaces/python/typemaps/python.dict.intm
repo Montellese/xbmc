@@ -9,6 +9,7 @@
     List templateArgs = swigTypeParser.SwigType_templateparmlist(ltype)
     valtype = templateArgs[0]
 %>
+    if (${slarg})
     {
       PyObject *pykey, *pyvalue;
       Py_ssize_t pos = 0;

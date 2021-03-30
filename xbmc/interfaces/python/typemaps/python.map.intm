@@ -10,6 +10,7 @@
     keytype = templateArgs[0]
     valtype = templateArgs[1]
 %>
+    if (${slarg})
     {
       PyObject *pykey, *pyvalue;
       Py_ssize_t pos = 0;
