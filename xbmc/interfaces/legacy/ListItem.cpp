@@ -359,7 +359,7 @@ namespace XBMCAddon
     void ListItem::setPath(const String& path)
     {
       XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
-      item->SetPath(path);
+      setPathRaw(path);
     }
 
     void ListItem::setMimeType(const String& mimetype)
@@ -665,18 +665,27 @@ namespace XBMCAddon
             else if (key == "size")
               setSizeRaw(static_cast<int64_t>(strtoll(value.c_str(), nullptr, 10)));
             else if (key == "title")
-              item->m_strTitle = value;
+              setTitleRaw(value);
             else if (key == "picturepath")
-              item->SetPath(value);
+              setPathRaw(value);
             else if (key == "date")
               setDateTimeRaw(value);
             else
             {
-              const String& exifkey = key;
+              String exifkey = key;
               if (!StringUtils::StartsWithNoCase(exifkey, "exif:") || exifkey.length() < 6)
+              {
+                CLog::Log(LOGWARNING, "ListItem.setInfo: unknown pictures info key \"{}\"", key);
                 continue;
+              }
 
-              item->GetPictureInfoTag()->SetInfo(StringUtils::Mid(exifkey, 5), value);
+              exifkey = StringUtils::Mid(exifkey, 5);
+              if (exifkey == "resolution")
+                xbmc::InfoTagPicture::setResolutionRaw(item->GetPictureInfoTag(), value);
+              else if (exifkey == "exiftime")
+                xbmc::InfoTagPicture::setDateTimeTakenRaw(item->GetPictureInfoTag(), value);
+              else
+                CLog::Log(LOGWARNING, "ListItem.setInfo: unknown pictures info key \"{}\"", key);
             }
           }
         }
@@ -741,9 +750,7 @@ namespace XBMCAddon
           // TODO(Montellese)
         }
         else if (StringUtils::CompareNoCase(type, "pictures") == 0)
-        {
-          // TODO(Montellese)
-        }
+          xbmc::InfoTagPicture::setInfoRaw(item->GetPictureInfoTag(), info);
         else if (StringUtils::CompareNoCase(type, "game") == 0)
         {
           // TODO(Montellese)
@@ -794,9 +801,7 @@ namespace XBMCAddon
             // TODO(Montellese)
           }
           else if (key == "pictures")
-          {
-            // TODO(Montellese)
-          }
+            xbmc::InfoTagPicture::setInfoRaw(item->GetPictureInfoTag(), value);
           else if (key == "game")
           {
             // TODO(Montellese)
@@ -1034,6 +1039,14 @@ namespace XBMCAddon
       return new xbmc::InfoTagMusic();
     }
 
+    xbmc::InfoTagPicture* ListItem::getPictureInfoTag()
+    {
+      XBMCAddonUtils::GuiLock lock(languageHook, m_offscreen);
+      if (item->HasPictureInfoTag())
+        return new xbmc::InfoTagPicture(*item->GetPictureInfoTag(), m_offscreen);
+      return new xbmc::InfoTagPicture();
+    }
+
     std::vector<std::string> ListItem::getStringArray(const InfoLabelValue& alt, const std::string& tag, std::string value)
     {
       if (alt.which() == first)
@@ -1061,6 +1074,16 @@ namespace XBMCAddon
     const CVideoInfoTag* ListItem::GetVideoInfoTag() const
     {
       return item->GetVideoInfoTag();
+    }
+
+    void ListItem::setTitleRaw(std::string title)
+    {
+      item->m_strTitle = std::move(title);
+    }
+
+    void ListItem::setPathRaw(std::string path)
+    {
+      item->SetPath(std::move(path));
     }
 
     void ListItem::setCountRaw(int count)
