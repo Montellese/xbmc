@@ -13,6 +13,7 @@
 #include "Alternative.h"
 #include "Dictionary.h"
 #include "FileItem.h"
+#include "InfoTagGame.h"
 #include "InfoTagMusic.h"
 #include "InfoTagPicture.h"
 #include "InfoTagVideo.h"
@@ -1237,6 +1238,23 @@ namespace XBMCAddon
       getPictureInfoTag();
 #else
       xbmc::InfoTagPicture* getPictureInfoTag();
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+      ///
+      /// \ingroup python_xbmcgui_listitem
+      /// @brief \python_func{ getGameInfoTag() }
+      /// Returns the InfoTagGame for this item.
+      ///
+      /// @return     game info tag
+      ///
+      ///
+      ///-----------------------------------------------------------------------
+      /// @python_v20 New function added.
+      ///
+      getGameInfoTag();
+#else
+      xbmc::InfoTagGame* getGameInfoTag();
 #endif
 
 private:
