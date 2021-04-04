@@ -48,15 +48,28 @@ void CScriptRunner::SetDone()
   m_scriptDone.Set();
 }
 
-int CScriptRunner::ExecuteScript(ADDON::AddonPtr addon, const std::string& path, bool resume)
+bool CScriptRunner::ReuseLanguageInvoker(ADDON::AddonPtr addon)
 {
-  return ExecuteScript(addon, path, -1, resume);
+  const auto reuseLanguageInvokerIt = addon->ExtraInfo().find("reuselanguageinvoker");
+  if (reuseLanguageInvokerIt != addon->ExtraInfo().end())
+    return reuseLanguageInvokerIt->second == "true";
+
+  return false;
+}
+
+int CScriptRunner::ExecuteScript(ADDON::AddonPtr addon,
+                                 const std::string& path,
+                                 bool resume,
+                                 bool reuseLanguageInvoker)
+{
+  return ExecuteScript(addon, path, -1, resume, reuseLanguageInvoker);
 }
 
 int CScriptRunner::ExecuteScript(ADDON::AddonPtr addon,
                                  const std::string& path,
                                  int handle,
-                                 bool resume)
+                                 bool resume,
+                                 bool reuseLanguageInvoker)
 {
   if (addon == nullptr || path.empty())
     return false;
@@ -72,11 +85,6 @@ int CScriptRunner::ExecuteScript(ADDON::AddonPtr addon,
   std::vector<std::string> argv = {url.Get(), // base path
                                    StringUtils::Format("{:d}", handle), options,
                                    StringUtils::Format("resume:{}", resume)};
-
-  bool reuseLanguageInvoker = false;
-  const auto reuseLanguageInvokerIt = addon->ExtraInfo().find("reuselanguageinvoker");
-  if (reuseLanguageInvokerIt != addon->ExtraInfo().end())
-    reuseLanguageInvoker = reuseLanguageInvokerIt->second == "true";
 
   // run the script
   CLog::Log(LOGDEBUG, "CScriptRunner: running add-on script {:s}('{:s}', '{:s}', '{:s}')",
@@ -101,7 +109,11 @@ bool CScriptRunner::RunScriptInternal(
   // store the add-on
   m_addon = addon;
 
-  int scriptId = ExecuteScript(addon, path, handle, resume);
+  bool reuseLanguageInvoker = OverriddenReuseLanguageInvoker();
+  if (!OverrideReuseLanguageInvoker())
+    reuseLanguageInvoker = ReuseLanguageInvoker(addon);
+
+  int scriptId = ExecuteScript(addon, path, handle, resume, reuseLanguageInvoker);
   if (scriptId < 0)
     return false;
 
