@@ -354,7 +354,7 @@ bool CPluginDirectory::RunScriptWithParams(const std::string& strPath, bool resu
     return false;
   }
 
-  return ExecuteScript(addon, strPath, resume) >= 0;
+  return ExecuteScript(addon, strPath, resume, ReuseLanguageInvoker(addon)) >= 0;
 }
 
 void CPluginDirectory::SetResolvedUrl(int handle, bool success, const CFileItem *resultItem)

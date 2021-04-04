@@ -19,6 +19,9 @@ protected:
   CScriptRunner();
   virtual ~CScriptRunner() = default;
 
+  virtual bool OverrideReuseLanguageInvoker() const { return false; }
+  virtual bool OverriddenReuseLanguageInvoker() const { return false; }
+
   virtual bool IsSuccessful() const = 0;
   virtual bool IsCancelled() const = 0;
 
@@ -29,8 +32,17 @@ protected:
 
   void SetDone();
 
-  static int ExecuteScript(ADDON::AddonPtr addon, const std::string& path, bool resume);
-  static int ExecuteScript(ADDON::AddonPtr addon, const std::string& path, int handle, bool resume);
+  static bool ReuseLanguageInvoker(ADDON::AddonPtr addon);
+
+  static int ExecuteScript(ADDON::AddonPtr addon,
+                           const std::string& path,
+                           bool resume,
+                           bool reuseLanguageInvoker);
+  static int ExecuteScript(ADDON::AddonPtr addon,
+                           const std::string& path,
+                           int handle,
+                           bool resume,
+                           bool reuseLanguageInvoker);
 
 private:
   bool RunScriptInternal(
