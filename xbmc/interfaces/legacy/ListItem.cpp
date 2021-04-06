@@ -701,7 +701,7 @@ namespace XBMCAddon
 
             if (key == "title")
             {
-              item->m_strTitle = value;
+              setTitleRaw(value);
               gametag.SetTitle(value);
             }
             else if (key == "platform")
@@ -757,13 +757,36 @@ namespace XBMCAddon
         else if (!type.empty())
           CLog::Log(LOGWARNING, "ListItem.setInfo: unknown \"type\" parameter value: {}", type);
 
-        const auto processGeneralProperties = [this](const String& key, const CVariant& value) {
-          if (key == "count")
-            setCountRaw(DictUtils::CheckAndGetIntegerProperty(key, value));
-          else if (key == "size")
-            setSizeRaw(DictUtils::CheckAndGetInteger64Property(key, value));
-          else if (key == "date")
-            setDateTimeRaw(DictUtils::CheckAndGetStringProperty(key, value));
+        const auto processGeneralProperties = [this](const String& type, const String& subKey, const CVariant& value) {
+          if (type == "music")
+          {
+            // TODO(Montellese)
+          }
+          else if (type == "pictures")
+          {
+            if (subKey == "title")
+            {
+              setTitleRaw(DictUtils::CheckAndGetStringProperty(subKey, value));
+              return true;
+            }
+            else if (subKey == "picturepath")
+            {
+              setPathRaw(DictUtils::CheckAndGetStringProperty(subKey, value));
+              return true;
+            }
+          }
+          else if (type == "game")
+          {
+            // TODO(Montellese)
+          }
+
+          // process these properties independent of the type
+          if (subKey == "count")
+            setCountRaw(DictUtils::CheckAndGetIntegerProperty(subKey, value));
+          else if (subKey == "size")
+            setSizeRaw(DictUtils::CheckAndGetInteger64Property(subKey, value));
+          else if (subKey == "date")
+            setDateTimeRaw(DictUtils::CheckAndGetStringProperty(subKey, value));
           else
             return false;
 
@@ -776,48 +799,42 @@ namespace XBMCAddon
           const auto key = StringUtils::ToLower(prop->first);
           auto value = prop->second;
 
-          // if no type has been specified try to handle general properties at the first sub-level
           if (type.empty())
           {
+            // if no type has been specified try to handle general properties at the first sub-level
             std::set<std::string> processedProperties;
             for (auto& val = value.begin_map(); val != value.end_map(); ++val)
             {
               const auto subKey = StringUtils::ToLower(val->first);
 
-              if (processGeneralProperties(subKey, val->second))
+              if (processGeneralProperties(key, subKey, val->second))
                 processedProperties.insert(val->first);
             }
 
-            // remove any processed properties
+            // remove any processed general properties
             for (const auto& processedProperty : processedProperties)
               value.erase(processedProperty);
-          }
 
-          if (key == "video")
-            xbmc::InfoTagVideo::setInfoRaw(GetVideoInfoTag(), value);
-          else if (key == "music")
-          {
-            // TODO(Montellese)
-          }
-          else if (key == "pictures")
-            xbmc::InfoTagPicture::setInfoRaw(item->GetPictureInfoTag(), value);
-          else if (key == "game")
-            xbmc::InfoTagGame::setInfoRaw(item->GetGameInfoTag(), value);
-          else if (!type.empty())
-          {
-            // if a type has been specified try to handle general properties at the top level
-            processGeneralProperties(key, value);
-
-            if (key == "isfolder")
-              setIsFolderRaw(DictUtils::CheckAndGetBoolProperty(key, value));
+            if (key == "video")
+              xbmc::InfoTagVideo::setInfoRaw(GetVideoInfoTag(), value);
+            else if (key == "music")
+            {
+              // TODO(Montellese)
+            }
+            else if (key == "pictures")
+              xbmc::InfoTagPicture::setInfoRaw(item->GetPictureInfoTag(), value);
+            else if (key == "game")
+              xbmc::InfoTagGame::setInfoRaw(item->GetGameInfoTag(), value);
+            else if (key == "isfolder")
+            setIsFolderRaw(DictUtils::CheckAndGetBoolProperty(key, value));
             else if (key == "startoffset")
-              setStartOffsetRaw(DictUtils::CheckAndGetFloatProperty(key, value));
+            setStartOffsetRaw(DictUtils::CheckAndGetFloatProperty(key, value));
             else if (key == "mimetype")
-              setMimeTypeRaw(DictUtils::CheckAndGetStringProperty(key, value));
+            setMimeTypeRaw(DictUtils::CheckAndGetStringProperty(key, value));
             else if (key == "specialsort")
-              setSpecialSortRaw(DictUtils::CheckAndGetStringProperty(key, value));
+            setSpecialSortRaw(DictUtils::CheckAndGetStringProperty(key, value));
             else if (key == "contentlookup")
-              setContentLookupRaw(DictUtils::CheckAndGetBoolProperty(key, value));
+            setContentLookupRaw(DictUtils::CheckAndGetBoolProperty(key, value));
             else if (key == "art")
             {
               if (value.isObject())
@@ -844,9 +861,14 @@ namespace XBMCAddon
             }
             else if (key == "subtitles")
               addSubtitlesRaw(DictUtils::CheckAndGetStringArrayProperty(key, value));
+            else
+              CLog::Log(LOGWARNING, "ListItem.setInfo: unknown property \"{}\" in info dict", type);
           }
           else
-            CLog::Log(LOGWARNING, "ListItem.setInfo: unknown property \"{}\" in info dict", type);
+          {
+            // if a type has been specified try to handle general properties at the top level
+            processGeneralProperties(type, key, value);
+          }
         }
       }
     } // end ListItem::setInfo
