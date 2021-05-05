@@ -22,7 +22,12 @@ namespace JSONRPC
   class CFileItemHandler : public CJSONUtils
   {
   protected:
-    static void FillDetails(const ISerializable *info, const CFileItemPtr &item, std::set<std::string> &fields, CVariant &result, CThumbLoader *thumbLoader = NULL);
+    static void FillDetails(const ISerializable* info,
+                            const char* resultname,
+                            const CFileItemPtr& item,
+                            std::set<std::string>& fields,
+                            CVariant& result,
+                            CThumbLoader* thumbLoader = NULL);
     static void HandleFileItemList(const char *ID, bool allowFile, const char *resultname, CFileItemList &items, const CVariant &parameterObject, CVariant &result, bool sortLimit = true);
     static void HandleFileItemList(const char *ID, bool allowFile, const char *resultname, CFileItemList &items, const CVariant &parameterObject, CVariant &result, int size, bool sortLimit = true);
     static void HandleFileItem(const char* ID,
@@ -47,6 +52,12 @@ namespace JSONRPC
     static bool FillFileItemList(const CVariant &parameterObject, CFileItemList &list);
   private:
     static void Sort(CFileItemList &items, const CVariant& parameterObject);
-    static bool GetField(const std::string &field, const CVariant &info, const CFileItemPtr &item, CVariant &result, bool &fetchedArt, CThumbLoader *thumbLoader = NULL);
+    static bool GetField(const std::string& field,
+                         const CVariant& info,
+                         const char* resultname,
+                         const CFileItemPtr& item,
+                         CVariant& result,
+                         bool& fetchedArt,
+                         CThumbLoader* thumbLoader = NULL);
   };
 }

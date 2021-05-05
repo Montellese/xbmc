@@ -42,7 +42,13 @@ using namespace MUSIC_INFO;
 using namespace JSONRPC;
 using namespace XFILE;
 
-bool CFileItemHandler::GetField(const std::string &field, const CVariant &info, const CFileItemPtr &item, CVariant &result, bool &fetchedArt, CThumbLoader *thumbLoader /* = NULL */)
+bool CFileItemHandler::GetField(const std::string& field,
+                                const CVariant& info,
+                                const char* resultname,
+                                const CFileItemPtr& item,
+                                CVariant& result,
+                                bool& fetchedArt,
+                                CThumbLoader* thumbLoader /* = NULL */)
 {
   if (result.isMember(field) && !result[field].empty())
     return true;
@@ -86,6 +92,12 @@ bool CFileItemHandler::GetField(const std::string &field, const CVariant &info, 
         result[field] = CServiceBroker::GetPVRManager().Timers()->IsRecordingOnChannel(
             *item->GetPVRChannelInfoTag());
         return true;
+      }
+      else if (field == "uniqueid" && !StringUtils::EqualsNoCase(resultname, "channels"))
+      {
+        // "uniqueid" is used differently for PVR channels than for videos
+        // don't provide it if the result is not a "pure" channel but a generic item
+        return false;
       }
     }
 
@@ -253,7 +265,12 @@ bool CFileItemHandler::GetField(const std::string &field, const CVariant &info, 
   return false;
 }
 
-void CFileItemHandler::FillDetails(const ISerializable *info, const CFileItemPtr &item, std::set<std::string> &fields, CVariant &result, CThumbLoader *thumbLoader /* = NULL */)
+void CFileItemHandler::FillDetails(const ISerializable* info,
+                                   const char* resultname,
+                                   const CFileItemPtr& item,
+                                   std::set<std::string>& fields,
+                                   CVariant& result,
+                                   CThumbLoader* thumbLoader /* = NULL */)
 {
   if (info == NULL || fields.empty())
     return;
@@ -267,7 +284,7 @@ void CFileItemHandler::FillDetails(const ISerializable *info, const CFileItemPtr
 
   for (const auto& fieldIt : originalFields)
   {
-    if (GetField(fieldIt, serialization, item, result, fetchedArt, thumbLoader) &&
+    if (GetField(fieldIt, serialization, resultname, item, result, fetchedArt, thumbLoader) &&
         result.isMember(fieldIt) && !result[fieldIt].empty())
       fields.erase(fieldIt);
   }
@@ -452,21 +469,23 @@ void CFileItemHandler::HandleFileItem(const char* ID,
     }
 
     if (item->HasPVRChannelInfoTag())
-      FillDetails(item->GetPVRChannelInfoTag().get(), item, fields, object, thumbLoader);
+      FillDetails(item->GetPVRChannelInfoTag().get(), resultname, item, fields, object,
+                  thumbLoader);
     if (item->HasEPGInfoTag())
-      FillDetails(item->GetEPGInfoTag().get(), item, fields, object, thumbLoader);
+      FillDetails(item->GetEPGInfoTag().get(), resultname, item, fields, object, thumbLoader);
     if (item->HasPVRRecordingInfoTag())
-      FillDetails(item->GetPVRRecordingInfoTag().get(), item, fields, object, thumbLoader);
+      FillDetails(item->GetPVRRecordingInfoTag().get(), resultname, item, fields, object,
+                  thumbLoader);
     if (item->HasPVRTimerInfoTag())
-      FillDetails(item->GetPVRTimerInfoTag().get(), item, fields, object, thumbLoader);
+      FillDetails(item->GetPVRTimerInfoTag().get(), resultname, item, fields, object, thumbLoader);
     if (item->HasVideoInfoTag())
-      FillDetails(item->GetVideoInfoTag(), item, fields, object, thumbLoader);
+      FillDetails(item->GetVideoInfoTag(), resultname, item, fields, object, thumbLoader);
     if (item->HasMusicInfoTag())
-      FillDetails(item->GetMusicInfoTag(), item, fields, object, thumbLoader);
+      FillDetails(item->GetMusicInfoTag(), resultname, item, fields, object, thumbLoader);
     if (item->HasPictureInfoTag())
-      FillDetails(item->GetPictureInfoTag(), item, fields, object, thumbLoader);
+      FillDetails(item->GetPictureInfoTag(), resultname, item, fields, object, thumbLoader);
 
-    FillDetails(item.get(), item, fields, object, thumbLoader);
+    FillDetails(item.get(), resultname, item, fields, object, thumbLoader);
 
     if (deleteThumbloader)
       delete thumbLoader;
