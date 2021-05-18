@@ -82,7 +82,8 @@ namespace XBMCAddon
 
     Settings* Addon::getSettings()
     {
-      return new Settings(pAddon->GetSettings());
+      // ATTENTION: "normal" add-ons current don't support setting callbacks
+      return new Settings(pAddon->GetSettings(), pAddon->ID(), nullptr);
     }
 
     String Addon::getSetting(const char* id)
