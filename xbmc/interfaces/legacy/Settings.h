@@ -13,6 +13,7 @@
 #include "interfaces/legacy/AddonString.h"
 #include "interfaces/legacy/Exception.h"
 #include "interfaces/legacy/Tuple.h"
+#include "settings/lib/ISettingCallback.h"
 #include "settings/lib/SettingDefinitions.h"
 
 #include <memory>
@@ -20,6 +21,11 @@
 #include <vector>
 
 class CSettingsBase;
+
+namespace ADDON
+{
+class IAddonSettingsCallbackExecutor;
+}
 
 namespace XBMCAddon
 {
@@ -49,6 +55,9 @@ XBMCCOMMONS_STANDARD_EXCEPTION(SettingCallbacksNotSupportedException);
 /// ...
 /// ~~~~~~~~~~~~~
 class Settings : public AddonClass
+#ifndef SWIG
+  , protected ISettingCallback
+#endif
 {
 public:
 #if !defined SWIG && !defined DOXYGEN_SHOULD_SKIP_THIS
@@ -56,7 +65,10 @@ public:
 #endif
 
 #ifndef SWIG
-  Settings(std::shared_ptr<CSettingsBase> settings);
+  Settings(std::shared_ptr<CSettingsBase> settings,
+           const std::string& addonId = "",
+           ADDON::IAddonSettingsCallbackExecutor* callbackExecutor = nullptr,
+           void* callbackData = nullptr);
 #endif
 
   virtual ~Settings() = default;
@@ -511,6 +523,149 @@ public:
 #else
   void setStringList(const char* id,
                      const std::vector<String>& values) throw(XBMCAddon::WrongTypeException);
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+  ///
+  /// \ingroup python_settings
+  /// @brief \python_func{ registerActionCallback(settingId, callback) }
+  ///-----------------------------------------------------------------------
+  /// Register an action callback for the given setting which is called when
+  /// the action setting is triggered.
+  ///
+  /// @param settingId              string - id of the setting.
+  /// @param callback               string - name of the callback to execute.
+  /// @return                       bool - True if the callback is registered, false otherwise.
+  ///
+  ///
+  /// @note You can use the above as keywords for arguments.
+  ///
+  ///
+  ///-----------------------------------------------------------------------
+  ///
+  /// **Example:**
+  /// ~~~~~~~~~~~~~{.py}
+  /// ..
+  /// settings.registerActionCallback('foo', 'onSettingAction')
+  /// ..
+  /// ~~~~~~~~~~~~~
+  ///
+  registerActionCallback(...);
+#else
+  bool registerActionCallback(const String& settingId,
+                              const String& callback) throw(SettingCallbacksNotSupportedException);
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+  ///
+  /// \ingroup python_settings
+  /// @brief \python_func{ registerOptionsFillerCallback(settingId, callback) }
+  ///-----------------------------------------------------------------------
+  /// Register an options filler callback for the given setting which is called
+  /// when the possible options of the setting are required.
+  ///
+  /// @param settingId              string - id of the setting.
+  /// @param callback               string - name of the callback to execute.
+  /// @return                       bool - True if the callback is registered, false otherwise.
+  ///
+  ///
+  ///-----------------------------------------------------------------------
+  ///
+  /// **Example:**
+  /// ~~~~~~~~~~~~~{.py}
+  /// ..
+  /// settings.registerActionCallback('foo', 'fooOptionFiller')
+  /// ..
+  /// ~~~~~~~~~~~~~
+  ///
+  registerOptionsFillerCallback(...);
+#else
+  bool registerOptionsFillerCallback(const String& settingId, const String& callback) throw(
+      SettingCallbacksNotSupportedException);
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+  ///
+  /// \ingroup python_settings
+  /// @brief \python_func{ setIntegerOptions(settingId, options) }
+  ///-----------------------------------------------------------------------
+  /// Set the given options for the given integer settings from a registered
+  /// options filler callback.
+  ///
+  /// @param settingId              string - id of the integer setting.
+  /// @param options                list - List of tuple containing the label and integer value of the option.
+  /// @return                       bool - True if the options have been set, false otherwise.
+  ///
+  ///
+  ///-----------------------------------------------------------------------
+  ///
+  /// **Example:**
+  /// ~~~~~~~~~~~~~{.py}
+  /// ..
+  /// result = setIntegerOptions('foo', [('Zero', 0), ('One', 1), ('Two', 2)])
+  /// ..
+  /// ~~~~~~~~~~~~~
+  ///
+  setIntegerOptions(...);
+#else
+  bool setIntegerOptions(
+      const String& settingId,
+      const std::vector<Tuple<String, int>>& options) throw(SettingCallbacksNotSupportedException);
+#endif
+
+#ifdef DOXYGEN_SHOULD_USE_THIS
+  ///
+  /// \ingroup python_settings
+  /// @brief \python_func{ setStringOptions(settingId, options) }
+  ///-----------------------------------------------------------------------
+  /// Set the given options for the given string settings from a registered
+  /// options filler callback.
+  ///
+  /// @param settingId              string - id of the string setting.
+  /// @param options                list - List of tuple containing the label and string value of the option.
+  /// @return                       bool - True if the options have been set, false otherwise.
+  ///
+  ///
+  ///-----------------------------------------------------------------------
+  ///
+  /// **Example:**
+  /// ~~~~~~~~~~~~~{.py}
+  /// ..
+  /// result = setStringOptions('foo', [('Hello', 'hello'), ('World', 'world')])
+  /// ..
+  /// ~~~~~~~~~~~~~
+  ///
+  setStringOptions(...);
+#else
+  bool setStringOptions(const String& settingId,
+                        const std::vector<Tuple<String, String>>&
+                            options) throw(SettingCallbacksNotSupportedException);
+#endif
+
+#ifndef SWIG
+protected:
+  void OnSettingAction(const std::shared_ptr<const CSetting>& setting) override;
+
+private:
+  using CallbackMap = std::map<std::string, std::string>;
+
+  std::shared_ptr<CSetting> GetSetting(const std::string& settingId) const;
+
+  static void IntegerSettingOptionsFiller(const std::shared_ptr<const CSetting>& setting,
+                                          IntegerSettingOptions& list,
+                                          int& current,
+                                          void* data);
+  static void StringSettingOptionsFiller(const std::shared_ptr<const CSetting>& setting,
+                                         StringSettingOptions& list,
+                                         std::string& current,
+                                         void* data);
+
+  const std::string m_addonId;
+
+  ADDON::IAddonSettingsCallbackExecutor* m_callbackExecutor;
+  void* m_callbackData;
+  CallbackMap m_actionCallbacks;
+  CallbackMap m_optionsFillerCallbacks;
 #endif
 };
 
