@@ -165,9 +165,6 @@ private:
                                    std::string format,
                                    Args&&... args)
   {
-    // fixup newline alignment, number of spaces should equal prefix length
-    StringUtils::Replace(format, "\n", "\n                                                   ");
-
     m_defaultLogger->log(level, format, std::forward<Args>(args)...);
   }
 

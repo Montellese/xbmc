@@ -20,8 +20,12 @@
 #include "utils/URIUtils.h"
 
 #include <cstring>
+#include <memory>
 #include <set>
 
+#include <spdlog/details/fmt_helper.h>
+#include <spdlog/details/os.h>
+#include <spdlog/formatter.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/dist_sink.h>
 #include <spdlog/sinks/dup_filter_sink.h>
@@ -30,7 +34,45 @@ namespace
 {
 static constexpr unsigned char Utf8Bom[3] = {0xEF, 0xBB, 0xBF};
 static const std::string LogFileExtension = ".log";
-static const std::string LogPattern = "%Y-%m-%d %T.%e T:%-5t %7l <%n>: %v";
+// %v is missing on purpose and is added by CNewlineFormatter
+static const std::string LogPattern = "%Y-%m-%d %T.%e T:%-5t %7l <%n>: ";
+
+class CNewlineFormatter : public spdlog::formatter
+{
+public:
+  CNewlineFormatter()
+    : m_patternFormatter(LogPattern, spdlog::pattern_time_type::local, "")
+  {
+  }
+
+  ~CNewlineFormatter() = default;
+
+  // implementation of spdlog::formatter
+  void format(const spdlog::details::log_msg& msg, spdlog::memory_buf_t& dest) override
+  {
+    // first apply the formatting
+    m_patternFormatter.format(msg, dest);
+
+    // now fixup newline alignment
+    // ATTENTION: number of spaces should equal prefix length
+    std::string payload(msg.payload.data(), msg.payload.size());
+    StringUtils::Replace(payload, "\n", "\n                                                   ");
+
+    // finally append the payload to the destination
+    spdlog::details::fmt_helper::append_string_view(payload, dest);
+
+    // write eol
+    spdlog::details::fmt_helper::append_string_view(spdlog::details::os::default_eol, dest);
+  }
+
+  std::unique_ptr<spdlog::formatter> clone() const override
+  {
+    return std::make_unique<CNewlineFormatter>();
+  }
+
+private:
+  spdlog::pattern_formatter m_patternFormatter;
+};
 } // namespace
 
 CLog::CLog()
@@ -47,8 +89,8 @@ CLog::CLog()
   // register the default logger with spdlog
   spdlog::set_default_logger(m_defaultLogger);
 
-  // set the formatting pattern globally
-  spdlog::set_pattern(LogPattern);
+  // use the custom formatter
+  spdlog::set_formatter(std::make_unique<CNewlineFormatter>());
 
   // flush on debug logs
   spdlog::flush_on(spdlog::level::debug);
