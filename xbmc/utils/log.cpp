@@ -53,10 +53,13 @@ public:
     // first apply the formatting
     m_patternFormatter.format(msg, dest);
 
+    // determine the indentation after a newline using the already performed prefix formatting
+    if (s_newlineIndentation.empty())
+      s_newlineIndentation = "\n" + std::string(dest.size(), ' ');
+
     // now fixup newline alignment
-    // ATTENTION: number of spaces should equal prefix length
     std::string payload(msg.payload.data(), msg.payload.size());
-    StringUtils::Replace(payload, "\n", "\n                                                   ");
+    StringUtils::Replace(payload, "\n", s_newlineIndentation);
 
     // finally append the payload to the destination
     spdlog::details::fmt_helper::append_string_view(payload, dest);
@@ -72,7 +75,10 @@ public:
 
 private:
   spdlog::pattern_formatter m_patternFormatter;
+  static std::string s_newlineIndentation;
 };
+
+std::string CNewlineFormatter::s_newlineIndentation;
 } // namespace
 
 CLog::CLog()
