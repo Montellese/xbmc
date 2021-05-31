@@ -76,7 +76,7 @@ void InfoTagPicture::setResolutionRaw(CPictureInfoTag* infoTag, int width, int h
   if (height <= 0)
     throw WrongTypeException("InfoTagPicture.setResolution: height must be greater than zero (0)");
 
-  setResolutionRaw(infoTag, StringUtils::Format("%d,%d", width, height));
+  setResolutionRaw(infoTag, StringUtils::Format("{:d},{:d}", width, height));
 }
 
 void InfoTagPicture::setDateTimeTakenRaw(CPictureInfoTag* infoTag, String datetimetaken)
@@ -85,7 +85,7 @@ void InfoTagPicture::setDateTimeTakenRaw(CPictureInfoTag* infoTag, String dateti
   CDateTime w3cDateTimeTaken;
   if (w3cDateTimeTaken.SetFromW3CDateTime(datetimetaken))
   {
-    datetimetaken = StringUtils::Format("%4d:%2d:%2d %2d:%2d:%2d", w3cDateTimeTaken.GetYear(),
+    datetimetaken = StringUtils::Format("{:4d}:{:2d}:{:2d} {:2d}:{:2d}:{:2d}", w3cDateTimeTaken.GetYear(),
                                         w3cDateTimeTaken.GetMonth(), w3cDateTimeTaken.GetDay(),
                                         w3cDateTimeTaken.GetHour(), w3cDateTimeTaken.GetMinute(),
                                         w3cDateTimeTaken.GetSecond());

@@ -76,12 +76,12 @@ const char *eventStrings[] = {"playing", "paused", "loading", "stopped"};
 "<plist version=\"1.0\">\r\n"\
 "<dict>\r\n"\
 "<key>duration</key>\r\n"\
-"<real>%f</real>\r\n"\
+"<real>{:f}</real>\r\n"\
 "<key>loadedTimeRanges</key>\r\n"\
 "<array>\r\n"\
 "\t\t<dict>\r\n"\
 "\t\t\t<key>duration</key>\r\n"\
-"\t\t\t<real>%f</real>\r\n"\
+"\t\t\t<real>{:f}</real>\r\n"\
 "\t\t\t<key>start</key>\r\n"\
 "\t\t\t<real>0.0</real>\r\n"\
 "\t\t</dict>\r\n"\
@@ -93,16 +93,16 @@ const char *eventStrings[] = {"playing", "paused", "loading", "stopped"};
 "<key>playbackLikelyToKeepUp</key>\r\n"\
 "<true/>\r\n"\
 "<key>position</key>\r\n"\
-"<real>%f</real>\r\n"\
+"<real>{:f}</real>\r\n"\
 "<key>rate</key>\r\n"\
-"<real>%d</real>\r\n"\
+"<real>{:d}</real>\r\n"\
 "<key>readyToPlay</key>\r\n"\
 "<true/>\r\n"\
 "<key>seekableTimeRanges</key>\r\n"\
 "<array>\r\n"\
 "\t\t<dict>\r\n"\
 "\t\t\t<key>duration</key>\r\n"\
-"\t\t\t<real>%f</real>\r\n"\
+"\t\t\t<real>{:f}</real>\r\n"\
 "\t\t\t<key>start</key>\r\n"\
 "\t\t\t<real>0.0</real>\r\n"\
 "\t\t</dict>\r\n"\
@@ -124,7 +124,7 @@ const char *eventStrings[] = {"playing", "paused", "loading", "stopped"};
 "<plist version=\"1.0\">\r\n"\
 "<dict>\r\n"\
 "<key>deviceid</key>\r\n"\
-"<string>%s</string>\r\n"\
+"<string>{:s}</string>\r\n"\
 "<key>features</key>\r\n"\
 "<integer>119</integer>\r\n"\
 "<key>model</key>\r\n"\
@@ -143,14 +143,14 @@ const char *eventStrings[] = {"playing", "paused", "loading", "stopped"};
 "<key>category</key>\r\n"\
 "<string>video</string>\r\n"\
 "<key>sessionID</key>\r\n"\
-"<integer>%d</integer>\r\n"\
+"<integer>{:d}</integer>\r\n"\
 "<key>state</key>\r\n"\
-"<string>%s</string>\r\n"\
+"<string>{:s}</string>\r\n"\
 "</dict>\r\n"\
 "</plist>\r\n"\
 
 #define AUTH_REALM "AirPlay"
-#define AUTH_REQUIRED "WWW-Authenticate: Digest realm=\""  AUTH_REALM  "\", nonce=\"%s\"\r\n"
+#define AUTH_REQUIRED "WWW-Authenticate: Digest realm=\""  AUTH_REALM  "\", nonce=\"{:s}\"\r\n"
 
 void CAirPlayServer::Announce(ANNOUNCEMENT::AnnouncementFlag flag,
                               const std::string& sender,
