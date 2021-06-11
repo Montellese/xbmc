@@ -117,10 +117,7 @@ public:
   bool IsImportReady(CMediaImport& import) override;
   bool LoadSourceSettings(CMediaImportSource& source) override;
   bool LoadImportSettings(CMediaImport& import) override;
-  bool CanUpdateMetadataOnSource(const std::string& path) override;
-  bool CanUpdatePlaycountOnSource(const std::string& path) override;
-  bool CanUpdateLastPlayedOnSource(const std::string& path) override;
-  bool CanUpdateResumePositionOnSource(const std::string& path) override;
+  bool CanUpdatePlaybackMetadataOnSource(const std::string& path) override;
 
   bool Import(CMediaImportImportItemsRetrievalTask* task) override;
   bool UpdateOnSource(CMediaImportUpdateTask* task) override;
@@ -182,18 +179,9 @@ public:
       InvalidAddonMediaImporterHandleException);
   static void SetImportSettingsLoaded(HandleType handle, bool settingsLoaded) throw(
       InvalidAddonMediaImporterHandleException);
-  static void SetCanUpdateMetadataOnProvider(
+  static void SetCanUpdatePlaybackMetadataOnProvider(
       HandleType handle,
-      bool canUpdateMetadataOnSource) throw(InvalidAddonMediaImporterHandleException);
-  static void SetCanUpdatePlaycountOnProvider(
-      HandleType handle,
-      bool canUpdatePlaycountOnSource) throw(InvalidAddonMediaImporterHandleException);
-  static void SetCanUpdateLastPlayedOnProvider(
-      HandleType handle,
-      bool canUpdateLastPlayedOnSource) throw(InvalidAddonMediaImporterHandleException);
-  static void SetCanUpdateResumePositionOnProvider(
-      HandleType handle,
-      bool canUpdateResumePositionOnSource) throw(InvalidAddonMediaImporterHandleException);
+      bool canUpdatePlaybackMetadataOnSource) throw(InvalidAddonMediaImporterHandleException);
 
   // methods concerning the current state and progress of the add-on script(s)
   static bool ShouldCancel(HandleType handle,

@@ -233,25 +233,7 @@ void setImportSettingsLoaded(int handle, bool settingsLoaded);
 #ifdef DOXYGEN_SHOULD_USE_THIS
 // TODO(Montellese)
 #else
-void setCanUpdateMetadataOnProvider(int handle, bool canUpdateMetadataOnProvider);
-#endif
-
-#ifdef DOXYGEN_SHOULD_USE_THIS
-// TODO(Montellese)
-#else
-void setCanUpdatePlaycountOnProvider(int handle, bool canUpdatePlaycountOnProvider);
-#endif
-
-#ifdef DOXYGEN_SHOULD_USE_THIS
-// TODO(Montellese)
-#else
-void setCanUpdateLastPlayedOnProvider(int handle, bool canUpdateLastPlayedOnProvider);
-#endif
-
-#ifdef DOXYGEN_SHOULD_USE_THIS
-// TODO(Montellese)
-#else
-void setCanUpdateResumePositionOnProvider(int handle, bool canUpdateResumePositionOnProvider);
+void setCanUpdatePlaybackMetadataOnProvider(int handle, bool canUpdatePlaybackMetadataOnProvider);
 #endif
 
 #ifdef DOXYGEN_SHOULD_USE_THIS

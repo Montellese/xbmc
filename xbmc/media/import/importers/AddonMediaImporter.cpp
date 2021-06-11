@@ -313,43 +313,13 @@ bool CAddonMediaImporter::LoadImportSettings(CMediaImport& import)
   return executor.Execute(urlOptions.GetOptionsString());
 }
 
-bool CAddonMediaImporter::CanUpdateMetadataOnSource(const std::string& path)
+bool CAddonMediaImporter::CanUpdatePlaybackMetadataOnSource(const std::string& path)
 {
   CUrlOptions urlOptions;
   urlOptions.AddOption("path", path);
 
   CAddonMediaImporterExecutor executor(
-      m_addonId, CAddonMediaImporterExecutor::Action::CanUpdateMetadataOnSource, this);
-  return executor.Execute(urlOptions.GetOptionsString());
-}
-
-bool CAddonMediaImporter::CanUpdatePlaycountOnSource(const std::string& path)
-{
-  CUrlOptions urlOptions;
-  urlOptions.AddOption("path", path);
-
-  CAddonMediaImporterExecutor executor(
-      m_addonId, CAddonMediaImporterExecutor::Action::CanUpdatePlaycountOnSource, this);
-  return executor.Execute(urlOptions.GetOptionsString());
-}
-
-bool CAddonMediaImporter::CanUpdateLastPlayedOnSource(const std::string& path)
-{
-  CUrlOptions urlOptions;
-  urlOptions.AddOption("path", path);
-
-  CAddonMediaImporterExecutor executor(
-      m_addonId, CAddonMediaImporterExecutor::Action::CanUpdateLastPlayedOnSource, this);
-  return executor.Execute(urlOptions.GetOptionsString());
-}
-
-bool CAddonMediaImporter::CanUpdateResumePositionOnSource(const std::string& path)
-{
-  CUrlOptions urlOptions;
-  urlOptions.AddOption("path", path);
-
-  CAddonMediaImporterExecutor executor(
-      m_addonId, CAddonMediaImporterExecutor::Action::CanUpdateResumePositionOnSource, this);
+      m_addonId, CAddonMediaImporterExecutor::Action::CanUpdatePlaybackMetadataOnSource, this);
   return executor.Execute(urlOptions.GetOptionsString());
 }
 
@@ -797,36 +767,12 @@ void CAddonMediaImporter::SetImportSettingsLoaded(HandleType handle, bool settin
   SetSuccess(handle, settingsLoaded, CAddonMediaImporterExecutor::Action::LoadImportSettings);
 }
 
-void CAddonMediaImporter::SetCanUpdateMetadataOnProvider(
+void CAddonMediaImporter::SetCanUpdatePlaybackMetadataOnProvider(
     HandleType handle,
-    bool canUpdateMetadataOnSource) throw(InvalidAddonMediaImporterHandleException)
+    bool canUpdatePlaybackMetadataOnSource) throw(InvalidAddonMediaImporterHandleException)
 {
-  SetSuccess(handle, canUpdateMetadataOnSource,
-             CAddonMediaImporterExecutor::Action::CanUpdateMetadataOnSource);
-}
-
-void CAddonMediaImporter::SetCanUpdatePlaycountOnProvider(
-    HandleType handle,
-    bool canUpdatePlaycountOnSource) throw(InvalidAddonMediaImporterHandleException)
-{
-  SetSuccess(handle, canUpdatePlaycountOnSource,
-             CAddonMediaImporterExecutor::Action::CanUpdatePlaycountOnSource);
-}
-
-void CAddonMediaImporter::SetCanUpdateLastPlayedOnProvider(
-    HandleType handle,
-    bool canUpdateLastPlayedOnSource) throw(InvalidAddonMediaImporterHandleException)
-{
-  SetSuccess(handle, canUpdateLastPlayedOnSource,
-             CAddonMediaImporterExecutor::Action::CanUpdateLastPlayedOnSource);
-}
-
-void CAddonMediaImporter::SetCanUpdateResumePositionOnProvider(
-    HandleType handle,
-    bool canUpdateResumePositionOnSource) throw(InvalidAddonMediaImporterHandleException)
-{
-  SetSuccess(handle, canUpdateResumePositionOnSource,
-             CAddonMediaImporterExecutor::Action::CanUpdateResumePositionOnSource);
+  SetSuccess(handle, canUpdatePlaybackMetadataOnSource,
+             CAddonMediaImporterExecutor::Action::CanUpdatePlaybackMetadataOnSource);
 }
 
 bool CAddonMediaImporter::ShouldCancel(

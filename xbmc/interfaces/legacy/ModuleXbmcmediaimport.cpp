@@ -121,25 +121,9 @@ void setImportSettingsLoaded(int handle, bool settingsLoaded)
   CAddonMediaImporter::SetImportSettingsLoaded(handle, settingsLoaded);
 }
 
-void setCanUpdateMetadataOnProvider(int handle, bool canUpdateMetadataOnProvider)
+void setCanUpdatePlaybackMetadataOnProvider(int handle, bool canUpdatePlaybackMetadataOnProvider)
 {
-  CAddonMediaImporter::SetCanUpdateMetadataOnProvider(handle, canUpdateMetadataOnProvider);
-}
-
-void setCanUpdatePlaycountOnProvider(int handle, bool canUpdatePlaycountOnProvider)
-{
-  CAddonMediaImporter::SetCanUpdatePlaycountOnProvider(handle, canUpdatePlaycountOnProvider);
-}
-
-void setCanUpdateLastPlayedOnProvider(int handle, bool canUpdateLastPlayedOnProvider)
-{
-  CAddonMediaImporter::SetCanUpdateLastPlayedOnProvider(handle, canUpdateLastPlayedOnProvider);
-}
-
-void setCanUpdateResumePositionOnProvider(int handle, bool canUpdateResumePositionOnProvider)
-{
-  CAddonMediaImporter::SetCanUpdateResumePositionOnProvider(handle,
-                                                            canUpdateResumePositionOnProvider);
+  CAddonMediaImporter::SetCanUpdatePlaybackMetadataOnProvider(handle, canUpdatePlaybackMetadataOnProvider);
 }
 
 bool shouldCancel(int handle, unsigned int progress, unsigned int total)

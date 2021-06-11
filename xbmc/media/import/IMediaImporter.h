@@ -142,40 +142,13 @@ public:
   virtual bool UnloadImportSettings(CMediaImport& import) { return false; }
 
   /*!
-   * \brief Checks if the implementation can update general metadata of an
-   * imported item on the source with the given path.
+   * \brief Checks if the implementation can update playback related metadata
+   * of an imported item on the source with the given path.
    *
    * \param path Path to a source or import
-   * \return True if the implementation can update general metadata of an imported item on the source with the given path, false otherwise
+   * \return True if the implementation can update playback related metadata of an imported item on the source with the given path, false otherwise
    */
-  virtual bool CanUpdateMetadataOnSource(const std::string& path) { return false; }
-
-  /*!
-   * \brief Checks if the implementation can update the playcount of an
-   * imported item on the source with the given path.
-   *
-   * \param path Path to a source or import
-   * \return True if the implementation can update the playcount of an imported item on the source with the given path, false otherwise
-   */
-  virtual bool CanUpdatePlaycountOnSource(const std::string& path) { return false; }
-
-  /*!
-   * \brief Checks if the implementation can update the last played date of an
-   * imported item on the source with the given path.
-   *
-   * \param path Path to a source or import
-   * \return True if the implementation can update the last played date of an imported item on the source with the given path, false otherwise
-   */
-  virtual bool CanUpdateLastPlayedOnSource(const std::string& path) { return false; }
-
-  /*!
-   * \brief Checks if the implementation can update the resume position of an
-   * imported item on the source with the given path.
-   *
-   * \param path Path to a source or import
-   * \return True if the implementation can update the resume position of an imported item on the source with the given path, false otherwise
-   */
-  virtual bool CanUpdateResumePositionOnSource(const std::string& path) { return false; }
+  virtual bool CanUpdatePlaybackMetadataOnSource(const std::string& path) { return false; }
 
   /*!
    * \brief Imports items from the source.

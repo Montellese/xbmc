@@ -186,19 +186,7 @@ bool CUPnPMediaImporter::IsImportReady(CMediaImport& import)
   return CanImport(import.GetSource().GetIdentifier());
 }
 
-bool CUPnPMediaImporter::CanUpdatePlaycountOnSource(const std::string& path)
-{
-  // might be too restrictive
-  return isXbmcServer(path);
-}
-
-bool CUPnPMediaImporter::CanUpdateLastPlayedOnSource(const std::string& path)
-{
-  // might be too restrictive
-  return isXbmcServer(path);
-}
-
-bool CUPnPMediaImporter::CanUpdateResumePositionOnSource(const std::string& path)
+bool CUPnPMediaImporter::CanUpdatePlaybackMetadataOnSource(const std::string& path)
 {
   // might be too restrictive
   return isXbmcServer(path);
@@ -288,8 +276,7 @@ bool CUPnPMediaImporter::UpdateOnSource(CMediaImportUpdateTask* task)
   if (!importSettings->UpdatePlaybackMetadataOnSource())
     return false;
 
-  if (!CanUpdatePlaycountOnSource(sourceId) && !CanUpdateLastPlayedOnSource(sourceId) &&
-      !CanUpdateResumePositionOnSource(sourceId))
+  if (!CanUpdatePlaybackMetadataOnSource(sourceId))
     return false;
 
   const CFileItem& item = task->GetItem();

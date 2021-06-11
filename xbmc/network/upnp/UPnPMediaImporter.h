@@ -52,10 +52,7 @@ public:
   bool CanImport(const std::string& path) override;
   bool IsSourceReady(CMediaImportSource& source) override;
   bool IsImportReady(CMediaImport& import) override;
-  bool CanUpdateMetadataOnSource(const std::string& path) override { return false; }
-  bool CanUpdatePlaycountOnSource(const std::string& path) override;
-  bool CanUpdateLastPlayedOnSource(const std::string& path) override;
-  bool CanUpdateResumePositionOnSource(const std::string& path) override;
+  bool CanUpdatePlaybackMetadataOnSource(const std::string& path) override;
 
   bool Import(CMediaImportImportItemsRetrievalTask* task) override;
   bool UpdateOnSource(CMediaImportUpdateTask* task) override;

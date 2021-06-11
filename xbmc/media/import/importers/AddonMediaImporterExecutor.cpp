@@ -196,14 +196,8 @@ std::string CAddonMediaImporterExecutor::ActionToString(Action action)
       return "loadimportsettings";
     case Action::UnloadImportSettings:
       return "unloadimportsettings";
-    case Action::CanUpdateMetadataOnSource:
-      return "canupdatemetadataonprovider";
-    case Action::CanUpdatePlaycountOnSource:
-      return "canupdateplaycountonprovider";
-    case Action::CanUpdateLastPlayedOnSource:
-      return "canupdatelastplayedonprovider";
-    case Action::CanUpdateResumePositionOnSource:
-      return "canupdateresumepositiononprovider";
+    case Action::CanUpdatePlaybackMetadataOnSource:
+      return "canupdateplaybackmetadataonprovider";
     case Action::Import:
       return "import";
     case Action::UpdateOnSource:
