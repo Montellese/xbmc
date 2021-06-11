@@ -44,5 +44,9 @@ bool CMediaImportUpdateTask::DoWork()
     }
   }
 
+  // check if the importer supports updating playback related metadata on the source
+  if (!m_importer->CanUpdatePlaybackMetadataOnSource(m_import.GetSource().GetIdentifier()))
+    return true;
+
   return m_importer->UpdateOnSource(this);
 }

@@ -30,13 +30,8 @@ bool CBaseMediaImporter::LoadImportSettings(CMediaImport& import)
   if (!LoadSettings(settings))
     return false;
 
-  auto settingUpdatePlaybackMetadataOnSource =
-      settings->GetSetting(CMediaImportSettings::SettingUpdatePlaybackMetadataOnSource);
-  if (settingUpdatePlaybackMetadataOnSource != nullptr)
-  {
-    const auto& sourceId = import.GetSource().GetIdentifier();
-    settingUpdatePlaybackMetadataOnSource->SetEnabled(CanUpdatePlaybackMetadataOnSource(sourceId));
-  }
+  if (!PrepareImportSettings(import, settings))
+    return false;
 
   return true;
 }
@@ -50,6 +45,18 @@ bool CBaseMediaImporter::UnloadImportSettings(CMediaImport& import)
     return false;
 
   return result;
+}
+
+bool CBaseMediaImporter::PrepareImportSettings(CMediaImport& import, const MediaImportSettingsBasePtr& settings)
+{
+  auto settingUpdatePlaybackMetadataOnSource =
+    settings->GetSetting(CMediaImportSettings::SettingUpdatePlaybackMetadataOnSource);
+  if (settingUpdatePlaybackMetadataOnSource != nullptr)
+  {
+    const auto& sourceId = import.GetSource().GetIdentifier();
+    settingUpdatePlaybackMetadataOnSource->SetEnabled(CanUpdatePlaybackMetadataOnSource(sourceId));
+  }
+  return true;
 }
 
 bool CBaseMediaImporter::LoadSettings(MediaImportSettingsBasePtr settings) const

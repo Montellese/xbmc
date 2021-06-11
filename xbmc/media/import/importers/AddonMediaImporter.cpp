@@ -299,6 +299,9 @@ bool CAddonMediaImporter::LoadImportSettings(CMediaImport& import)
   if (!importer->PrepareImportSettings())
     return true;
 
+  if (!CBaseMediaImporter::PrepareImportSettings(import, import.Settings()))
+    return false;
+
   // TODO(Montellese): is this still necessary?
   m_settingsLoaded = false;
 

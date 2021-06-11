@@ -28,6 +28,8 @@ public:
 protected:
   CBaseMediaImporter() = default;
 
+  virtual bool PrepareImportSettings(CMediaImport& import, const MediaImportSettingsBasePtr& settings);
+
 private:
   bool LoadSettings(MediaImportSettingsBasePtr settings) const;
   bool UnloadSettings(MediaImportSettingsBasePtr settings) const;
