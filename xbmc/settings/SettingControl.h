@@ -271,7 +271,7 @@ protected:
 class CSettingControlTitle : public ISettingControl
 {
 public:
-  CSettingControlTitle() = default;
+  CSettingControlTitle();
   ~CSettingControlTitle() override = default;
 
   // implementation of ISettingControl

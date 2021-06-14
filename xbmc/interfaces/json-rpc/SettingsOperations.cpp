@@ -734,9 +734,10 @@ bool CSettingsOperations::SerializeSettingControl(
   if (control == NULL)
     return false;
 
-  const std::string& type = control->GetType();
+  const auto& type = control->GetType();
+  const auto& format = control->GetFormat();
   obj["type"] = type;
-  obj["format"] = control->GetFormat();
+  obj["format"] = format;
   obj["delayed"] = control->GetDelayed();
 
   if (type == "spinner")
@@ -762,13 +763,36 @@ bool CSettingsOperations::SerializeSettingControl(
     std::shared_ptr<const CSettingControlButton> button = std::static_pointer_cast<const CSettingControlButton>(control);
     if (button->GetHeading() >= 0)
       obj["heading"] = g_localizeStrings.Get(button->GetHeading());
+    obj["hidevalue"] = button->HideValue();
+
+    if (format == "addon")
+    {
+      obj["showaddondetails"] = button->ShowAddonDetails();
+      obj["showinstalledaddons"] = button->ShowInstalledAddons();
+      obj["showinstallableaddons"] = button->ShowInstallableAddons();
+      obj["showmoreaddons"] = button->ShowMoreAddons();
+    }
+
+    if (button->HasActionData())
+      obj["actiondata"] = button->GetActionData();
   }
   else if (type == "list")
   {
     std::shared_ptr<const CSettingControlList> list = std::static_pointer_cast<const CSettingControlList>(control);
+    if (list->GetFormatLabel() >= 0)
+      obj["formatlabel"] = g_localizeStrings.Get(list->GetFormatLabel());
+    else if (!list->GetFormatString().empty() && list->GetFormatString() != "%i")
+      obj["formatlabel"] = list->GetFormatString();
+    if (list->GetMinimumLabel() >= 0)
+      obj["minimumlabel"] = g_localizeStrings.Get(list->GetMinimumLabel());
+
     if (list->GetHeading() >= 0)
       obj["heading"] = g_localizeStrings.Get(list->GetHeading());
     obj["multiselect"] = list->CanMultiSelect();
+    obj["hidevalue"] = list->HideValue();
+    if (list->GetAddButtonLabel() >= 0)
+      obj["addbuttonlabel"] = g_localizeStrings.Get(list->GetAddButtonLabel());
+
   }
   else if (type == "slider")
   {
@@ -792,6 +816,12 @@ bool CSettingsOperations::SerializeSettingControl(
       obj["formatvalue"] = g_localizeStrings.Get(range->GetValueFormatLabel());
     else
       obj["formatvalue"] = range->GetValueFormat();
+  }
+  else if (type == "title")
+  {
+    const auto title = std::static_pointer_cast<const CSettingControlTitle>(control);
+    obj["separatorhidden"] = title->IsSeparatorHidden();
+    obj["separatorbelowlabel"] = title->IsSeparatorBelowLabel();
   }
   else if (type != "toggle" && type != "label")
     return false;

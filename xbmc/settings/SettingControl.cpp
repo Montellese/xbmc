@@ -355,6 +355,11 @@ bool CSettingControlTitle::Deserialize(const TiXmlNode *node, bool update /* = f
   return true;
 }
 
+CSettingControlTitle::CSettingControlTitle()
+{
+  m_format = "string";
+}
+
 CSettingControlLabel::CSettingControlLabel()
 {
   m_format = "string";
