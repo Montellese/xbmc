@@ -16,6 +16,7 @@
 #define SETTING_XML_ELM_CONTROL_VERIFYNEW "verifynew"
 #define SETTING_XML_ELM_CONTROL_HEADING "heading"
 #define SETTING_XML_ELM_CONTROL_HIDEVALUE "hidevalue"
+#define SETTING_XML_ELM_CONTROL_EMPTYLABEL "emptylabel"
 #define SETTING_XML_ELM_CONTROL_MULTISELECT "multiselect"
 #define SETTING_XML_ELM_CONTROL_POPUP "popup"
 #define SETTING_XML_ELM_CONTROL_FORMATVALUE "value"
@@ -190,6 +191,8 @@ public:
   void SetMultiSelect(bool multiselect) { m_multiselect = multiselect; }
   bool HideValue() const { return m_hideValue; }
   void SetHideValue(bool hideValue) { m_hideValue = hideValue; }
+  int GetEmptyLabel() const { return m_emptyLabel; }
+  void SetEmptyLabel(int label) { m_emptyLabel = label; }
   int GetAddButtonLabel() const { return m_addButtonLabel; }
   void SetAddButtonLabel(int label) { m_addButtonLabel = label; }
 
@@ -200,6 +203,7 @@ protected:
   int m_heading = -1;
   bool m_multiselect = false;
   bool m_hideValue = false;
+  int m_emptyLabel = -1;
   int m_addButtonLabel = -1;
   SettingControlListValueFormatter m_formatter = nullptr;
 };

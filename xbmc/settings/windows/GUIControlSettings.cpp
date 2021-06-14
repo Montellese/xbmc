@@ -774,15 +774,21 @@ void CGUIControlListSetting::Update(bool fromControl, bool updateDisplayOnly)
 
     if (label2.empty())
     {
-      std::vector<std::string> labels;
-      for (int index = 0; index < options.Size(); index++)
+      if (!options.IsEmpty())
       {
-        const CFileItemPtr pItem = options.Get(index);
-        if (pItem->IsSelected())
-          labels.push_back(pItem->GetLabel());
+        std::vector<std::string> labels;
+        for (int index = 0; index < options.Size(); index++)
+        {
+          const CFileItemPtr pItem = options.Get(index);
+          if (pItem->IsSelected())
+            labels.push_back(pItem->GetLabel());
+        }
+
+        label2 = StringUtils::Join(labels, ", ");
       }
 
-      label2 = StringUtils::Join(labels, ", ");
+      if (label2.empty() && control->GetEmptyLabel() >= 0)
+        label2 = Localize(control->GetEmptyLabel());
     }
   }
 

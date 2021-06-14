@@ -1883,7 +1883,8 @@
       "type": { "type": "string", "required": true, "enum": [ "list" ] },
       "heading": { "type": "string" },
       "multiselect": { "type": "boolean", "required": true },
-      "hidevalue": { "type": "boolean", "required": true },
+      "hidevalue": { "type": "boolean", "required": true },,
+      "emptylabel": { "type": "string" }
       "addbuttonlabel": { "type": "string" }
     }
   },

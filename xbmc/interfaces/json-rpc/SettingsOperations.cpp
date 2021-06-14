@@ -790,6 +790,8 @@ bool CSettingsOperations::SerializeSettingControl(
       obj["heading"] = g_localizeStrings.Get(list->GetHeading());
     obj["multiselect"] = list->CanMultiSelect();
     obj["hidevalue"] = list->HideValue();
+    if (list->GetEmptyLabel() >= 0)
+      obj["emptylabel"] = g_localizeStrings.Get(list->GetEmptyLabel());
     if (list->GetAddButtonLabel() >= 0)
       obj["addbuttonlabel"] = g_localizeStrings.Get(list->GetAddButtonLabel());
 
